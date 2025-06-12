@@ -20,7 +20,7 @@ API de cadastro de usuários para o sistema de eventos universitários.
 
 1. **Clone o repositório:**
    ```bash
-   git clone https://github.com/SEU_USUARIO/NextEvent.git
+   git clone https://github.com/Iarafarias/Next-Event.git
    cd NextEvent
    ```
 2. **Instale as dependências:**

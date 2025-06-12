@@ -1,0 +1,35 @@
+import { Router } from 'express';
+import { InMemoryUserRepository } from '../../../infrastructure/user/repositories/InMemoryUserRepository';
+import { CreateUserUseCase } from '../../../application/user/use-cases/CreateUserUseCase';
+import { CreateUserController } from '../controllers/CreateUserController';
+import { ListUsersUseCase } from '../../../application/user/use-cases/ListUsersUseCase';
+import { ListUsersController } from '../controllers/ListUsersController';
+import { GetUserByIdUseCase } from '../../../application/user/use-cases/GetUserByIdUseCase';
+import { GetUserByIdController } from '../controllers/GetUserByIdController';
+import { UpdateUserUseCase } from '../../../application/user/use-cases/UpdateUserUseCase';
+import { UpdateUserController } from '../controllers/UpdateUserController';
+import { DeleteUserUseCase } from '../../../application/user/use-cases/DeleteUserUseCase';
+import { DeleteUserController } from '../controllers/DeleteUserController';
+
+const userRoutes = Router();
+
+const userRepository = new InMemoryUserRepository();
+
+const createUserUseCase = new CreateUserUseCase(userRepository);
+const createUserController = new CreateUserController(createUserUseCase);
+const listUsersUseCase = new ListUsersUseCase(userRepository);
+const listUsersController = new ListUsersController(listUsersUseCase);
+const getUserByIdUseCase = new GetUserByIdUseCase(userRepository);
+const getUserByIdController = new GetUserByIdController(getUserByIdUseCase);
+const updateUserUseCase = new UpdateUserUseCase(userRepository);
+const updateUserController = new UpdateUserController(updateUserUseCase);
+const deleteUserUseCase = new DeleteUserUseCase(userRepository);
+const deleteUserController = new DeleteUserController(deleteUserUseCase);
+
+userRoutes.post('/users', (req, res) => createUserController.handle(req, res));
+userRoutes.get('/users', (req, res) => listUsersController.handle(req, res));
+userRoutes.get('/users/:id', (req, res) => getUserByIdController.handle(req, res));
+userRoutes.put('/users/:id', (req, res) => updateUserController.handle(req, res));
+userRoutes.delete('/users/:id', (req, res) => deleteUserController.handle(req, res));
+
+export { userRoutes };

@@ -7,10 +7,14 @@ API de cadastro de usuários para o sistema de eventos universitários.
 - TypeScript
 - Express
 - SOLID & Clean Architecture
+- DDD (Domain-Driven Design)
 
 ## 📦 Funcionalidades
 - Cadastro de usuário com validação de dados
-- Estrutura pronta para expansão (CRUD, autenticação, eventos, etc)
+- Listagem, busca, atualização e remoção de usuários (CRUD)
+- Matrícula e CPF únicos, obrigatórios e imutáveis
+- Validação de matrícula (6 dígitos) e CPF (validação completa)
+- Estrutura pronta para expansão (autenticação, eventos, etc)
 
 ## 🔥 Como rodar o projeto
 
@@ -31,40 +35,57 @@ API de cadastro de usuários para o sistema de eventos universitários.
    - A API estará disponível em `http://localhost:3000/api/users`
 
 ## 🧪 Testando com Insomnia/Postman
-- Faça uma requisição POST para `/api/users` com o seguinte JSON:
+- Faça uma requisição **POST** para `/api/users` com o seguinte JSON:
   ```json
   {
     "name": "João Silva",
     "email": "joao@email.com",
-    "password": "123456"
+    "password": "123456",
+    "matricula": "123456",
+    "cpf": "12345678909"
   }
   ```
 - Resposta esperada:
   ```json
   {
-    "id": "...",
+    "matricula": "123456",
     "name": "João Silva",
     "email": "joao@email.com"
   }
   ```
 
+- Para listar todos os usuários (**GET**):
+  - `GET /api/users`
+- Para buscar por matrícula (**GET**):
+  - `GET /api/users/:id` (id = UUID, mas resposta mostra matrícula)
+- Para atualizar (**PUT**):
+  - `PUT /api/users/:id` (não envie matrícula/cpf, pois são imutáveis)
+- Para remover (**DELETE**):
+  - `DELETE /api/users/:id`
+
 ## 📁 Estrutura do Projeto
 ```
 src/
   domain/
-    entities/
-    repositories/
-  usecases/
-  infra/
+    user/
+      entities/
+      repositories/
+  application/
+    user/
+      dtos/
+      use-cases/
+  infrastructure/
+    user/
+      repositories/
   presentation/
+    user/
+      controllers/
+      routes/
 ```
 
 ## ✨ Próximos Passos
-- Listagem, atualização e remoção de usuários
 - Integração com banco de dados
 - Hash de senha e autenticação JWT
 - Cadastro e gerenciamento de eventos
 
 ---
-
-Feito com 💙 para a disciplina de Projeto de Extensão.

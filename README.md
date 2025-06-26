@@ -84,8 +84,7 @@ src/
 ```
 
 ## ✨ Próximos Passos
-- Integração com banco de dados
-- Hash de senha e autenticação JWT
+- Autenticação JWT
 - Cadastro e gerenciamento de eventos
 
 ---

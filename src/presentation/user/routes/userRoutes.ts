@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { InMemoryUserRepository } from '../../../infrastructure/user/repositories/InMemoryUserRepository';
+import { PostgresUserRepository } from '../../../infrastructure/user/repositories/postgresUserRepository';
 import { CreateUserUseCase } from '../../../application/user/use-cases/CreateUserUseCase';
 import { CreateUserController } from '../controllers/CreateUserController';
 import { ListUsersUseCase } from '../../../application/user/use-cases/ListUsersUseCase';
@@ -13,7 +13,7 @@ import { DeleteUserController } from '../controllers/DeleteUserController';
 
 const userRoutes = Router();
 
-const userRepository = new InMemoryUserRepository();
+const userRepository = new PostgresUserRepository();
 
 const createUserUseCase = new CreateUserUseCase(userRepository);
 const createUserController = new CreateUserController(createUserUseCase);

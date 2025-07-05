@@ -84,7 +84,7 @@ src/
 ```
 
 ## ✨ Próximos Passos
-- Autenticação JWT
+
 - Cadastro e gerenciamento de eventos
 
 ---

@@ -19,7 +19,6 @@ export class PostgresUserRepository implements IUserRepository {
       );
     } catch (err: any) {
       if (err.code === '23505') {
-        // Violação de unicidade
         if (err.detail.includes('cpf')) throw new Error('CPF já cadastrado.');
         if (err.detail.includes('email')) throw new Error('E-mail já cadastrado.');
         if (err.detail.includes('matricula')) throw new Error('Matrícula já cadastrada.');

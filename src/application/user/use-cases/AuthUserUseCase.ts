@@ -1,23 +1,60 @@
+import { compare } from 'bcryptjs';
+import { sign } from 'jsonwebtoken';
 import { IUserRepository } from '../../../domain/user/repositories/IUserRepository';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+
+interface AuthRequest {
+  email: string;
+  password: string;
+}
+
+interface AuthResponse {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    isExistingUser: boolean;
+  };
+  token: string;
+}
 
 export class AuthUserUseCase {
   constructor(private userRepository: IUserRepository) {}
 
-  async execute(email: string, password: string): Promise<string> {
+  async execute({ email, password }: AuthRequest): Promise<AuthResponse> {
     const user = await this.userRepository.findByEmail(email);
-    if (!user) throw new Error('Usuário ou senha inválidos.');
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) throw new Error('Usuário ou senha inválidos.');
+    if (!user) {
+      throw new Error('Email or password incorrect');
+    }
 
-    const secret = process.env.JWT_SECRET || 'changeme';
-    const token = jwt.sign(
-      { id: user.id, email: user.email, matricula: user.matricula },
-      secret,
-      { expiresIn: '1h' }
+    const passwordMatch = await compare(password, user.password);
+
+    if (!passwordMatch) {
+      throw new Error('Email or password incorrect');
+    }
+
+    const token = sign(
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
+      process.env.JWT_SECRET as string,
+      {
+        expiresIn: '1d',
+      }
     );
-    return token;
+
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isExistingUser: true,
+      },
+      token,
+    };
   }
 }

@@ -1,46 +1,46 @@
-import { IUserRepository } from '../../../domain/user/repositories/IUserRepository';
+import { hash } from 'bcryptjs';
 import { User } from '../../../domain/user/entities/User';
+import { IUserRepository } from '../../../domain/user/repositories/IUserRepository';
 import { CreateUserDTO } from '../dtos/CreateUserDTO';
+
+interface CreateUserResponse {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    isExistingUser: boolean;
+  };
+}
 
 export class CreateUserUseCase {
   constructor(private userRepository: IUserRepository) {}
 
-  async execute(data: CreateUserDTO): Promise<User> {
+  async execute(data: CreateUserDTO): Promise<CreateUserResponse> {
     const userExists = await this.userRepository.findByEmail(data.email);
-    if (userExists) {
-      throw new Error('Usuário já cadastrado com este e-mail.');
-    }
-    const matriculaRegex = /^\d{6}$/;
-    if (!data.matricula || !matriculaRegex.test(data.matricula)) {
-      throw new Error('Matrícula deve conter 6 dígitos.');
-    }
-    if (!data.cpf || !validateCPF(data.cpf)) {
-      throw new Error('CPF inválido.');
-    }
-    const user = new User({
-      name: data.name,
-      email: data.email,
-      password: data.password,
-      matricula: data.matricula,
-      cpf: data.cpf,
-      role: data.role,
-    });
-    await this.userRepository.save(user);
-    return user;
-  }
-}
 
-function validateCPF(cpf: string): boolean {
-  cpf = cpf.replace(/\D/g, '');
-  if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
-  let soma = 0;
-  for (let i = 0; i < 9; i++) soma += parseInt(cpf.charAt(i)) * (10 - i);
-  let resto = (soma * 10) % 11;
-  if (resto === 10 || resto === 11) resto = 0;
-  if (resto !== parseInt(cpf.charAt(9))) return false;
-  soma = 0;
-  for (let i = 0; i < 10; i++) soma += parseInt(cpf.charAt(i)) * (11 - i);
-  resto = (soma * 10) % 11;
-  if (resto === 10 || resto === 11) resto = 0;
-  return resto === parseInt(cpf.charAt(10));
+    if (userExists) {
+      throw new Error('User already exists');
+    }
+
+    const passwordHash = await hash(data.password, 8);
+
+    const user = new User({
+      ...data,
+      password: passwordHash,
+      role: 'user',
+    });
+
+    const createdUser = await this.userRepository.create(user);
+
+    return {
+      user: {
+        id: createdUser.id,
+        name: createdUser.name,
+        email: createdUser.email,
+        role: createdUser.role,
+        isExistingUser: false,
+      },
+    };
+  }
 }

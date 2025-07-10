@@ -4,4 +4,5 @@ export interface UserResponseDTO {
   name: string;
   password: string;
   email: string;
+  isExistingUser: boolean;
 }

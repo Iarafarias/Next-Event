@@ -6,7 +6,7 @@ export class CreateUserController {
 
   async handle(req: Request, res: Response): Promise<Response> {
     try {
-      const { name, email, password, matricula, cpf } = req.body;
+      const { name, email, password, matricula, cpf, role } = req.body;
 
       if (!name || typeof name !== 'string' || name.trim().length < 3) {
         return res.status(400).json({ error: 'Nome é obrigatório e deve ter pelo menos 3 caracteres.' });
@@ -24,7 +24,7 @@ export class CreateUserController {
       if (!cpf || typeof cpf !== 'string' || !validateCPF(cpf)) {
         return res.status(400).json({ error: 'CPF inválido.' });
       }
-      const user = await this.createUserUseCase.execute({ name, email, password, matricula, cpf });
+      const user = await this.createUserUseCase.execute({ name, email, password, matricula, cpf, role });
       return res.status(201).json({
         id: user.id,
         matricula: user.matricula,

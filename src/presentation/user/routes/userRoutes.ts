@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { PostgresUserRepository } from '../../../infrastructure/user/repositories/postgresUserRepository';
 import { CreateUserUseCase } from '../../../application/user/use-cases/CreateUserUseCase';
 import { CreateUserController } from '../controllers/CreateUserController';
@@ -14,6 +14,7 @@ import { AuthUserUseCase } from '../../../application/user/use-cases/AuthUserUse
 import { AuthUserController } from '../controllers/AuthUserController';
 import { authMiddleware } from '../../middlewares/authMiddleware';
 import { MeController } from '../controllers/MeController';
+import { authorizeRoles } from '../../middlewares/authorizeRoles';
 
 const userRoutes = Router();
 
@@ -33,14 +34,14 @@ const authUserUseCase = new AuthUserUseCase(userRepository);
 const authUserController = new AuthUserController(authUserUseCase);
 const meController = new MeController(userRepository);
 
-userRoutes.post('/users', (req, res) => createUserController.handle(req, res));
-userRoutes.get('/users', (req, res) => listUsersController.handle(req, res));
-userRoutes.get('/users/:id', (req, res) => getUserByIdController.handle(req, res));
-userRoutes.put('/users/:id', (req, res) => updateUserController.handle(req, res));
-userRoutes.delete('/users/:id', (req, res) => deleteUserController.handle(req, res));
-userRoutes.post('/login', (req, res) => authUserController.handle(req, res));
-userRoutes.get('/users/me', authMiddleware, (req, res) => meController.handle(req, res));
-userRoutes.get('/users/me/:id', authMiddleware, (req, res) => getUserByIdController.handle(req, res));
+userRoutes.post('/users', (req: Request, res: Response) => createUserController.handle(req, res));
+userRoutes.get('/users', (req: Request, res: Response) => listUsersController.handle(req, res));
+userRoutes.get('/users/:id', (req: Request, res: Response) => getUserByIdController.handle(req, res));
+userRoutes.put('/users/:id', authMiddleware, authorizeRoles('admin'), (req: Request, res: Response) => updateUserController.handle(req, res));
+userRoutes.delete('/users/:id', authMiddleware, authorizeRoles('admin'), (req: Request, res: Response) => deleteUserController.handle(req, res));
+userRoutes.post('/login', (req: Request, res: Response) => authUserController.handle(req, res));
+userRoutes.get('/users/me', authMiddleware, authorizeRoles('admin', 'participant'), (req: Request, res: Response) => meController.handle(req, res));
+userRoutes.get('/users/me/:id', authMiddleware, (req: Request, res: Response) => getUserByIdController.handle(req, res));
 
 
 

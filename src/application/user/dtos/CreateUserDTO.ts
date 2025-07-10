@@ -4,4 +4,5 @@ export interface CreateUserDTO {
   password: string;
   matricula: string;
   cpf: string;
+  role: 'admin' | 'participant';
 }

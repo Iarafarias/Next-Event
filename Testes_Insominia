@@ -1,0 +1,220 @@
+type: collection.insomnia.rest/5.0
+name: My first collection
+meta:
+  id: wrk_585ba2d5a3ed4f7db5e23d65bbcad1ad
+  created: 1748541414761
+  modified: 1748541414761
+collection:
+  - name: Testes-CRUD
+    meta:
+      id: fld_00441051415140b09edd6f171d674706
+      created: 1749745158333
+      modified: 1749756199932
+      sortKey: -1749745158334
+    children:
+      - url: http://localhost:3000/api/users
+        name: Create-user
+        meta:
+          id: req_39ecb3c6893a4715b93db4abbaab6d73
+          created: 1749745162926
+          modified: 1751762254294
+          isPrivate: false
+          sortKey: -1749745162926
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"name": "Lucas Santos",
+              "email": "lucas@email.com",
+              "password": "123456",
+            	"cpf": "08741609360",
+            	"matricula": "511401"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.1.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/users/
+        name: Find-user
+        meta:
+          id: req_c87987ab2f95410a80fd00a4c3ada747
+          created: 1749745254392
+          modified: 1751762416673
+          isPrivate: false
+          sortKey: -1749745254392
+        method: GET
+        body:
+          mimeType: application/json
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.1.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/users/a359cc74-01e5-4067-a5e0-bff47532725b
+        name: FindUserById
+        meta:
+          id: req_47381c8cdce44bee98a8bed60da0a637
+          created: 1749745631221
+          modified: 1749745681606
+          isPrivate: false
+          sortKey: -1749745631221
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.1.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/users/a359cc74-01e5-4067-a5e0-bff47532725b
+        name: UpdateUserById
+        meta:
+          id: req_e99d225ad42440179b397c58432ea46a
+          created: 1749745718526
+          modified: 1749745925052
+          isPrivate: false
+          sortKey: -1749745718526
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"email": "novoemail@email.com.br"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.1.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/users/553c1164-1625-49ce-8f74-3d7b542566ed
+        name: DeleteUserById
+        meta:
+          id: req_7197d225ea9540e191539dbf8ef4123a
+          created: 1749745960857
+          modified: 1751766130145
+          isPrivate: false
+          sortKey: -1749745960857
+        method: DELETE
+        parameters:
+          - id: pair_e1cbf34139794301b2ba5c82708c0ad9
+            disabled: false
+        headers:
+          - name: User-Agent
+            value: insomnia/11.1.0
+            id: pair_ca2fe863268e4c7dabca31b6eff89d83
+          - id: pair_59a5ab02dd3f4ec58ec6d4ecfd2a8387
+            name: Authorization
+            value: Bearer
+              eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImlhcmFAZW1haWwuY29tIiwibWF0cmljdWxhIjoiMTIzNDU2IiwiaWF0IjoxNzUxNzYzOTU1LCJleHAiOjE3NTE3Njc1NTV9.qUHdyIZ9_dPKZ96eLYPcge_g3MLmSPBOVvzn6ix4sZI
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/api/login
+        name: New Request
+        meta:
+          id: req_b83c05a830694270ae036fbb9911ae4a
+          created: 1751763813461
+          modified: 1751763948278
+          isPrivate: false
+          sortKey: -1751763813461
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            
+            {
+            	"email": "iara@email.com",
+            	"password": "123456"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.1.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - url: http://localhost:3000/api/users
+    name: Cadastro de usuário
+    meta:
+      id: req_568fea75f296433495d88218f7c05846
+      created: 1748541414979
+      modified: 1748612488049
+      isPrivate: false
+      sortKey: -1748541414979
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"name": "Nadila",
+        	"email": "Nadila@gmail.com",
+        	"password": "123467"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/11.1.0
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_1efdc970f3035853d96bd7319835d0a03f78346b
+    created: 1748541414787
+    modified: 1748541414787
+environments:
+  name: Base Environment
+  meta:
+    id: env_1efdc970f3035853d96bd7319835d0a03f78346b
+    created: 1748541414783
+    modified: 1748541414783
+    isPrivate: false

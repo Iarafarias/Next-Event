@@ -23,6 +23,7 @@ export class CreateUserUseCase {
       password: data.password,
       matricula: data.matricula,
       cpf: data.cpf,
+      role: data.role,
     });
     await this.userRepository.save(user);
     return user;

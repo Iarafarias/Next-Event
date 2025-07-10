@@ -4,15 +4,19 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import { userRoutes } from './presentation/user/routes/userRoutes';
+import { certificateRoutes } from './presentation/certificate/routes/certificateRoutes';
 
 const app = express();
 
-app.use(cors()); 
-
+app.use(cors());
 app.use(express.json());
-app.use('/api', userRoutes);
+
+app.use('/api/users', userRoutes);
+app.use('/api/certificates', certificateRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
+
+export default app;

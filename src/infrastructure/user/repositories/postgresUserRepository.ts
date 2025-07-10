@@ -75,6 +75,7 @@ export class PostgresUserRepository implements IUserRepository {
       password: row.senha,
       matricula: row.matricula,
       cpf: row.cpf,
+      role: row.tipo_usuario === 'usuario_participante' ? 'participant' : 'admin',
     }, row.id_usuario.toString());
   }
 }

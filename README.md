@@ -19,12 +19,11 @@ Sistema para gerenciamento e validação de certificados de alunos, desenvolvido
 
 - Node.js
 - TypeScript
-<<<<<<< feature/CRUD-create
 - PostgreSQL
 - Prisma ORM
 - Express.js
 - JWT para autenticação
-=======
+
 - Express
 - SOLID & Clean Architecture
 - DDD (Domain-Driven Design)
@@ -82,7 +81,6 @@ Sistema para gerenciamento e validação de certificados de alunos, desenvolvido
   - `PUT /api/users/:id` (não envie matrícula/cpf, pois são imutáveis)
 - Para remover (**DELETE**):
   - `DELETE /api/users/:id`
->>>>>>> main
 
 ## 📁 Estrutura do Projeto
 
@@ -199,8 +197,6 @@ npm test
 ```bash
 npm run build
 ```
-
-<<<<<<< feature/CRUD-create
 2. Inicie em produção:
 ```bash
 npm start
@@ -215,10 +211,9 @@ npm start
 5. Abra um Pull Request
 
 ## 📄 Licença
-=======
+
 ## ✨ Próximos Passos
 
 - Cadastro e gerenciamento de eventos
->>>>>>> main
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.

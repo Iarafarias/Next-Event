@@ -1,81 +1,93 @@
-import { Pool } from 'pg';
+import { PrismaClient } from '@prisma/client';
 import { IUserRepository } from '../../../domain/user/repositories/IUserRepository';
 import { User } from '../../../domain/user/entities/User';
 import { UpdateUserDTO } from '../../../application/user/dtos/UpdateUserDTO';
-import bcrypt from 'bcrypt';
-
-const pool = new Pool({
-  connectionString: 'postgres://postgres:postgres@localhost:5433/evento_system_db',
-});
 
 export class PostgresUserRepository implements IUserRepository {
-  async save(user: User): Promise<void> {
+  private prisma: PrismaClient;
+
+  constructor() {
+    this.prisma = new PrismaClient();
+  }
+
+  async create(user: User): Promise<User> {
     try {
-      const hashedPassword = await bcrypt.hash(user.password, 10);
-      await pool.query(
-        `INSERT INTO cadastro_usuarios (nome, cpf, email, senha, tipo_usuario, matricula)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [user.name, user.cpf, user.email, hashedPassword, 'usuario_participante', user.matricula]
-      );
-    } catch (err: any) {
-      if (err.code === '23505') {
-        if (err.detail.includes('cpf')) throw new Error('CPF já cadastrado.');
-        if (err.detail.includes('email')) throw new Error('E-mail já cadastrado.');
-        if (err.detail.includes('matricula')) throw new Error('Matrícula já cadastrada.');
+      const createdUser = await this.prisma.user.create({
+        data: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          password: user.password,
+          matricula: user.matricula,
+          cpf: user.cpf,
+          role: user.role
+        }
+      });
+
+      return this.mapToUser(createdUser);
+    } catch (error: any) {
+      if (error.code === 'P2002') {
+        if (error.meta?.target?.includes('email')) {
+          throw new Error('Email already exists');
+        }
+        if (error.meta?.target?.includes('cpf')) {
+          throw new Error('CPF already exists');
+        }
+        if (error.meta?.target?.includes('matricula')) {
+          throw new Error('Matricula already exists');
+        }
       }
-      throw err;
+      throw error;
     }
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const result = await pool.query(
-      'SELECT * FROM cadastro_usuarios WHERE email = $1',
-      [email]
-    );
-    if (result.rows.length === 0) return null;
-    return this.mapRowToUser(result.rows[0]);
+    const user = await this.prisma.user.findUnique({
+      where: { email }
+    });
+    return user ? this.mapToUser(user) : null;
   }
 
   async findAll(): Promise<User[]> {
-    const result = await pool.query('SELECT * FROM cadastro_usuarios');
-    return result.rows.map(this.mapRowToUser);
+    const users = await this.prisma.user.findMany();
+    return users.map(this.mapToUser);
   }
 
   async findById(id: string): Promise<User | null> {
-    const result = await pool.query(
-      'SELECT * FROM cadastro_usuarios WHERE id_usuario = $1',
-      [Number(id)]
-    );
-    if (result.rows.length === 0) return null;
-    return this.mapRowToUser(result.rows[0]);
+    const user = await this.prisma.user.findUnique({
+      where: { id }
+    });
+    return user ? this.mapToUser(user) : null;
   }
 
   async update(data: UpdateUserDTO): Promise<User | null> {
-    let hashedPassword = undefined;
-    if (data.password) {
-      hashedPassword = await bcrypt.hash(data.password, 10);
-    }
-    const result = await pool.query(
-      `UPDATE cadastro_usuarios SET nome = $1, email = $2, senha = $3
-       WHERE id_usuario = $4 RETURNING *`,
-      [data.name, data.email, hashedPassword, Number(data.id)]
-    );
-    if (result.rows.length === 0) return null;
-    return this.mapRowToUser(result.rows[0]);
+    const user = await this.prisma.user.update({
+      where: { id: data.id },
+      data: {
+        name: data.name,
+        email: data.email,
+        ...(data.password && { password: data.password })
+      }
+    });
+    return this.mapToUser(user);
   }
 
   async delete(id: string): Promise<void> {
-    await pool.query('DELETE FROM cadastro_usuarios WHERE id_usuario = $1', [Number(id)]);
+    await this.prisma.user.delete({
+      where: { id }
+    });
   }
 
-  private mapRowToUser(row: any): User {
-    return new User({
-      name: row.nome,
-      email: row.email,
-      password: row.senha,
-      matricula: row.matricula,
-      cpf: row.cpf,
-      role: row.tipo_usuario === 'usuario_participante' ? 'participant' : 'admin',
-    }, row.id_usuario.toString());
+  private mapToUser(data: any): User {
+    const user = new User({
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      matricula: data.matricula,
+      cpf: data.cpf,
+      role: data.role
+    });
+    user.id = data.id;
+    return user;
   }
 }

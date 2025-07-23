@@ -1,5 +1,3 @@
-type UserRole = 'admin' | 'participant';
-
 import 'express';
 
 declare module 'express' {

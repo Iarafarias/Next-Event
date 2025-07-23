@@ -2,29 +2,37 @@ import { Request, Response } from 'express';
 import { CreateCertificateUseCase } from '../../../application/certificate/use-cases/CreateCertificateUseCase';
 import { UpdateCertificateStatusUseCase } from '../../../application/certificate/use-cases/UpdateCertificateStatusUseCase';
 import { ListUserCertificatesUseCase } from '../../../application/certificate/use-cases/ListUserCertificatesUseCase';
-import { GenerateUserReportUseCase } from '../../../application/certificate/use-cases/GenerateUserReportUseCase';
 import { PostgresCertificateRepository } from '../../../infrastructure/certificate/repositories/postgresCertificateRepository';
-
-interface AuthenticatedRequest extends Request {
-  user: {
-    id: string;
-    email: string;
-    role: 'admin' | 'participant';
-  };
-}
+import { UploadCertificateUseCase } from '../../../application/certificate/use-cases/UploadCertificateUseCase';
+import { GenerateReportUseCase } from '../../../application/certificate/use-cases/GenerateReportUseCase';
+import { SetReferenceMonthUseCase } from '../../../application/certificate/use-cases/SetReferenceMonthUseCase';
+import { AuthenticatedRequest } from '../../types/AuthenticatedRequest';
+import { IStorageService } from '../../../domain/certificate/services/IStorageService';
+import { IPDFProcessor } from '../../../domain/certificate/services/IPDFProcessor';
+import { SendCertificateValidationNotificationUseCase } from '../../../application/notification/use-cases/SendCertificateValidationNotificationUseCase';
+import { CreateNotificationUseCase } from '../../../application/notification/use-cases/CreateNotificationUseCase';
+import { PostgresNotificationRepository } from '../../../infrastructure/notification/repositories/PostgresNotificationRepository';
 
 export class CertificateController {
-  private createCertificateUseCase: CreateCertificateUseCase;
-  private updateCertificateStatusUseCase: UpdateCertificateStatusUseCase;
-  private listUserCertificatesUseCase: ListUserCertificatesUseCase;
-  private generateUserReportUseCase: GenerateUserReportUseCase;
+  private readonly createCertificateUseCase: CreateCertificateUseCase;
+  private readonly updateCertificateStatusUseCase: UpdateCertificateStatusUseCase;
+  private readonly listUserCertificatesUseCase: ListUserCertificatesUseCase;
 
-  constructor() {
+  constructor(
+    private readonly uploadCertificateUseCase: UploadCertificateUseCase,
+    private readonly generateReportUseCase: GenerateReportUseCase,
+    private readonly setReferenceMonthUseCase: SetReferenceMonthUseCase,
+    private readonly storageService: IStorageService,
+    private readonly pdfProcessor: IPDFProcessor
+  ) {
     const repository = new PostgresCertificateRepository();
-    this.createCertificateUseCase = new CreateCertificateUseCase(repository);
-    this.updateCertificateStatusUseCase = new UpdateCertificateStatusUseCase(repository);
+    const notificationRepository = new PostgresNotificationRepository();
+    const createNotificationUseCase = new CreateNotificationUseCase(notificationRepository);
+    const sendNotificationUseCase = new SendCertificateValidationNotificationUseCase(createNotificationUseCase);
+    
+    this.createCertificateUseCase = new CreateCertificateUseCase(repository, storageService, pdfProcessor);
+    this.updateCertificateStatusUseCase = new UpdateCertificateStatusUseCase(repository, sendNotificationUseCase);
     this.listUserCertificatesUseCase = new ListUserCertificatesUseCase(repository);
-    this.generateUserReportUseCase = new GenerateUserReportUseCase(repository);
   }
 
   async create(request: Request, response: Response): Promise<Response> {
@@ -73,13 +81,65 @@ export class CertificateController {
     }
   }
 
-  async generateReport(request: Request, response: Response): Promise<Response> {
+  async setReferenceMonth(req: AuthenticatedRequest, res: Response): Promise<Response> {
     try {
-      const { userId } = request.params;
-      const report = await this.generateUserReportUseCase.execute(userId);
-      return response.json(report);
-    } catch (error: any) {
-      return response.status(400).json({ error: error.message });
+      const { month, year } = req.body;
+
+      if (!month || !year) {
+        return res.status(400).json({ error: 'Month and year are required' });
+      }
+
+      this.setReferenceMonthUseCase.execute({ month: Number(month), year: Number(year) });
+
+      return res.status(200).json({ message: 'Reference month set successfully' });
+    } catch (error) {
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message });
+      }
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  async upload(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file provided' });
+      }
+
+      const certificate = await this.uploadCertificateUseCase.execute({
+        userId: req.user.id,
+        file: req.file
+      });
+
+      return res.status(201).json(certificate);
+    } catch (error) {
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message });
+      }
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  async generateReport(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    try {
+      const { month, year } = req.query;
+      const userId = req.params.userId || req.user.id;
+
+      if (!month || !year) {
+        return res.status(400).json({ error: 'Month and year are required' });
+      }
+
+      const report = await this.generateReportUseCase.execute({
+        month: parseInt(month as string),
+        year: parseInt(year as string)
+      });
+
+      return res.status(200).json(report);
+    } catch (error) {
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message });
+      }
+      return res.status(500).json({ error: 'Internal server error' });
     }
   }
 } 

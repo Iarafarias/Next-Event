@@ -18,6 +18,7 @@ model User {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   certificates Certificate[]
+  notifications Notification[]
 
   @@map("users")
 }
@@ -62,4 +63,20 @@ model Certificate {
   request         CertificateRequest @relation(fields: [requestId], references: [id])
 
   @@map("certificates")
+}
+
+model Notification {
+  id                String   @id @default(uuid())
+  userId            String
+  type              String
+  title             String
+  message           String
+  status            String   @default("unread")
+  relatedEntityId   String?
+  relatedEntityType String?
+  createdAt         DateTime @default(now())
+  readAt            DateTime?
+  user              User     @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
 } 

@@ -5,14 +5,14 @@ import app from '../../../main';
 describe('Rota protegida com JWT e perfis', () => {
   it('deve negar acesso sem token', async () => {
     const res = await request(app)
-      .get('/users/me');
+      .get('/api/users/me');
     expect(res.status).toBe(401);
     expect(res.body.message).toBe('Token não fornecido.');
   });
 
   it('deve negar acesso com token inválido', async () => {
     const res = await request(app)
-      .get('/users/me')
+      .get('/api/users/me')
       .set('Authorization', 'Bearer tokeninvalido');
     expect(res.status).toBe(401);
     expect(res.body.message).toBe('Token inválido.');
@@ -23,7 +23,7 @@ describe('Rota protegida com JWT e perfis', () => {
     const secret = process.env.JWT_SECRET || 'testsecret';
     const token = jwt.sign(payload, secret);
     const res = await request(app)
-      .get('/users/me')
+      .get('/api/users/me')
       .set('Authorization', `Bearer ${token}`);
     expect([200, 201]).toContain(res.status);
   });
@@ -33,7 +33,7 @@ describe('Rota protegida com JWT e perfis', () => {
     const secret = process.env.JWT_SECRET || 'testsecret';
     const token = jwt.sign(payload, secret);
     const res = await request(app)
-      .get('/users/me')
+      .get('/api/users/me')
       .set('Authorization', `Bearer ${token}`);
     expect([200, 201]).toContain(res.status);
   });
@@ -43,7 +43,7 @@ describe('Rota protegida com JWT e perfis', () => {
     const secret = process.env.JWT_SECRET || 'testsecret';
     const token = jwt.sign(payload, secret);
     const res = await request(app)
-      .put('/users/123')
+      .put('/api/users/123')
       .set('Authorization', `Bearer ${token}`)
       .send({ name: 'Novo Nome' });
     expect(res.status).toBe(403);
@@ -55,7 +55,7 @@ describe('Rota protegida com JWT e perfis', () => {
     const secret = process.env.JWT_SECRET || 'testsecret';
     const token = jwt.sign(payload, secret);
     const res = await request(app)
-      .put('/users/123')
+      .put('/api/users/123')
       .set('Authorization', `Bearer ${token}`)
       .send({ name: 'Novo Nome' });
     expect([200, 201, 404]).toContain(res.status);

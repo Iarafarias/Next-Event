@@ -15,13 +15,15 @@ export function authorizeRoles(roles: UserRole[]) {
     const user = (request as AuthenticatedRequest).user;
 
     if (!user) {
-      throw new Error('User not authenticated');
+      response.status(401).json({ message: 'User not authenticated' });
+      return;
     }
 
     if (!roles.includes(user.role)) {
-      throw new Error('User not authorized');
+      response.status(403).json({ message: 'Acesso negado.' });
+      return;
     }
 
-    return next();
+    next();
   };
 }

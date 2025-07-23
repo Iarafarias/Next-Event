@@ -14,21 +14,43 @@ export class PostgresCertificateRepository implements ICertificateRepository {
   }
 
   private mapToCertificate(data: PrismaCertificate): Certificate {
-    const { user, ...certificate } = data;
-    return certificate as Certificate;
+    const certificate = new Certificate({
+      userId: data.userId,
+      requestId: data.requestId,
+      title: data.title,
+      description: data.description,
+      institution: data.institution,
+      workload: data.workload,
+      startDate: new Date(data.startDate),
+      endDate: new Date(data.endDate),
+      certificateUrl: data.certificateUrl,
+      adminComments: data.adminComments || undefined
+    });
+    
+    // Definir propriedades que não estão no constructor
+    certificate.id = data.id;
+    certificate.status = data.status as 'pending' | 'approved' | 'rejected';
+    certificate.createdAt = data.createdAt;
+    certificate.updatedAt = data.updatedAt;
+    
+    return certificate;
   }
 
   async create(certificate: Certificate): Promise<Certificate> {
-    const { id, startDate, endDate, createdAt, updatedAt, ...data } = certificate;
-    
     const result = await this.prisma.certificate.create({
       data: {
-        id,
-        ...data,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        id: certificate.id,
+        userId: certificate.userId,
+        requestId: certificate.requestId,
+        title: certificate.title,
+        description: certificate.description,
+        institution: certificate.institution,
+        workload: certificate.workload,
+        startDate: certificate.startDate,
+        endDate: certificate.endDate,
+        certificateUrl: certificate.certificateUrl,
+        status: certificate.status,
+        adminComments: certificate.adminComments
       },
       include: {
         user: {
@@ -70,19 +92,23 @@ export class PostgresCertificateRepository implements ICertificateRepository {
       },
     });
 
-    return results.map(this.mapToCertificate);
+    return results.map((result) => this.mapToCertificate(result));
   }
 
   async update(certificate: Certificate): Promise<Certificate> {
-    const { id, startDate, endDate, updatedAt, ...data } = certificate;
-    
     const result = await this.prisma.certificate.update({
-      where: { id },
+      where: { id: certificate.id },
       data: {
-        ...data,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        updatedAt: new Date(),
+        title: certificate.title,
+        description: certificate.description,
+        institution: certificate.institution,
+        workload: certificate.workload,
+        startDate: certificate.startDate,
+        endDate: certificate.endDate,
+        certificateUrl: certificate.certificateUrl,
+        status: certificate.status,
+        adminComments: certificate.adminComments,
+        updatedAt: certificate.updatedAt
       },
       include: {
         user: {
@@ -114,7 +140,7 @@ export class PostgresCertificateRepository implements ICertificateRepository {
       },
     });
 
-    return results.map(this.mapToCertificate);
+    return results.map((result) => this.mapToCertificate(result));
   }
 
   async findByStatus(status: 'pending' | 'approved' | 'rejected'): Promise<Certificate[]> {
@@ -130,7 +156,7 @@ export class PostgresCertificateRepository implements ICertificateRepository {
       },
     });
 
-    return results.map(this.mapToCertificate);
+    return results.map((result) => this.mapToCertificate(result));
   }
 
   async findByUserIdAndStatus(userId: string, status: 'pending' | 'approved' | 'rejected'): Promise<Certificate[]> {
@@ -149,6 +175,6 @@ export class PostgresCertificateRepository implements ICertificateRepository {
       },
     });
 
-    return results.map(this.mapToCertificate);
+    return results.map((result) => this.mapToCertificate(result));
   }
 } 

@@ -22,26 +22,32 @@ export class UploadCertificateUseCase {
       // Upload file to storage
       const filePath = await this.storageService.uploadFile(data.file);
 
-      // Process PDF to extract information
-      const pdfInfo = await this.pdfProcessor.extractInformation(filePath);
-
-      // Validate month and year
-      if (pdfInfo.month !== reference.month || pdfInfo.year !== reference.year) {
-        await this.storageService.deleteFile(filePath);
-        throw new Error(`Certificate must be from ${reference.month}/${reference.year}`);
+      // Process PDF to extract information if not provided
+      let pdfInfo = null;
+      let workload = data.workload;
+      
+      if (!workload) {
+        pdfInfo = await this.pdfProcessor.extractInformation(filePath);
+        workload = pdfInfo.workload;
+        
+        // Validate month and year only if we extracted from PDF
+        if (pdfInfo.month !== reference.month || pdfInfo.year !== reference.year) {
+          await this.storageService.deleteFile(filePath);
+          throw new Error(`Certificate must be from ${reference.month}/${reference.year}`);
+        }
       }
 
-      // Create certificate
-      const startDate = new Date(pdfInfo.year, pdfInfo.month - 1, 1);
-      const endDate = new Date(pdfInfo.year, pdfInfo.month, 0);
+      // Create certificate with provided data or defaults
+      const startDate = data.startDate ? new Date(data.startDate) : new Date(reference.year, reference.month - 1, 1);
+      const endDate = data.endDate ? new Date(data.endDate) : new Date(reference.year, reference.month, 0);
       
       const certificate = new Certificate({
         userId: data.userId,
         requestId: 'default-request-id', // TODO: Implementar logic para requestId
-        title: data.file.originalname,
-        description: `Certificado enviado em ${new Date().toLocaleDateString('pt-BR')}`,
-        institution: 'Não informado',
-        workload: pdfInfo.workload,
+        title: data.title || data.file.originalname,
+        description: data.description || `Certificado enviado em ${new Date().toLocaleDateString('pt-BR')}`,
+        institution: data.institution || 'Não informado',
+        workload: workload || 0,
         startDate,
         endDate,
         certificateUrl: filePath

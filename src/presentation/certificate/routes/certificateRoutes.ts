@@ -49,29 +49,55 @@ const certificateController = new CertificateController(
 
 // Routes
 certificateRoutes.post(
-  '/certificates/reference-month',
+  '/reference-month',
   authMiddleware,
   authorizeRoles(['admin']),
   (req, res) => certificateController.setReferenceMonth(req as AuthenticatedRequest, res)
 );
 
 certificateRoutes.post(
-  '/certificates/upload',
+  '/upload',
   authMiddleware,
   authorizeRoles(['participant']),
-  upload.single('certificate'),
+  upload.single('file'),
   (req, res) => certificateController.upload(req as AuthenticatedRequest, res)
 );
 
 certificateRoutes.get(
-  '/certificates/report',
+  '/user/:userId',
+  authMiddleware,
+  (req, res) => certificateController.listUserCertificates(req, res)
+);
+
+certificateRoutes.get(
+  '/',
+  authMiddleware,
+  authorizeRoles(['admin']),
+  (req, res) => certificateController.listUserCertificates(req, res)
+);
+
+certificateRoutes.patch(
+  '/:id/status',
+  authMiddleware,
+  authorizeRoles(['admin']),
+  (req, res) => certificateController.updateStatus(req, res)
+);
+
+certificateRoutes.delete(
+  '/:id',
+  authMiddleware,
+  (req, res) => certificateController.delete(req as AuthenticatedRequest, res)
+);
+
+certificateRoutes.get(
+  '/report',
   authMiddleware,
   authorizeRoles(['participant']),
   (req, res) => certificateController.generateReport(req as AuthenticatedRequest, res)
 );
 
 certificateRoutes.get(
-  '/certificates/report/:userId',
+  '/report/:userId',
   authMiddleware,
   authorizeRoles(['admin']),
   (req, res) => certificateController.generateReport(req as AuthenticatedRequest, res)

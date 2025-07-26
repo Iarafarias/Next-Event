@@ -1,0 +1,40 @@
+body {
+    background: linear-gradient(to bottom, #135FC2, #0AD1C8);
+}
+
+.main-title {
+    width: 50%;
+}
+
+.sub-text {
+    width: 45%; 
+    font-size: 1.1rem;
+}
+
+.background-image img {
+    max-width: 40rem;
+}
+
+@media (max-width: 768px) {
+    .main-title {
+        width: 100%;
+    }
+
+    .sub-text {
+        width: 100%; 
+        font-size: 1.1rem;
+    }
+    
+}
+
+@media (max-width: 1000px) {
+    .main-title {
+        width: 100%;
+    }
+
+    .sub-text {
+        width: 100%; 
+        font-size: 1.1rem;
+    }
+    
+}

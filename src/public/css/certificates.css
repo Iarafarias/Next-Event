@@ -1,0 +1,64 @@
+.card {
+    max-width: 100%;
+}
+
+.card .calendar-icon {
+    width: 2rem;
+    max-width: 100%;
+}
+
+.upload-certificado {
+    width: fit-content;
+}
+
+.upload-certificado #upload-icon {
+    font-size: 1.4rem;
+}
+
+#upload-certificado-label {
+    border-radius: 5rem;
+}
+
+.label-upload-pdf {
+    cursor: pointer;
+}
+
+.card .card-sub-text,
+.certificate-notification {
+    font-size: 1.2rem;
+}
+
+.form-label {
+    font-size: 1.1rem;
+}
+
+.dropdown-toggle::after {
+    display: none !important;
+}
+
+.dropdown-item .certificate-notification {
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    .card-container {
+        flex-direction: column;
+    }
+
+    .card-title {
+        text-align: center;
+    }
+
+    .card .card-sub-text {
+        font-size: .91rem;
+    }
+
+    .certificate-notification {
+        font-size: 1.1rem;
+    }
+
+    .calendar-hours-container {
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+}

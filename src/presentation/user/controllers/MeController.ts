@@ -10,7 +10,7 @@ export class MeController {
 
   async handle(req: Request, res: Response) {
     // @ts-ignore
-    const userId = req.user?.id_usuario || req.user?.id || req.user?.sub;
+    const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ message: 'Usuário não autenticado.' });
     }

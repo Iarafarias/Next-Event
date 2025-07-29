@@ -35,12 +35,12 @@ const authUserController = new AuthUserController(authUserUseCase);
 const meController = new MeController(userRepository);
 
 userRoutes.post('/', (req: Request, res: Response) => createUserController.handle(req, res));
-userRoutes.get('/', (req: Request, res: Response) => listUsersController.handle(req, res));
-userRoutes.get('/:id', (req: Request, res: Response) => getUserByIdController.handle(req, res));
-userRoutes.put('/:id', authMiddleware, authorizeRoles(['admin']), (req: Request, res: Response) => updateUserController.handle(req, res));
-userRoutes.delete('/:id', authMiddleware, authorizeRoles(['admin']), (req: Request, res: Response) => deleteUserController.handle(req, res));
 userRoutes.post('/login', (req: Request, res: Response) => authUserController.handle(req, res));
 userRoutes.get('/me', authMiddleware, authorizeRoles(['admin', 'participant']), (req: Request, res: Response) => meController.handle(req, res));
+userRoutes.get('/', authMiddleware, authorizeRoles(['admin']), (req: Request, res: Response) => listUsersController.handle(req, res));
+userRoutes.get('/:id', authMiddleware, authorizeRoles(['admin']), (req: Request, res: Response) => getUserByIdController.handle(req, res));
+userRoutes.put('/:id', authMiddleware, authorizeRoles(['admin']), (req: Request, res: Response) => updateUserController.handle(req, res));
+userRoutes.delete('/:id', authMiddleware, authorizeRoles(['admin']), (req: Request, res: Response) => deleteUserController.handle(req, res));
 
 
 export { userRoutes };

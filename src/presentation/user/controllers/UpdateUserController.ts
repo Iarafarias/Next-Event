@@ -10,7 +10,7 @@ export class UpdateUserController {
     try {
       const user = await this.updateUserUseCase.execute({ id, name, email, password, matricula, cpf });
       if (!user) return res.status(404).json({ error: 'Usuário não encontrado.' });
-      return res.json({ id: user.id, matricula: user.matricula, name: user.name, email: user.email });
+      return res.json({ id: user.id, matricula: user.matricula, name: user.name, email: user.email, role: user.role });
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
     }

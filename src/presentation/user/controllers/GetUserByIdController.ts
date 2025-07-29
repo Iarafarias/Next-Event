@@ -8,6 +8,6 @@ export class GetUserByIdController {
     const { id } = req.params;
     const user = await this.getUserByIdUseCase.execute(id);
     if (!user) return res.status(404).json({ error: 'Usuário não encontrado.' });
-    return res.json({ id: user.id, matricula: user.matricula, name: user.name, email: user.email });
+    return res.json({ id: user.id, matricula: user.matricula, name: user.name, email: user.email, role: user.role });
   }
 }

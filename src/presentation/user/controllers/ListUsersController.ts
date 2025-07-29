@@ -6,6 +6,6 @@ export class ListUsersController {
 
   async handle(req: Request, res: Response): Promise<Response> {
     const users = await this.listUsersUseCase.execute();
-    return res.json(users.map(u => ({ id: u.id, matricula: u.matricula, name: u.name, email: u.email })));
+    return res.json(users.map(u => ({ id: u.id, matricula: u.matricula, name: u.name, email: u.email, role: u.role })));
   }
 }

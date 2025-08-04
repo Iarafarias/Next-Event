@@ -16,7 +16,7 @@ export class PostgresCertificateRepository implements ICertificateRepository {
   private mapToCertificate(data: PrismaCertificate): Certificate {
     const certificate = new Certificate({
       userId: data.userId,
-      requestId: data.requestId,
+      requestId: data.requestId || undefined,
       title: data.title,
       description: data.description,
       institution: data.institution,
@@ -26,8 +26,6 @@ export class PostgresCertificateRepository implements ICertificateRepository {
       certificateUrl: data.certificateUrl,
       adminComments: data.adminComments || undefined
     });
-    
-    // Definir propriedades que não estão no constructor
     certificate.id = data.id;
     certificate.status = data.status as 'pending' | 'approved' | 'rejected';
     certificate.createdAt = data.createdAt;
@@ -37,21 +35,28 @@ export class PostgresCertificateRepository implements ICertificateRepository {
   }
 
   async create(certificate: Certificate): Promise<Certificate> {
-    const result = await this.prisma.certificate.create({
-      data: {
-        id: certificate.id,
-        userId: certificate.userId,
-        requestId: certificate.requestId,
-        title: certificate.title,
-        description: certificate.description,
-        institution: certificate.institution,
-        workload: certificate.workload,
-        startDate: certificate.startDate,
-        endDate: certificate.endDate,
-        certificateUrl: certificate.certificateUrl,
-        status: certificate.status,
-        adminComments: certificate.adminComments
-      },
+    const createData: any = {
+      id: certificate.id,
+      userId: certificate.userId,
+      title: certificate.title,
+      description: certificate.description,
+      institution: certificate.institution,
+      workload: certificate.workload,
+      startDate: certificate.startDate,
+      endDate: certificate.endDate,
+      certificateUrl: certificate.certificateUrl,
+      status: certificate.status,
+      adminComments: certificate.adminComments
+    };
+    if (certificate.requestId) {
+      createData.requestId = certificate.requestId;
+    }
+
+    await this.prisma.certificate.create({
+      data: createData
+    });
+    const result = await this.prisma.certificate.findUnique({
+      where: { id: certificate.id },
       include: {
         user: {
           select: {
@@ -60,6 +65,10 @@ export class PostgresCertificateRepository implements ICertificateRepository {
         },
       },
     });
+
+    if (!result) {
+      throw new Error('Failed to create certificate');
+    }
 
     return this.mapToCertificate(result);
   }

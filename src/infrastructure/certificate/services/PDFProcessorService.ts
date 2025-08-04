@@ -11,19 +11,26 @@ export class PDFProcessorService implements IPDFProcessor {
       // Extract information from PDF text
       // This is a simplified example - you'll need to implement proper text parsing
       const text = data.text;
-      
+
       // Example parsing logic - adjust according to your PDF format
-      const workloadMatch = text.match(/Carga horária:\s*(\d+)/i);
-      const dateMatch = text.match(/Data:\s*(\d{2})\/(\d{2})\/(\d{4})/i);
+      const workloadMatch = text.match(/\b(?:com\s+)?carga\s+horária\s+de\s*(\d+)\s*horas?\b/i);
+      const dateMatch = text.match(/no período de\s+\d+\s+de\s+(março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\s+a\s+\d+\s+de\s+(março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\s+de\s+(\d{4})/i);
 
       if (!workloadMatch || !dateMatch) {
         throw new Error('Could not extract required information from PDF');
       }
 
+      const monthNames = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+
+      const startMonth = monthNames.indexOf(dateMatch[1].toLowerCase()) + 1;
+      const endMonth = monthNames.indexOf(dateMatch[2].toLowerCase()) + 1;
+      const year = parseInt(dateMatch[3]);
+
       return {
         workload: parseInt(workloadMatch[1]),
-        month: parseInt(dateMatch[2]),
-        year: parseInt(dateMatch[3])
+        month: startMonth,
+        endMonth: endMonth,
+        year: year
       };
     } catch (error) {
       if (error instanceof Error) {

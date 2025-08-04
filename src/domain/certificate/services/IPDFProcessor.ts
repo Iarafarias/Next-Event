@@ -1,6 +1,7 @@
 export interface PDFInformation {
   workload: number;
   month: number;
+  endMonth: number;
   year: number;
 }
 

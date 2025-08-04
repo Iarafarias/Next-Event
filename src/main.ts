@@ -10,7 +10,15 @@ import { notificationRoutes } from './presentation/notification/routes/notificat
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+
+// Aplica express.json() apenas para métodos que realmente usam body
+app.use((req, res, next) => {
+  if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+    express.json()(req, res, next);
+  } else {
+    next();
+  }
+});
 
 app.use('/api/users', userRoutes);
 app.use('/api/certificates', certificateRoutes);

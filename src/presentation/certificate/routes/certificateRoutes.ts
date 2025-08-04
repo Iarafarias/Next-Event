@@ -47,7 +47,6 @@ const certificateController = new CertificateController(
   pdfProcessor
 );
 
-// Routes
 certificateRoutes.post(
   '/reference-month',
   authMiddleware,
@@ -59,7 +58,7 @@ certificateRoutes.post(
   '/upload',
   authMiddleware,
   authorizeRoles(['participant']),
-  upload.single('file'),
+  upload.single('certificate'),
   (req, res) => certificateController.upload(req as AuthenticatedRequest, res)
 );
 

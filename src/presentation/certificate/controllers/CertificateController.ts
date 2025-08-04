@@ -103,15 +103,18 @@ export class CertificateController {
   async setReferenceMonth(req: AuthenticatedRequest, res: Response): Promise<Response> {
     try {
       const { month, year } = req.body;
+      console.log('Setting reference month:', { month, year });
 
       if (!month || !year) {
         return res.status(400).json({ error: 'Month and year are required' });
       }
 
       this.setReferenceMonthUseCase.execute({ month: Number(month), year: Number(year) });
+      console.log('Reference month set successfully:', { month: Number(month), year: Number(year) });
 
       return res.status(200).json({ message: 'Reference month set successfully' });
     } catch (error) {
+      console.error('Error setting reference month:', error);
       if (error instanceof Error) {
         return res.status(400).json({ error: error.message });
       }
@@ -125,7 +128,6 @@ export class CertificateController {
         return res.status(400).json({ error: 'No file provided' });
       }
 
-      // Extract additional fields from form data
       const { title, description, institution, workload, startDate, endDate } = req.body;
 
       const certificate = await this.uploadCertificateUseCase.execute({

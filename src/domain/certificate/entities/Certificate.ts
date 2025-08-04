@@ -2,7 +2,7 @@ export type CertificateStatus = 'pending' | 'approved' | 'rejected';
 
 interface CertificateProps {
   userId: string;
-  requestId: string;
+  requestId?: string;
   title: string;
   description: string;
   institution: string;
@@ -16,7 +16,7 @@ interface CertificateProps {
 export class Certificate {
   id!: string;
   userId!: string;
-  requestId!: string;
+  requestId?: string;
   title!: string;
   description!: string;
   institution!: string;
@@ -54,7 +54,6 @@ export class Certificate {
     this.updatedAt = new Date();
   }
 
-  // Propriedades compatíveis com o código antigo
   get fileName(): string {
     return this.title;
   }

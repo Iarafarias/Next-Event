@@ -6,7 +6,6 @@ export class StorageService implements IStorageService {
   private readonly uploadDir = 'uploads/certificates';
 
   constructor() {
-    // Ensure upload directory exists
     fs.mkdir(this.uploadDir, { recursive: true }).catch(console.error);
   }
 
@@ -16,7 +15,7 @@ export class StorageService implements IStorageService {
 
     try {
       await fs.rename(file.path, filePath);
-      return filePath;
+      return `/uploads/certificates/${fileName}`;
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to store file: ${error.message}`);

@@ -172,4 +172,51 @@ export class CertificateController {
       return res.status(500).json({ error: 'Internal server error' });
     }
   }
+
+  async downloadCertificate(req: AuthenticatedRequest, res: Response): Promise<Response | void> {
+    try {
+      const { id } = req.params;
+      const { id: userId, role } = req.user;
+      
+      const repository = new PostgresCertificateRepository();
+      const certificate = await repository.findById(id);
+
+      if (!certificate) {
+        return res.status(404).json({ error: 'Certificate not found' });
+      }
+      if (role !== 'admin' && certificate.userId !== userId) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      const fs = require('fs').promises;
+      const path = require('path');
+      
+      let filePath: string;
+      if (certificate.certificateUrl.startsWith('/uploads/')) {
+        filePath = path.resolve(certificate.certificateUrl.substring(1)); // Remove a barra inicial
+      } else {
+        filePath = path.resolve(certificate.certificateUrl);
+      }
+      
+      try {
+        await fs.access(filePath);
+        
+        return res.download(filePath, `certificate-${certificate.id}.pdf`, (err) => {
+          if (err) {
+            console.error('Download error:', err);
+            if (!res.headersSent) {
+              return res.status(500).json({ error: 'Failed to download file' });
+            }
+          }
+        });
+      } catch (fileError) {
+        return res.status(404).json({ error: 'Certificate file not found' });
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message });
+      }
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
 }

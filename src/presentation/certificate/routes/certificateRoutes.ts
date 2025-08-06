@@ -25,7 +25,6 @@ const upload = multer({
 
 const certificateRoutes = Router();
 
-// Initialize dependencies
 const certificateRepository = new PostgresCertificateRepository();
 const pdfProcessor = new PDFProcessorService();
 const storageService = new StorageService();
@@ -86,6 +85,12 @@ certificateRoutes.delete(
   '/:id',
   authMiddleware,
   (req, res) => certificateController.delete(req as AuthenticatedRequest, res)
+);
+
+certificateRoutes.get(
+  '/:id/download',
+  authMiddleware,
+  (req, res) => certificateController.downloadCertificate(req as AuthenticatedRequest, res)
 );
 
 certificateRoutes.get(

@@ -27,7 +27,8 @@ export class UploadCertificateUseCase {
       let endDate: Date;
 
       if (!workload) {
-        pdfInfo = await this.pdfProcessor.extractInformation(filePath);
+        const physicalPath = this.storageService.getPhysicalPath(filePath);
+        pdfInfo = await this.pdfProcessor.extractInformation(physicalPath);
         workload = pdfInfo.workload;
 
         const certificateStartDate = new Date(pdfInfo.year, pdfInfo.month - 1, 1);

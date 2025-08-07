@@ -24,6 +24,11 @@ export class StorageService implements IStorageService {
     }
   }
 
+  getPhysicalPath(urlPath: string): string {
+    const fileName = urlPath.replace('/uploads/certificates/', '');
+    return path.join(this.uploadDir, fileName);
+  }
+
   async deleteFile(filePath: string): Promise<void> {
     try {
       await fs.unlink(filePath);

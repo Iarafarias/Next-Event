@@ -13,9 +13,10 @@ export class CreateCertificateUseCase {
 
   async execute(data: CreateCertificateDTO): Promise<Certificate> {
     const filePath = await this.storageService.uploadFile(data.file);
-    const { workload, month, year } = await this.pdfProcessor.extractInformation(filePath);
+    // Usar caminho físico para processar o PDF
+    const physicalPath = this.storageService.getPhysicalPath(filePath);
+    const { workload, month, year } = await this.pdfProcessor.extractInformation(physicalPath);
     
-    // Criar datas baseadas no mês e ano extraídos
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0);
     

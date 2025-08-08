@@ -12,5 +12,5 @@ export interface CertificateResponseDTO {
   adminComments?: string;
   createdAt: Date;
   updatedAt: Date;
-  userName?: string; // Campo opcional para incluir o nome do usuário quando necessário
+  userName?: string;
 } 

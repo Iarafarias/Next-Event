@@ -53,6 +53,13 @@ certificateRoutes.post(
   (req, res) => certificateController.setReferenceMonth(req as AuthenticatedRequest, res)
 );
 
+certificateRoutes.get(
+  '/reference-month',
+  authMiddleware,
+  authorizeRoles(['admin', 'participant']),
+  (req, res) => certificateController.getCurrentReferenceMonth(req as AuthenticatedRequest, res)
+);
+
 certificateRoutes.post(
   '/upload',
   authMiddleware,

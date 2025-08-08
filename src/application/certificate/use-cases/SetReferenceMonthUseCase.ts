@@ -1,13 +1,18 @@
+import { PrismaClient } from '@prisma/client';
+
 interface SetReferenceMonthDTO {
   month: number;
   year: number;
 }
 
 export class SetReferenceMonthUseCase {
-  private static referenceMonth: number | null = null;
-  private static referenceYear: number | null = null;
+  private prisma: PrismaClient;
 
-  execute(data: SetReferenceMonthDTO): void {
+  constructor() {
+    this.prisma = new PrismaClient();
+  }
+
+  async execute(data: SetReferenceMonthDTO): Promise<void> {
     if (data.month < 1 || data.month > 12) {
       throw new Error('Invalid month. Must be between 1 and 12');
     }
@@ -16,18 +21,32 @@ export class SetReferenceMonthUseCase {
       throw new Error('Invalid year');
     }
 
-    SetReferenceMonthUseCase.referenceMonth = data.month;
-    SetReferenceMonthUseCase.referenceYear = data.year;
+    await (this.prisma as any).config.upsert({
+      where: { id: 'singleton-config' },
+      create: {
+        id: 'singleton-config',
+        referenceMonth: data.month,
+        referenceYear: data.year,
+      },
+      update: {
+        referenceMonth: data.month,
+        referenceYear: data.year,
+      },
+    });
   }
 
-  static getCurrentReference(): { month: number; year: number } | null {
-    if (this.referenceMonth === null || this.referenceYear === null) {
+  async getCurrentReference(): Promise<{ month: number; year: number } | null> {
+    const config = await (this.prisma as any).config.findUnique({
+      where: { id: 'singleton-config' }
+    });
+
+    if (!config || !config.referenceMonth || !config.referenceYear) {
       return null;
     }
 
     return {
-      month: this.referenceMonth,
-      year: this.referenceYear
+      month: config.referenceMonth,
+      year: config.referenceYear
     };
   }
 } 

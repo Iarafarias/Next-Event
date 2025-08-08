@@ -6,8 +6,8 @@ interface NotificationProps {
   type: NotificationType;
   title: string;
   message: string;
-  relatedEntityId?: string; // ID do certificado relacionado
-  relatedEntityType?: string; // 'certificate', 'user', etc.
+  relatedEntityId?: string;
+  relatedEntityType?: string;
 }
 
 export class Notification {

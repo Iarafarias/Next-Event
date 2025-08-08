@@ -14,11 +14,13 @@ export class UploadCertificateUseCase {
 
   async execute(data: CreateCertificateDTO): Promise<Certificate> {
     try {
-      const reference = SetReferenceMonthUseCase.getCurrentReference();
-      console.log('Current reference in upload:', reference);
+      const setReferenceUseCase = new SetReferenceMonthUseCase();
+      const reference = await setReferenceUseCase.getCurrentReference();
+      
       if (!reference) {
         throw new Error('Reference month not set by admin');
       }
+      
       const filePath = await this.storageService.uploadFile(data.file);
 
       let pdfInfo = null;
@@ -61,17 +63,7 @@ export class UploadCertificateUseCase {
         certificateUrl: filePath
       });
 
-      console.log('Certificate created:', {
-        userId: certificate.userId,
-        title: certificate.title,
-        workload: certificate.workload,
-        startDate: certificate.startDate,
-        endDate: certificate.endDate
-      });
-
-      console.log('Saving certificate to repository...');
       const savedCertificate = await this.certificateRepository.create(certificate);
-      console.log('Certificate saved successfully:', savedCertificate.id);
       return savedCertificate;
     } catch (error) {
       if (error instanceof Error) {

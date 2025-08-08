@@ -9,7 +9,6 @@ import { authMiddleware } from '../../middlewares/authMiddleware';
 
 const router = Router();
 
-// Configuração das dependências
 const notificationRepository = new PostgresNotificationRepository();
 
 const getNotificationsByUserUseCase = new GetNotificationsByUserUseCase(notificationRepository);
@@ -24,20 +23,14 @@ const notificationController = new NotificationController(
   getUnreadNotificationCountUseCase
 );
 
-// Rotas protegidas - requerem autenticação
 router.use(authMiddleware);
 
-// GET /notifications - Buscar notificações do usuário
-// Query params: unread=true para buscar apenas não lidas
 router.get('/', (req, res) => notificationController.getMyNotifications(req, res));
 
-// GET /notifications/unread-count - Contar notificações não lidas
 router.get('/unread-count', (req, res) => notificationController.getUnreadCount(req, res));
 
-// PATCH /notifications/:id/read - Marcar notificação específica como lida
 router.patch('/:id/read', (req, res) => notificationController.markAsRead(req, res));
 
-// PATCH /notifications/mark-all-read - Marcar todas as notificações como lidas
 router.patch('/mark-all-read', (req, res) => notificationController.markAllAsRead(req, res));
 
 export { router as notificationRoutes };

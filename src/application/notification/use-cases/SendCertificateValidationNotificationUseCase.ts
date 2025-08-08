@@ -22,8 +22,8 @@ export class SendCertificateValidationNotificationUseCase {
       : 'certificate_rejected' as NotificationType;
 
     const title = isApproved 
-      ? '✅ Certificado Aprovado'
-      : '❌ Certificado Rejeitado';
+      ? 'Certificado Aprovado'
+      : 'Certificado Rejeitado';
 
     let message = isApproved
       ? `Seu certificado "${certificateName}" foi aprovado e validado com sucesso!`

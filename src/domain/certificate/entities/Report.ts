@@ -28,7 +28,7 @@ export class Report {
   year!: number;
   data!: ReportData;
   generatedAt!: Date;
-  generatedBy!: string; // Admin ID
+  generatedBy!: string;
 
   constructor(props: Omit<Report, 'id' | 'generatedAt'>) {
     Object.assign(this, {

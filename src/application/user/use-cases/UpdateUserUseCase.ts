@@ -7,13 +7,11 @@ export class UpdateUserUseCase {
 
   async execute(data: UpdateUserDTO): Promise<User | null> {
     try {
-      // Check if user exists
       const userExists = await this.userRepository.findById(data.id);
       if (!userExists) {
         throw new Error('User not found');
       }
 
-      // Update user
       const updatedUser = await this.userRepository.update(data);
       if (!updatedUser) {
         throw new Error('Failed to update user');

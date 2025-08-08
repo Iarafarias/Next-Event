@@ -32,7 +32,6 @@ export class UpdateCertificateStatusUseCase {
 
     const updatedCertificate = await this.certificateRepository.update(certificate);
 
-    // Enviar notificação para o usuário
     try {
       await this.sendNotificationUseCase.execute({
         userId: certificate.userId,
@@ -42,8 +41,6 @@ export class UpdateCertificateStatusUseCase {
         adminMessage: adminComments,
       });
     } catch (error) {
-      console.error('Erro ao enviar notificação:', error);
-      // Não falha a operação principal se a notificação falhar
     }
 
     return updatedCertificate;

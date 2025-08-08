@@ -10,9 +10,14 @@ export class ListUserCertificatesUseCase {
   constructor(private certificateRepository: ICertificateRepository) {}
 
   async execute({ userId, status }: ListUserCertificatesRequest): Promise<Certificate[]> {
+    let certificates: Certificate[];
+    
     if (status) {
-      return this.certificateRepository.findByUserIdAndStatus(userId, status);
+      certificates = await this.certificateRepository.findByUserIdAndStatus(userId, status);
+    } else {
+      certificates = await this.certificateRepository.findByUserId(userId);
     }
-    return this.certificateRepository.findByUserId(userId);
+
+    return certificates;
   }
 } 

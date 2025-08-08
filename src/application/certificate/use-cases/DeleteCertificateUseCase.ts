@@ -2,7 +2,7 @@ import { ICertificateRepository } from '../../../domain/certificate/repositories
 
 export interface DeleteCertificateRequest {
   id: string;
-  userId?: string; // For authorization check
+  userId?: string;
 }
 
 export class DeleteCertificateUseCase {
@@ -14,8 +14,6 @@ export class DeleteCertificateUseCase {
     if (!certificate) {
       throw new Error('Certificate not found');
     }
-
-    // Check if user owns the certificate (unless admin)
     if (userId && certificate.userId !== userId) {
       throw new Error('Unauthorized to delete this certificate');
     }

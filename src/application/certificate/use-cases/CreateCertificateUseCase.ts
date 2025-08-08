@@ -22,7 +22,7 @@ export class CreateCertificateUseCase {
     
     const certificate = new Certificate({
       userId: data.userId,
-      requestId: 'default-request-id', // TODO: Implementar logic para requestId
+      requestId: undefined,
       title: data.file.originalname,
       description: `Certificado enviado em ${new Date().toLocaleDateString('pt-BR')}`,
       institution: 'Não informado',

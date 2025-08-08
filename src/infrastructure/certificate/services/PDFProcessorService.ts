@@ -9,14 +9,10 @@ export class PDFProcessorService implements IPDFProcessor {
       const data = await pdf(dataBuffer);
 
       const text = data.text;
-      console.log('PDF Text extracted:', text); // Debug
-
       const workloadMatch = text.match(/\b(?:com\s+)?carga\s+horária\s+de\s*(\d+)\s*horas?\b/i);
-
       const dateMatch = text.match(/(\d+)\s+de\s+(janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\s+a\s+(\d+)\s+de\s+(janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\s+de\s+(\d{4})/i);
 
       if (!workloadMatch || !dateMatch) {
-        console.log('Failed to match:', { workloadMatch, dateMatch });
         throw new Error(`Could not extract required information from PDF. Text: ${text.substring(0, 200)}...`);
       }
 
@@ -25,8 +21,6 @@ export class PDFProcessorService implements IPDFProcessor {
       const startMonth = monthNames.indexOf(dateMatch[2].toLowerCase()) + 1;
       const endMonth = monthNames.indexOf(dateMatch[4].toLowerCase()) + 1;
       const year = parseInt(dateMatch[5]);
-
-      console.log('Extracted info:', { startMonth, endMonth, year, workload: parseInt(workloadMatch[1]) });
 
       return {
         workload: parseInt(workloadMatch[1]),

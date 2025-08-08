@@ -6,6 +6,7 @@ import { DeleteCertificateUseCase } from '../../../application/certificate/use-c
 import { PostgresCertificateRepository } from '../../../infrastructure/certificate/repositories/postgresCertificateRepository';
 import { UploadCertificateUseCase } from '../../../application/certificate/use-cases/UploadCertificateUseCase';
 import { GenerateReportUseCase } from '../../../application/certificate/use-cases/GenerateReportUseCase';
+import { GenerateUserReportUseCase } from '../../../application/certificate/use-cases/GenerateUserReportUseCase';
 import { SetReferenceMonthUseCase } from '../../../application/certificate/use-cases/SetReferenceMonthUseCase';
 import { AuthenticatedRequest } from '../../types/AuthenticatedRequest';
 import { IStorageService } from '../../../domain/certificate/services/IStorageService';
@@ -19,6 +20,7 @@ export class CertificateController {
   private readonly updateCertificateStatusUseCase: UpdateCertificateStatusUseCase;
   private readonly listUserCertificatesUseCase: ListUserCertificatesUseCase;
   private readonly deleteCertificateUseCase: DeleteCertificateUseCase;
+  private readonly generateUserReportUseCase: GenerateUserReportUseCase;
 
   constructor(
     private readonly uploadCertificateUseCase: UploadCertificateUseCase,
@@ -36,6 +38,7 @@ export class CertificateController {
     this.updateCertificateStatusUseCase = new UpdateCertificateStatusUseCase(repository, sendNotificationUseCase);
     this.listUserCertificatesUseCase = new ListUserCertificatesUseCase(repository);
     this.deleteCertificateUseCase = new DeleteCertificateUseCase(repository);
+    this.generateUserReportUseCase = new GenerateUserReportUseCase(repository);
   }
 
   async create(request: Request, response: Response): Promise<Response> {
@@ -103,18 +106,41 @@ export class CertificateController {
   async setReferenceMonth(req: AuthenticatedRequest, res: Response): Promise<Response> {
     try {
       const { month, year } = req.body;
-      console.log('Setting reference month:', { month, year });
 
       if (!month || !year) {
         return res.status(400).json({ error: 'Month and year are required' });
       }
 
-      this.setReferenceMonthUseCase.execute({ month: Number(month), year: Number(year) });
-      console.log('Reference month set successfully:', { month: Number(month), year: Number(year) });
+      await this.setReferenceMonthUseCase.execute({ month: Number(month), year: Number(year) });
 
-      return res.status(200).json({ message: 'Reference month set successfully' });
+      return res.status(200).json({ 
+        message: 'Reference month set successfully and persisted to database' 
+      });
     } catch (error) {
-      console.error('Error setting reference month:', error);
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message });
+      }
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  async getCurrentReferenceMonth(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    try {
+      const setReferenceUseCase = new SetReferenceMonthUseCase();
+      const reference = await setReferenceUseCase.getCurrentReference();
+      
+      if (!reference) {
+        return res.status(404).json({ 
+          error: 'No reference month set',
+          reference: null
+        });
+      }
+
+      return res.status(200).json({
+        message: 'Reference month retrieved successfully',
+        reference: reference
+      });
+    } catch (error) {
       if (error instanceof Error) {
         return res.status(400).json({ error: error.message });
       }
@@ -153,10 +179,17 @@ export class CertificateController {
   async generateReport(req: AuthenticatedRequest, res: Response): Promise<Response> {
     try {
       const { month, year } = req.query;
-      const userId = req.params.userId || req.user.id;
+      const userId = req.params.userId;
 
+      // Se tem userId nos parâmetros, é um relatório individual
+      if (userId) {
+        const userReport = await this.generateUserReportUseCase.execute(userId);
+        return res.status(200).json(userReport);
+      }
+
+      // Se não tem userId, é relatório geral (requer month e year)
       if (!month || !year) {
-        return res.status(400).json({ error: 'Month and year are required' });
+        return res.status(400).json({ error: 'Month and year are required for general reports' });
       }
 
       const report = await this.generateReportUseCase.execute({
@@ -193,7 +226,7 @@ export class CertificateController {
       
       let filePath: string;
       if (certificate.certificateUrl.startsWith('/uploads/')) {
-        filePath = path.resolve(certificate.certificateUrl.substring(1)); // Remove a barra inicial
+        filePath = path.resolve(certificate.certificateUrl.substring(1));
       } else {
         filePath = path.resolve(certificate.certificateUrl);
       }
@@ -202,11 +235,8 @@ export class CertificateController {
         await fs.access(filePath);
         
         return res.download(filePath, `certificate-${certificate.id}.pdf`, (err) => {
-          if (err) {
-            console.error('Download error:', err);
-            if (!res.headersSent) {
-              return res.status(500).json({ error: 'Failed to download file' });
-            }
+          if (err && !res.headersSent) {
+            return res.status(500).json({ error: 'Failed to download file' });
           }
         });
       } catch (fileError) {

@@ -175,21 +175,6 @@ PATCH  /notifications/mark-all-read  # Marcar todas como lidas
 
 ---
 
-## 👨‍💻 **Para Desenvolvedores Frontend**
-
-### **Documentação Disponível:**
-- 📚 **[FRONTEND_DOCS.md](./FRONTEND_DOCS.md)** - Guia completo de desenvolvimento
-- 🔧 **[FRONTEND_SETUP.md](./FRONTEND_SETUP.md)** - Setup do projeto React/Vue
-- 🗄️ **[DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md)** - Esquema do banco de dados
-
-### **Stack Frontend Recomendada:**
-- React 18 + TypeScript + Vite
-- Material-UI ou Ant Design  
-- React Query (cache de API)
-- React Hook Form (formulários)
-- Zustand (gerenciamento de estado)
-
----
 
 ## 🐳 **Docker**
 

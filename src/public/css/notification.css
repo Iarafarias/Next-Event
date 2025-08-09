@@ -1,0 +1,17 @@
+.certificate-notification {
+    font-size: 1.2rem;
+}
+
+.dropdown-toggle::after {
+    display: none !important;
+}
+
+.dropdown-item .certificate-notification {
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    .certificate-notification {
+        font-size: 1.1rem;
+    }
+}

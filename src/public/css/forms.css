@@ -1,0 +1,66 @@
+.label-float {
+    position: relative;
+    width: 100%;
+    margin-bottom: clamp(15px, 2.5vh, 25px);
+    min-height: 3.5em;
+}
+
+.label-float input,
+.label-float textarea {
+    border: 1px solid #8C8B8B;
+    border-radius: 20px;
+    outline: none;
+    width: 100%;
+    padding: clamp(10px, 1.8vw, 16px) clamp(15px, 1.8vw, 18px);
+    font-family: 'Montserrat', sans-serif;
+    box-sizing: border-box;
+    transition: all 0.2s ease-in-out;
+}
+
+.label-float input:focus,
+.label-float textarea:focus {
+    border: 2px solid #0A71C8;
+}
+
+.label-float input::placeholder,
+.label-float textarea::placeholder {
+    color: transparent;
+}
+
+.label-float label {
+    pointer-events: none;
+    position: absolute;
+    top: clamp(10px, 1.8vw, 16px);
+    left: clamp(15px, 1.8vw, 18px);
+    color: #8C8B8B;
+    background-color: rgb(255, 255, 255);
+    padding: 0 5px;
+    transition: all 0.2s ease-in-out;
+    z-index: 1;
+}
+
+.label-float input:focus+label,
+.label-float input:not(:placeholder-shown)+label,
+.label-float textarea:focus+label,
+.label-float textarea:not(:placeholder-shown)+label {
+    top: -10px;
+    font-size: clamp(10px, 0.7vw, 15px);
+    color: #0A71C8;
+    font-weight: 600;
+    left: clamp(10px, 1.5vw, 15px);
+}
+
+.label-float textarea {
+    resize: none;
+}
+
+button.form-button {
+    border-radius: 2rem;
+}
+
+@media (max-width: 768px) {
+    button.btn-form {
+        max-width: 100%;
+        width: 100%;
+    }
+}

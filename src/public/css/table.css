@@ -1,0 +1,9 @@
+.table thead {
+    --bs-table-bg: #0d6efd;
+    --bs-table-color: white;
+}
+
+table.table tbody tr td,
+table.table tbody tr th {
+    color: #000000a6;
+}

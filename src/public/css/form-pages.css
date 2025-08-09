@@ -1,0 +1,79 @@
+body {
+    background: linear-gradient(125deg, #135FC2, #0AD1C8);
+}
+
+main {
+    margin: 0 auto;
+}
+
+.form-button {
+    transition: background-color 0.2s ease !important;
+}
+
+.background-image img {
+    max-width: 30rem;
+}
+
+.form-container {
+    min-width: 300px;
+    width: 100%;
+    max-width: 500px;
+}
+
+form .btn {
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 50px;
+}
+
+.user-form {
+    border-radius: 30px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}align-items-end
+
+.rect-divider {
+    flex: 1;
+    height: 1px;
+    background-color: #000000a6;
+}
+
+.btn.google-button {
+    border: 1px solid #8C8B8B;
+    color: #000000a6;
+}
+
+.google-icon {
+    max-width: 2rem;
+}
+
+@media (max-width: 992px) {
+    .background-image {
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .user-form {
+        padding: 1.5rem;
+    }
+
+    .form-container {
+        padding-bottom: 1.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .user-form {
+        border-radius: 20px;
+    }
+
+    .user-form h1 {
+        font-size: 1.75rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .logar-com span {
+        font-size: 0.9rem;
+    }
+}

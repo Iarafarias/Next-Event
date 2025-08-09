@@ -1,0 +1,12 @@
+.estisticas .card {
+    flex: 1 0 48%;
+    height: 6rem;
+}
+
+.estisticas .card i {
+    font-size: 3rem;
+}
+
+.estisticas .card span {
+    font-size: 1.2rem;
+}

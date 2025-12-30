@@ -1,62 +1,80 @@
 import { hash } from 'bcryptjs';
-import { User } from '../../../domain/user/entities/User';
-import { IUserRepository } from '../../../domain/user/repositories/IUserRepository';
-import { CreateUserDTO } from '../dtos/CreateUserDTO';
+import { Usuario } from '../../../domain/user/entities/Usuario';
+import { IUsuarioRepository } from '../../../domain/user/repositories/IUsuarioRepository';
+import { CreateUsuarioDTO } from '../dtos/CreateUserDTO';
 
-interface CreateUserResponse {
-  user: {
+interface CreateUsuarioResponse {
+  usuario: {
     id: string;
-    name: string;
+    nome: string;
     email: string;
-    role: string;
-    isExistingUser: boolean;
+    status: string;
+    criadoEm: Date;
+    atualizadoEm: Date;
+    coordenador?: any;
+    tutor?: any;
+    bolsista?: any;
   };
 }
 
-export class CreateUserUseCase {
-  constructor(private userRepository: IUserRepository) {}
+export class CreateUsuarioUseCase {
+  constructor(private usuarioRepository: IUsuarioRepository) {}
 
-  async execute(data: CreateUserDTO): Promise<CreateUserResponse> {
-    // Validate required fields
-    if (!data.name) {
-      throw new Error('Name is required');
-    }
-    if (!data.email) {
-      throw new Error('Email is required');
-    }
-    if (!data.password) {
-      throw new Error('Password is required');
-    }
-    if (!data.matricula) {
-      throw new Error('Matricula is required');
-    }
-    if (!data.cpf) {
-      throw new Error('CPF is required');
-    }
+  async execute(data: CreateUsuarioDTO): Promise<CreateUsuarioResponse> {
+    if (!data.nome) throw new Error('Nome é obrigatório');
+    if (!data.email) throw new Error('Email é obrigatório');
+    if (!data.senha) throw new Error('Senha é obrigatória');
 
-    const userExists = await this.userRepository.findByEmail(data.email);
+    const usuarioExists = await this.usuarioRepository.findByEmail(data.email);
+    if (usuarioExists) throw new Error('Usuário já existe');
 
-    if (userExists) {
-      throw new Error('User already exists');
-    }
-
-    const passwordHash = await hash(data.password, 8);
-
-    const user = new User({
-      ...data,
-      password: passwordHash,
-      role: data.role || 'participant',
+    const senhaHash = await hash(data.senha, 8);
+    // Gera id do usuário agora para usar nos perfis
+    const usuarioId = crypto.randomUUID();
+    const usuario = new Usuario({
+      nome: data.nome,
+      email: data.email,
+      senha: senhaHash,
+      status: data.status || 'ATIVO',
+      coordenador: data.coordenador
+        ? {
+            id: crypto.randomUUID(),
+            usuarioId,
+            area: data.coordenador.area,
+            nivel: data.coordenador.nivel,
+          }
+        : undefined,
+      tutor: data.tutor
+        ? {
+            id: crypto.randomUUID(),
+            usuarioId,
+            area: data.tutor.area,
+            nivel: data.tutor.nivel,
+            capacidadeMaxima: data.tutor.capacidadeMaxima ?? 5,
+          }
+        : undefined,
+      bolsista: data.bolsista
+        ? {
+            id: crypto.randomUUID(),
+            usuarioId,
+            anoIngresso: data.bolsista.anoIngresso,
+            curso: data.bolsista.curso,
+          }
+        : undefined,
     });
-
-    const createdUser = await this.userRepository.create(user);
-
+    usuario.id = usuarioId;
+    const created = await this.usuarioRepository.create(usuario);
     return {
-      user: {
-        id: createdUser.id,
-        name: createdUser.name,
-        email: createdUser.email,
-        role: createdUser.role,
-        isExistingUser: false,
+      usuario: {
+        id: created.id,
+        nome: created.nome,
+        email: created.email,
+        status: created.status,
+        criadoEm: created.criadoEm,
+        atualizadoEm: created.atualizadoEm,
+        coordenador: created.coordenador,
+        tutor: created.tutor,
+        bolsista: created.bolsista,
       },
     };
   }

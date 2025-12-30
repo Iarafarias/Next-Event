@@ -1,4 +1,5 @@
 export type CertificateStatus = 'pending' | 'approved' | 'rejected';
+import type { CategoriaWorkload } from '@prisma/client';
 
 interface CertificateProps {
   userId: string;
@@ -11,6 +12,7 @@ interface CertificateProps {
   endDate: Date;
   certificateUrl: string;
   adminComments?: string;
+  category: CategoriaWorkload;
 }
 
 export class Certificate {
@@ -28,6 +30,7 @@ export class Certificate {
   adminComments?: string;
   createdAt!: Date;
   updatedAt!: Date;
+  category!: CategoriaWorkload;
 
   constructor(props: CertificateProps) {
     Object.assign(this, {
@@ -36,6 +39,7 @@ export class Certificate {
       status: 'pending',
       createdAt: new Date(),
       updatedAt: new Date(),
+      category: props.category,
     });
   }
 

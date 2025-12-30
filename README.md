@@ -1,22 +1,86 @@
-# 🎯 NextEvent - Sistema de Gestão de Certificados
+# Documentação da API Next-Event
 
-<div align="center">
+## Swagger UI (Documentação Interativa)
 
-![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-green)
-![TypeScript](https://img.shields.io/badge/typescript-5.0-blue)
-![Express](https://img.shields.io/badge/express-4.18.2-lightgrey)
-![Prisma](https://img.shields.io/badge/prisma-6.11.1-blueviolet)
-![PostgreSQL](https://img.shields.io/badge/postgresql-15-blue)
-![JWT](https://img.shields.io/badge/JWT-auth-orange)
-![Status](https://img.shields.io/badge/status-✅%20funcionando-brightgreen)
+Após iniciar o servidor, acesse:
 
-Um sistema completo para gestão e validação de certificados acadêmicos/profissionais com notificações em tempo real.
+    http://localhost:3000/api-docs
 
-</div>
+para visualizar e testar todos os endpoints da API de forma interativa.
 
----
+O Swagger UI é gerado automaticamente a partir do arquivo `openapi.yaml`.
+# Documentação da API Next-Event
 
-## � **Visão Geral**
+## Documentação Automática (Swagger/OpenAPI)
+
+O arquivo `openapi.yaml` na raiz do projeto descreve todos os endpoints REST da API, parâmetros, exemplos e fluxos principais.
+
+Você pode visualizar a documentação interativa utilizando o Swagger Editor online:
+
+1. Acesse: https://editor.swagger.io/
+2. Clique em "File" > "Import File" e selecione o arquivo `openapi.yaml` deste projeto.
+3. Explore e teste todos os endpoints, parâmetros e exemplos de resposta.
+
+## Exemplos de Uso
+
+### Listar Coordenadores
+```http
+GET /api/usuarios/coordenadores
+```
+
+### Validar Certificado (Coordenador)
+```http
+POST /api/coordenadores/{id}/validar-certificado
+Content-Type: application/json
+{
+  "certificateId": "abc123"
+}
+```
+
+### Atribuir Papel a Usuário
+```http
+PATCH /api/usuarios/{id}/atribuir-papel
+Content-Type: application/json
+{
+  "papel": "tutor"
+}
+```
+
+### Listar Relatórios de Tutor
+```http
+GET /api/tutores/{id}/relatorios
+```
+
+## Setup do Projeto
+
+1. Instale as dependências:
+    ```bash
+    npm install
+    ```
+2. Configure o banco de dados PostgreSQL (veja `database/` e `.env.example`).
+3. Execute as migrações Prisma:
+    ```bash
+    npx prisma migrate deploy
+    ```
+4. Inicie o servidor:
+    ```bash
+    npm run dev
+    ```
+5. Acesse os endpoints REST em `http://localhost:3000/api`.
+
+## Fluxos Principais
+
+- Cadastro e autenticação de usuários
+- Solicitação, emissão e validação de certificados
+- Listagem e atribuição de papéis (coordenador, tutor, bolsista)
+- Relatórios por papel
+
+Consulte o arquivo `openapi.yaml` para detalhes completos de cada endpoint, parâmetros e exemplos de resposta.
+# � NextCertify - Sistema de Gestão de Certificados e Tutoria
+
+Sistema completo para gerenciamento de certificados acadêmicos, tutoria de alunos e relatórios administrativos usando Clean Architecture.
+
+## 📁 Estrutura do Projeto (Clean Code)
 
 O **NextEvent** é uma plataforma que permite:
 

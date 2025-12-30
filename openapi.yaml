@@ -1,0 +1,294 @@
+openapi: 3.0.3
+info:
+  title: Next-Event API
+  description: API REST para gerenciamento de usuários, certificados, relatórios e papéis (Coordenador, Tutor, Bolsista).
+  version: 1.0.0
+servers:
+  - url: http://localhost:3001/api
+paths:
+  /users:
+    post:
+      summary: Cria um novo usuário
+      tags: [Usuários]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                email:
+                  type: string
+                senha:
+                  type: string
+                matricula:
+                  type: string
+                cpf:
+                  type: string
+                status:
+                  type: string
+                  enum: [ATIVO, INATIVO, PENDENTE]
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+        '400':
+          description: Dados inválidos
+    get:
+      summary: Lista todos os usuários
+      tags: [Usuários]
+      responses:
+        '200':
+          description: Lista de usuários
+
+  /users/{id}:
+    get:
+      summary: Busca usuário por ID
+      tags: [Usuários]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Usuário encontrado
+        '404':
+          description: Usuário não encontrado
+    put:
+      summary: Atualiza usuário por ID
+      tags: [Usuários]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                email:
+                  type: string
+                senha:
+                  type: string
+                matricula:
+                  type: string
+                cpf:
+                  type: string
+                status:
+                  type: string
+                  enum: [ATIVO, INATIVO, PENDENTE]
+      responses:
+        '200':
+          description: Usuário atualizado
+        '404':
+          description: Usuário não encontrado
+    delete:
+      summary: Remove usuário por ID
+      tags: [Usuários]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Usuário removido
+        '404':
+          description: Usuário não encontrado
+  /users/coordenadores:
+    get:
+      summary: Lista todos os coordenadores
+      tags: [Usuários]
+      responses:
+        '200':
+          description: Lista de coordenadores
+  /users/tutores:
+    get:
+      summary: Lista todos os tutores
+      tags: [Usuários]
+      responses:
+        '200':
+          description: Lista de tutores
+  /users/bolsistas:
+    get:
+      summary: Lista todos os bolsistas
+      tags: [Usuários]
+      responses:
+        '200':
+          description: Lista de bolsistas
+  /coordenadores/{id}/certificados:
+    get:
+      summary: Lista certificados de um coordenador
+      tags: [Certificados]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de certificados
+  /tutores/{id}/certificados:
+    get:
+      summary: Lista certificados de um tutor
+      tags: [Certificados]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de certificados
+  /bolsistas/{id}/certificados:
+    get:
+      summary: Lista certificados de um bolsista
+      tags: [Certificados]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de certificados
+  /coordenadores/{id}/validar-certificado:
+    post:
+      summary: Coordenador valida certificado
+      tags: [Certificados]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                certificateId:
+                  type: string
+      responses:
+        '200':
+          description: Certificado validado
+  /tutores/{id}/emitir-certificado:
+    post:
+      summary: Tutor emite certificado
+      tags: [Certificados]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                certificateId:
+                  type: string
+      responses:
+        '200':
+          description: Certificado emitido
+  /bolsistas/{id}/solicitar-certificado:
+    post:
+      summary: Bolsista solicita certificado
+      tags: [Certificados]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                certificateId:
+                  type: string
+      responses:
+        '200':
+          description: Certificado solicitado
+  /users/{id}/atribuir-papel:
+    patch:
+      summary: Atribui ou remove papel de usuário
+      tags: [Usuários]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                papel:
+                  type: string
+      responses:
+        '200':
+          description: Papel atribuído/removido
+  /coordenadores/{id}/relatorios:
+    get:
+      summary: Lista relatórios sob responsabilidade do coordenador
+      tags: [Relatórios]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de relatórios
+  /tutores/{id}/relatorios:
+    get:
+      summary: Lista relatórios sob responsabilidade do tutor
+      tags: [Relatórios]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de relatórios
+  /bolsistas/{id}/relatorios:
+    get:
+      summary: Lista relatórios sob responsabilidade do bolsista
+      tags: [Relatórios]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de relatórios

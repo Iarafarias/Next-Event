@@ -4,11 +4,11 @@ interface AuthenticatedRequest extends Request {
   user: {
     id: string;
     email: string;
-    role: 'admin' | 'participant';
+    role: 'admin' | 'student' | 'tutor' | 'scholarship_holder' | 'coordinator';
   };
 }
 
-type UserRole = 'admin' | 'participant';
+type UserRole = 'admin' | 'student' | 'tutor' | 'scholarship_holder' | 'coordinator';
 
 export function authorizeRoles(roles: UserRole[]) {
   return (request: Request, response: Response, next: NextFunction): void => {

@@ -29,7 +29,7 @@ describe('Rota protegida com JWT e perfis', () => {
   });
 
   it('deve permitir acesso com token válido de participant', async () => {
-    const payload = { id: '456', email: 'user@teste.com', role: 'participant' };
+    const payload = { id: '456', email: 'user@teste.com', role: 'student' };
     const secret = process.env.JWT_SECRET || 'testsecret';
     const token = jwt.sign(payload, secret);
     const res = await request(app)
@@ -39,7 +39,7 @@ describe('Rota protegida com JWT e perfis', () => {
   });
 
   it('deve negar acesso de participant para rota de admin', async () => {
-    const payload = { id: '456', email: 'user@teste.com', role: 'participant' };
+    const payload = { id: '456', email: 'user@teste.com', role: 'student' };
     const secret = process.env.JWT_SECRET || 'testsecret';
     const token = jwt.sign(payload, secret);
     const res = await request(app)

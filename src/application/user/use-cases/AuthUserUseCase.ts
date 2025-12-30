@@ -1,58 +1,52 @@
 import { compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
-import { IUserRepository } from '../../../domain/user/repositories/IUserRepository';
+import { IUsuarioRepository } from '../../../domain/user/repositories/IUsuarioRepository';
 
-interface AuthRequest {
+interface AuthUsuarioRequest {
   email: string;
-  password: string;
+  senha: string;
 }
 
-interface AuthResponse {
-  user: {
+interface AuthUsuarioResponse {
+  usuario: {
     id: string;
-    name: string;
+    nome: string;
     email: string;
-    role: string;
-    isExistingUser: boolean;
+    status: string;
+    criadoEm: Date;
+    atualizadoEm: Date;
   };
   token: string;
 }
 
-export class AuthUserUseCase {
-  constructor(private userRepository: IUserRepository) {}
+export class AuthUsuarioUseCase {
+  constructor(private usuarioRepository: IUsuarioRepository) {}
 
-  async execute({ email, password }: AuthRequest): Promise<AuthResponse> {
-    const user = await this.userRepository.findByEmail(email);
+  async execute({ email, senha }: AuthUsuarioRequest): Promise<AuthUsuarioResponse> {
+    const usuario = await this.usuarioRepository.findByEmail(email);
+    if (!usuario) throw new Error('Email ou senha incorretos');
 
-    if (!user) {
-      throw new Error('Email or password incorrect');
-    }
-
-    const passwordMatch = await compare(password, user.password);
-
-    if (!passwordMatch) {
-      throw new Error('Email or password incorrect');
-    }
+    const senhaOk = await compare(senha, usuario.senha);
+    if (!senhaOk) throw new Error('Email ou senha incorretos');
 
     const token = sign(
       {
-        id: user.id,
-        email: user.email,
-        role: user.role,
+        id: usuario.id,
+        email: usuario.email,
+        status: usuario.status,
       },
       process.env.JWT_SECRET as string,
-      {
-        expiresIn: '1d',
-      }
+      { expiresIn: '1d' }
     );
 
     return {
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        isExistingUser: true,
+      usuario: {
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        status: usuario.status,
+        criadoEm: usuario.criadoEm,
+        atualizadoEm: usuario.atualizadoEm,
       },
       token,
     };

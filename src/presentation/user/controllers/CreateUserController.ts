@@ -1,27 +1,26 @@
 import { Request, Response } from 'express';
-import { CreateUserUseCase } from '../../../application/user/use-cases/CreateUserUseCase';
+import { CreateUsuarioUseCase } from '../../../application/user/use-cases/CreateUserUseCase';
 
-export class CreateUserController {
-  constructor(private createUserUseCase: CreateUserUseCase) {}
+export class CreateUsuarioController {
+  constructor(private createUsuarioUseCase: CreateUsuarioUseCase) {}
 
   async handle(request: Request, response: Response): Promise<Response> {
     try {
-      const { name, email, password, matricula, cpf, role } = request.body;
+      const { nome, email, senha, status, coordenador, tutor, bolsista } = request.body;
 
-      const result = await this.createUserUseCase.execute({
-        name,
+      const result = await this.createUsuarioUseCase.execute({
+        nome,
         email,
-        password,
-        matricula,
-        cpf,
-        role,
+        senha,
+        status,
+        coordenador,
+        tutor,
+        bolsista,
       });
 
       return response.status(201).json(result);
     } catch (error: any) {
-      return response.status(400).json({
-        error: error.message,
-      });
+      return response.status(400).json({ error: error.message });
     }
   }
 }

@@ -4,7 +4,7 @@ import { verify } from 'jsonwebtoken';
 interface TokenPayload {
   id: string;
   email: string;
-  role: 'admin' | 'participant';
+  role: 'admin' | 'student' | 'tutor' | 'scholarship_holder' | 'coordinator';
 }
 
 interface AuthenticatedRequest extends Request {

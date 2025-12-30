@@ -1,10 +1,20 @@
-import { UserRole } from '../../../domain/user/entities/User';
 
-export interface CreateUserDTO {
-  name: string;
+export interface CreateUsuarioDTO {
+  nome: string;
   email: string;
-  password: string;
-  matricula: string;
-  cpf: string;
-  role?: UserRole;
+  senha: string;
+  status?: 'ATIVO' | 'INATIVO' | 'PENDENTE';
+  coordenador?: {
+    area?: string;
+    nivel?: string;
+  };
+  tutor?: {
+    area?: string;
+    nivel?: string;
+    capacidadeMaxima?: number;
+  };
+  bolsista?: {
+    anoIngresso?: number;
+    curso?: string;
+  };
 }

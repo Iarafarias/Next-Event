@@ -1,0 +1,7 @@
+{
+  "name": "swagger-ui-express integration",
+  "dependencies": {
+    "swagger-ui-express": "^4.7.1",
+    "js-yaml": "^4.1.0"
+  }
+}

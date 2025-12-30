@@ -1,13 +1,13 @@
-export type UserRole = 'admin' | 'participant';
+export type UserRole = 'admin' | 'student' | 'tutor' | 'scholarship_holder' | 'coordinator';
 
 export class User {
   id!: string;
   name!: string;
   email!: string;
   password!: string;
-  matricula!: string;
-  cpf!: string;
   role!: UserRole;
+  matricula?: string;
+  cpf?: string;
   createdAt!: Date;
   updatedAt!: Date;
 

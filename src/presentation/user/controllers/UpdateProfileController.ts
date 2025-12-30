@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { UpdateUserUseCase } from '../../../application/user/use-cases/UpdateUserUseCase';
+import { UpdateUsuarioUseCase as UpdateUserUseCase } from '../../../application/user/use-cases/UpdateUserUseCase';
 
 export class UpdateProfileController {
   constructor(private updateUserUseCase: UpdateUserUseCase) {}
@@ -30,19 +30,17 @@ export class UpdateProfileController {
 
       const updatedUser = await this.updateUserUseCase.execute({ 
         id: userId, 
-        name, 
+        nome: name, 
         email, 
-        password, 
-        matricula, 
-        cpf 
+        senha: password, 
       });
 
       if (!updatedUser) {
         return res.status(404).json({ error: 'Usuário não encontrado.' });
       }
 
-      const { password: _, ...userResponse } = updatedUser;
-      
+      const { senha: _, ...userResponse } = updatedUser;
+
       return res.json({
         message: 'Perfil atualizado com sucesso.',
         user: userResponse

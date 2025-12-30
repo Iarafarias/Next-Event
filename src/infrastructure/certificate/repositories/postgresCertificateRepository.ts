@@ -2,8 +2,8 @@ import { Prisma, PrismaClient } from '.prisma/client';
 import { Certificate } from '../../../domain/certificate/entities/Certificate';
 import { ICertificateRepository } from '../../../domain/certificate/repositories/ICertificateRepository';
 
-type PrismaCertificate = Prisma.CertificateGetPayload<{
-  include: { user: { select: { name: true } } }
+type PrismaCertificado = Prisma.CertificadoGetPayload<{
+  include: { bolsista: { include: { usuario: { select: { id: true, nome: true } } } } }
 }>;
 
 export class PostgresCertificateRepository implements ICertificateRepository {
@@ -13,56 +13,132 @@ export class PostgresCertificateRepository implements ICertificateRepository {
     this.prisma = new PrismaClient();
   }
 
-  private mapToCertificate(data: PrismaCertificate): Certificate {
+  async validarPorCoordenador(certificadoId: string, coordenadorId: string, aprovado: boolean, comentarios?: string): Promise<void> {
+    await this.prisma.certificado.update({
+      where: { id: certificadoId },
+      data: {
+        status: aprovado ? 'APROVADO' : 'REJEITADO',
+        comentariosAdmin: comentarios ?? undefined
+      }
+    });
+  }
+
+  async emitirPorTutor(tutorId: string, dados: Omit<Certificate, 'id'>): Promise<Certificate> {
+    const result = await this.prisma.certificado.create({
+      data: {
+        bolsistaId: dados.userId,
+        titulo: dados.title,
+        instituicao: dados.institution,
+        cargaHoraria: dados.workload,
+        categoria: dados.category,
+        arquivoUrl: dados.certificateUrl,
+        status: 'PENDENTE',
+        comentariosAdmin: dados.adminComments,
+        dataInicio: dados.startDate,
+        dataFim: dados.endDate
+      },
+      include: { bolsista: { include: { usuario: { select: { id: true, nome: true } } } } }
+    });
+    return this.mapToCertificate(result);
+  }
+
+  async solicitarPorBolsista(bolsistaId: string, dados: Omit<Certificate, 'id'>): Promise<Certificate> {
+    const result = await this.prisma.certificado.create({
+      data: {
+        bolsistaId,
+        titulo: dados.title,
+        instituicao: dados.institution,
+        cargaHoraria: dados.workload,
+        categoria: dados.category,
+        arquivoUrl: dados.certificateUrl,
+        status: 'PENDENTE',
+        comentariosAdmin: dados.adminComments,
+        dataInicio: dados.startDate,
+        dataFim: dados.endDate
+      },
+      include: { bolsista: { include: { usuario: { select: { id: true, nome: true } } } } }
+    });
+    return this.mapToCertificate(result);
+  }
+
+  async listByCoordenador(coordenadorId: string): Promise<Certificate[]> {
+    const results = await this.prisma.certificado.findMany({
+      orderBy: { criadoEm: 'desc' },
+      include: { bolsista: { include: { usuario: { select: { id: true, nome: true } } } } }
+    });
+    return results.map((result: any) => this.mapToCertificate(result));
+  }
+
+  async listByTutor(tutorId: string): Promise<Certificate[]> {
+    const results = await this.prisma.certificado.findMany({
+      orderBy: { criadoEm: 'desc' },
+      include: { bolsista: { include: { usuario: { select: { id: true, nome: true } } } } }
+    });
+    return results.map((result: any) => this.mapToCertificate(result));
+  }
+
+  async listByBolsista(bolsistaId: string): Promise<Certificate[]> {
+    const results = await this.prisma.certificado.findMany({
+      where: { bolsistaId },
+      orderBy: { criadoEm: 'desc' },
+      include: { bolsista: { include: { usuario: { select: { id: true, nome: true } } } } }
+    });
+    return results.map((result: any) => this.mapToCertificate(result));
+  }
+
+  private mapToCertificate(data: PrismaCertificado): Certificate {
+    const ownerUserId = data.bolsista?.usuario?.id ?? undefined;
     const certificate = new Certificate({
-      userId: data.userId,
-      requestId: data.requestId || undefined,
-      title: data.title,
-      description: data.description,
-      institution: data.institution,
-      workload: data.workload,
-      startDate: new Date(data.startDate),
-      endDate: new Date(data.endDate),
-      certificateUrl: data.certificateUrl,
-      adminComments: data.adminComments || undefined
+      userId: ownerUserId || data.bolsistaId,
+      title: data.titulo,
+      description: '',
+      institution: data.instituicao,
+      workload: data.cargaHoraria,
+      startDate: new Date(data.dataInicio),
+      endDate: new Date(data.dataFim),
+      certificateUrl: data.arquivoUrl,
+      adminComments: data.comentariosAdmin || undefined,
+      category: data.categoria
     });
     certificate.id = data.id;
-    certificate.status = data.status as 'pending' | 'approved' | 'rejected';
-    certificate.createdAt = data.createdAt;
-    certificate.updatedAt = data.updatedAt;
-    
+    const statusMap: Record<string, Certificate['status']> = {
+      PENDENTE: 'pending',
+      APROVADO: 'approved',
+      REJEITADO: 'rejected'
+    };
+    certificate.status = statusMap[data.status as unknown as string] ?? ('pending' as Certificate['status']);
+    certificate.createdAt = data.criadoEm;
+    certificate.updatedAt = data.atualizadoEm;
+
     return certificate;
   }
 
   async create(certificate: Certificate): Promise<Certificate> {
-    const createData: any = {
-      id: certificate.id,
-      userId: certificate.userId,
-      title: certificate.title,
-      description: certificate.description,
-      institution: certificate.institution,
-      workload: certificate.workload,
-      startDate: certificate.startDate,
-      endDate: certificate.endDate,
-      certificateUrl: certificate.certificateUrl,
-      status: certificate.status,
-      adminComments: certificate.adminComments
-    };
-    if (certificate.requestId) {
-      createData.requestId = certificate.requestId;
+    let bolsistaId: string | undefined = undefined;
+    if (certificate.userId) {
+      const bolsista = await this.prisma.bolsista.findUnique({ where: { usuarioId: certificate.userId } });
+      if (bolsista) bolsistaId = bolsista.id;
     }
 
-    await this.prisma.certificate.create({
-      data: createData
-    });
-    const result = await this.prisma.certificate.findUnique({
+    const createData: any = {
+      id: certificate.id,
+      bolsistaId: bolsistaId,
+      titulo: certificate.title,
+      instituicao: certificate.institution,
+      cargaHoraria: certificate.workload,
+      categoria: certificate.category,
+      arquivoUrl: certificate.certificateUrl,
+      status: (certificate.status === 'pending' ? 'PENDENTE' : certificate.status === 'approved' ? 'APROVADO' : 'REJEITADO'),
+      comentariosAdmin: certificate.adminComments,
+      dataInicio: certificate.startDate,
+      dataFim: certificate.endDate
+    };
+
+    await this.prisma.certificado.create({ data: createData });
+    const result = await this.prisma.certificado.findUnique({
       where: { id: certificate.id },
       include: {
-        user: {
-          select: {
-            name: true,
-          },
-        },
+        bolsista: { include: { usuario: { select: { id: true, nome: true } } } }
       },
     });
 
@@ -74,116 +150,70 @@ export class PostgresCertificateRepository implements ICertificateRepository {
   }
 
   async findById(id: string): Promise<Certificate | null> {
-    const result = await this.prisma.certificate.findUnique({
+    const result = await this.prisma.certificado.findUnique({
       where: { id },
-      include: {
-        user: {
-          select: {
-            name: true,
-          },
-        },
-      },
+      include: { bolsista: { include: { usuario: { select: { id: true, nome: true } } } } }
     });
 
     return result ? this.mapToCertificate(result) : null;
   }
 
   async findByUserId(userId: string): Promise<Certificate[]> {
-    const results = await this.prisma.certificate.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-      include: {
-        user: {
-          select: {
-            name: true,
-          },
-        },
-      },
+    const bolsista = await this.prisma.bolsista.findUnique({ where: { usuarioId: userId } });
+    if (!bolsista) return [];
+    const results = await this.prisma.certificado.findMany({
+      where: { bolsistaId: bolsista.id },
+      orderBy: { criadoEm: 'desc' },
+      include: { bolsista: { include: { usuario: { select: { id: true, nome: true } } } } }
     });
 
     return results.map((result) => this.mapToCertificate(result));
   }
 
   async update(certificate: Certificate): Promise<Certificate> {
-    const result = await this.prisma.certificate.update({
+    const updateData: any = {
+      titulo: certificate.title,
+      instituicao: certificate.institution,
+      cargaHoraria: certificate.workload,
+      dataInicio: certificate.startDate,
+      dataFim: certificate.endDate,
+      arquivoUrl: certificate.certificateUrl,
+      status: (certificate.status === 'pending' ? 'PENDENTE' : certificate.status === 'approved' ? 'APROVADO' : 'REJEITADO'),
+      comentariosAdmin: certificate.adminComments,
+      atualizadoEm: certificate.updatedAt
+    };
+
+    const result = await this.prisma.certificado.update({
       where: { id: certificate.id },
-      data: {
-        title: certificate.title,
-        description: certificate.description,
-        institution: certificate.institution,
-        workload: certificate.workload,
-        startDate: certificate.startDate,
-        endDate: certificate.endDate,
-        certificateUrl: certificate.certificateUrl,
-        status: certificate.status,
-        adminComments: certificate.adminComments,
-        updatedAt: certificate.updatedAt
-      },
-      include: {
-        user: {
-          select: {
-            name: true,
-          },
-        },
-      },
+      data: updateData,
+      include: { bolsista: { include: { usuario: { select: { id: true, nome: true } } } } }
     });
 
     return this.mapToCertificate(result);
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.certificate.delete({
+    await this.prisma.certificado.delete({
       where: { id },
     });
   }
 
   async findAll(): Promise<Certificate[]> {
-    const results = await this.prisma.certificate.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: {
-        user: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-
+    const results = await this.prisma.certificado.findMany({ orderBy: { criadoEm: 'desc' }, include: { bolsista: { include: { usuario: { select: { id: true, nome: true } } } } } });
     return results.map((result) => this.mapToCertificate(result));
   }
 
   async findByStatus(status: 'pending' | 'approved' | 'rejected'): Promise<Certificate[]> {
-    const results = await this.prisma.certificate.findMany({
-      where: { status },
-      orderBy: { createdAt: 'desc' },
-      include: {
-        user: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-
+    const dbStatus = (status === 'pending' ? 'PENDENTE' : status === 'approved' ? 'APROVADO' : 'REJEITADO');
+    const results = await this.prisma.certificado.findMany({ where: { status: dbStatus }, orderBy: { criadoEm: 'desc' }, include: { bolsista: { include: { usuario: { select: { id: true, nome: true } } } } } });
     return results.map((result) => this.mapToCertificate(result));
   }
 
   async findByUserIdAndStatus(userId: string, status: 'pending' | 'approved' | 'rejected'): Promise<Certificate[]> {
-    const results = await this.prisma.certificate.findMany({
-      where: { 
-        userId,
-        status,
-      },
-      orderBy: { createdAt: 'desc' },
-      include: {
-        user: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-
+    const bolsista = await this.prisma.bolsista.findUnique({ where: { usuarioId: userId } });
+    if (!bolsista) return [];
+    const dbStatus = (status === 'pending' ? 'PENDENTE' : status === 'approved' ? 'APROVADO' : 'REJEITADO');
+    const results = await this.prisma.certificado.findMany({ where: { bolsistaId: bolsista.id, status: dbStatus }, orderBy: { criadoEm: 'desc' }, include: { bolsista: { include: { usuario: { select: { id: true, nome: true } } } } } });
     return results.map((result) => this.mapToCertificate(result));
   }
 } 

@@ -29,7 +29,8 @@ export class CreateCertificateUseCase {
       workload,
       startDate,
       endDate,
-      certificateUrl: filePath
+      certificateUrl: filePath,
+      category: 'EVENTOS'
     });
 
     return this.certificateRepository.create(certificate);

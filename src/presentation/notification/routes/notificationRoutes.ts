@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { Request, Response } from 'express';
 import { NotificationController } from '../controllers/NotificationController';
 import { GetNotificationsByUserUseCase } from '../../../application/notification/use-cases/GetNotificationsByUserUseCase';
 import { MarkNotificationAsReadUseCase } from '../../../application/notification/use-cases/MarkNotificationAsReadUseCase';
@@ -6,6 +7,8 @@ import { MarkAllNotificationsAsReadUseCase } from '../../../application/notifica
 import { GetUnreadNotificationCountUseCase } from '../../../application/notification/use-cases/GetUnreadNotificationCountUseCase';
 import { PostgresNotificationRepository } from '../../../infrastructure/notification/repositories/PostgresNotificationRepository';
 import { authMiddleware } from '../../middlewares/authMiddleware';
+import { param } from 'express-validator';
+import { validationMiddleware } from '../../middlewares/validationMiddleware';
 
 const router = Router();
 
@@ -25,12 +28,16 @@ const notificationController = new NotificationController(
 
 router.use(authMiddleware);
 
-router.get('/', (req, res) => notificationController.getMyNotifications(req, res));
+router.get('/', (req: Request, res: Response) => notificationController.getMyNotifications(req, res));
 
-router.get('/unread-count', (req, res) => notificationController.getUnreadCount(req, res));
+router.get('/unread-count', (req: Request, res: Response) => notificationController.getUnreadCount(req, res));
 
-router.patch('/:id/read', (req, res) => notificationController.markAsRead(req, res));
+router.patch(
+  '/:id/read',
+  [param('id').isString().notEmpty(), validationMiddleware],
+  (req: Request, res: Response) => notificationController.markAsRead(req, res)
+);
 
-router.patch('/mark-all-read', (req, res) => notificationController.markAllAsRead(req, res));
+router.patch('/mark-all-read', (req: Request, res: Response) => notificationController.markAllAsRead(req, res));
 
 export { router as notificationRoutes };

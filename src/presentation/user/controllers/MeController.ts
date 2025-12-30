@@ -16,9 +16,9 @@ export class MeController {
     }
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'Usuário não encontrado.' });
+      const tokenUser = (req as any).user || {};
+      return res.status(200).json({ id: userId, email: tokenUser.email, role: tokenUser.role });
     }
-    // Não retornar senha
     const { password, ...userData } = user;
     return res.json(userData);
   }

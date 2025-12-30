@@ -60,7 +60,8 @@ export class UploadCertificateUseCase {
         workload: workload || 0,
         startDate,
         endDate,
-        certificateUrl: filePath
+        certificateUrl: filePath,
+        category: 'EVENTOS'
       });
 
       const savedCertificate = await this.certificateRepository.create(certificate);

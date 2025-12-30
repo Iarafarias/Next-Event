@@ -1,8 +1,21 @@
-export interface UserResponseDTO {
+export interface UsuarioResponseDTO {
   id: string;
-  matricula: string;
-  name: string;
-  password: string;
+  nome: string;
   email: string;
-  isExistingUser: boolean;
+  status: string;
+  criadoEm: Date;
+  atualizadoEm: Date;
+  coordenador?: {
+    area?: string;
+    nivel?: string;
+  };
+  tutor?: {
+    area?: string;
+    nivel?: string;
+    capacidadeMaxima?: number;
+  };
+  bolsista?: {
+    anoIngresso?: number;
+    curso?: string;
+  };
 }

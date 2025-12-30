@@ -1,9 +1,9 @@
-import { IUserRepository } from '../../../domain/user/repositories/IUserRepository';
+import { IUsuarioRepository } from '../../../domain/user/repositories/IUsuarioRepository';
 
-export class DeleteUserUseCase {
-  constructor(private userRepository: IUserRepository) {}
+export class DeleteUsuarioUseCase {
+  constructor(private usuarioRepository: IUsuarioRepository) {}
 
   async execute(id: string): Promise<void> {
-    await this.userRepository.delete(id);
+    await this.usuarioRepository.delete(id);
   }
 }

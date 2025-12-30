@@ -9,4 +9,12 @@ export interface ICertificateRepository {
   findAll(): Promise<Certificate[]>;
   findByStatus(status: 'pending' | 'approved' | 'rejected'): Promise<Certificate[]>;
   findByUserIdAndStatus(userId: string, status: 'pending' | 'approved' | 'rejected'): Promise<Certificate[]>;
+
+  listByCoordenador(coordenadorId: string): Promise<Certificate[]>;
+  listByTutor(tutorId: string): Promise<Certificate[]>;
+  listByBolsista(bolsistaId: string): Promise<Certificate[]>;
+
+  validarPorCoordenador(certificadoId: string, coordenadorId: string, aprovado: boolean, comentarios?: string): Promise<void>;
+  emitirPorTutor(tutorId: string, dados: Omit<Certificate, 'id'>): Promise<Certificate>;
+  solicitarPorBolsista(bolsistaId: string, dados: Omit<Certificate, 'id'>): Promise<Certificate>;
 } 

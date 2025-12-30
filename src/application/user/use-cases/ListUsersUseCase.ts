@@ -1,10 +1,10 @@
-import { IUserRepository } from '../../../domain/user/repositories/IUserRepository';
-import { User } from '../../../domain/user/entities/User';
+import { IUsuarioRepository } from '../../../domain/user/repositories/IUsuarioRepository';
+import { Usuario } from '../../../domain/user/entities/Usuario';
 
-export class ListUsersUseCase {
-  constructor(private userRepository: IUserRepository) {}
+export class ListUsuariosUseCase {
+  constructor(private usuarioRepository: IUsuarioRepository) {}
 
-  async execute(): Promise<User[]> {
-    return this.userRepository.findAll();
+  async execute(): Promise<Usuario[]> {
+    return this.usuarioRepository.findAll();
   }
 }

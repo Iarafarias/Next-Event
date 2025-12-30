@@ -1,24 +1,50 @@
-services:
-  db:
-    image: postgres:15
-    container_name: evento_db
-    environment:
-      POSTGRES_DB: evento_system_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5433:5432"
-    volumes:
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+version: '3.8'
 
-  app:
-    image: node:20
-    container_name: evento_app
-    working_dir: /usr/src/app
-    stdin_open: true
-    tty: true
+services:
+  # Serviço PostgreSQL
+  postgres:
+    image: postgres:15
+    container_name: nextcertify_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+      POSTGRES_DB: nextcertify_db
+    ports:
+      - "5432:5432"
     volumes:
-      - .:/usr/src/app
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nextcertify_network
+
+  # Serviço da aplicação Node.js
+  app:
+    build:
+      context: ..
+      dockerfile: database/Dockerfile
+    container_name: nextcertify_app
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres123@postgres:5432/nextcertify_db?schema=public"
+      NODE_ENV: "development"
+      JWT_SECRET: "your-super-secret-jwt-key-change-in-production"
+      PORT: "3000"
+    ports:
+      - "3000:3000"
     depends_on:
-      - db
-    # command: bash
+      - postgres
+    volumes:
+      - ../uploads:/app/uploads
+      - ..:/app
+      - /app/node_modules
+    networks:
+      - nextcertify_network
+    command: sh -c "npx prisma generate && npx prisma db push && npm run dev"
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  nextcertify_network:
+    driver: bridge

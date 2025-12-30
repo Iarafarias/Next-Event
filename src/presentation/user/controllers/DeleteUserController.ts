@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import { DeleteUserUseCase } from '../../../application/user/use-cases/DeleteUserUseCase';
+import { DeleteUsuarioUseCase } from '../../../application/user/use-cases/DeleteUserUseCase';
 
-export class DeleteUserController {
-  constructor(private deleteUserUseCase: DeleteUserUseCase) {}
+export class DeleteUsuarioController {
+  constructor(private deleteUsuarioUseCase: DeleteUsuarioUseCase) {}
 
   async handle(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    await this.deleteUserUseCase.execute(id);
+    await this.deleteUsuarioUseCase.execute(id);
     return res.status(204).send();
   }
 }

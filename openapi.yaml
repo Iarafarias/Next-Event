@@ -4,8 +4,47 @@ info:
   description: API REST para gerenciamento de usuários, certificados, relatórios e papéis (Coordenador, Tutor, Bolsista).
   version: 1.0.0
 servers:
-  - url: http://localhost:3001/api
+  - url: http://localhost:3000/api
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 paths:
+  /users/login:
+    post:
+      summary: Autentica usuário e retorna token JWT
+      tags: ["Autenticacao"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                senha:
+                  type: string
+              required:
+                - email
+                - senha
+      responses:
+        '200':
+          description: Login realizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    type: object
+        '401':
+          description: Credenciais inválidas
+
   /users:
     post:
       summary: Cria um novo usuário
@@ -38,14 +77,22 @@ paths:
     get:
       summary: Lista todos os usuários
       tags: ["Usuarios"]
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Lista de usuários
+        '401':
+          description: Token não fornecido ou inválido
+        '403':
+          description: Acesso negado (apenas admins)
 
   /users/{id}:
     get:
       summary: Busca usuário por ID
-      tags: [Usuários]
+      tags: ["Usuarios"]
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: id
@@ -59,7 +106,9 @@ paths:
           description: Usuário não encontrado
     put:
       summary: Atualiza usuário por ID
-      tags: [Usuários]
+      tags: ["Usuarios"]
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: id
@@ -93,7 +142,9 @@ paths:
           description: Usuário não encontrado
     delete:
       summary: Remove usuário por ID
-      tags: [Usuários]
+      tags: ["Usuarios"]
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: id
@@ -108,21 +159,27 @@ paths:
   /users/coordenadores:
     get:
       summary: Lista todos os coordenadores
-      tags: [Usuários]
+      tags: ["Usuarios"]
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Lista de coordenadores
   /users/tutores:
     get:
       summary: Lista todos os tutores
-      tags: [Usuários]
+      tags: ["Usuarios"]
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Lista de tutores
   /users/bolsistas:
     get:
       summary: Lista todos os bolsistas
-      tags: [Usuários]
+      tags: ["Usuarios"]
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Lista de bolsistas
@@ -234,7 +291,9 @@ paths:
   /users/{id}/atribuir-papel:
     patch:
       summary: Atribui ou remove papel de usuário
-      tags: [Usuários]
+      tags: ["Usuarios"]
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: id

@@ -80,7 +80,7 @@ function findFreePort(startPort: number, cb: (port: number) => void) {
 const desiredPort = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 findFreePort(desiredPort, (PORT) => {
   app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port http://localhost:${PORT}`);
   });
 });
 

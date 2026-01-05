@@ -59,7 +59,7 @@ userRoutes.post('/login', (req: Request, res: Response) => {
 	logger.info('POST /usuarios/login - Tentativa de login', { body: req.body });
 	authUsuarioController.handle(req, res);
 });
-userRoutes.get('/', authMiddleware, authorizeRoles(['admin']), (req: Request, res: Response) => {
+userRoutes.get('/', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
 	logger.info('GET /usuarios - Listar usuários', { user: req.user });
 	listUsuariosController.handle(req, res);
 });
@@ -71,7 +71,7 @@ userRoutes.put('/:id', authMiddleware, (req: Request, res: Response) => {
 	logger.info('PUT /usuarios/:id - Atualizar usuário', { user: req.user, params: req.params, body: req.body });
 	updateUsuarioController.handle(req, res);
 });
-userRoutes.delete('/:id', authMiddleware, authorizeRoles(['admin']), (req: Request, res: Response) => {
+userRoutes.delete('/:id', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
 	logger.info('DELETE /usuarios/:id - Remover usuário', { user: req.user, params: req.params });
 	deleteUsuarioController.handle(req, res);
 });
@@ -79,7 +79,7 @@ userRoutes.delete('/:id', authMiddleware, authorizeRoles(['admin']), (req: Reque
 userRoutes.patch(
 	'/:id/atribuir-papel',
 	authMiddleware,
-	authorizeRoles(['admin']),
+	authorizeRoles(['coordinator']),
 	[param('id').isString().notEmpty(), body('papel').isString().notEmpty(), validationMiddleware],
 	(req: Request, res: Response) => {
 		logger.info('PATCH /usuarios/:id/atribuir-papel - Atribuir/remover papel', { user: req.user, params: req.params, body: req.body });
@@ -87,15 +87,15 @@ userRoutes.patch(
 	}
 );
 
-userRoutes.get('/coordenadores', authMiddleware, authorizeRoles(['admin']), (req: Request, res: Response) => {
+userRoutes.get('/coordenadores', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
 	logger.info('GET /usuarios/coordenadores - Listar coordenadores', { user: req.user });
 	listCoordenadoresController.handle(req, res);
 });
-userRoutes.get('/tutores', authMiddleware, authorizeRoles(['admin']), (req: Request, res: Response) => {
+userRoutes.get('/tutores', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
 	logger.info('GET /usuarios/tutores - Listar tutores', { user: req.user });
 	listTutoresController.handle(req, res);
 });
-userRoutes.get('/bolsistas', authMiddleware, authorizeRoles(['admin']), (req: Request, res: Response) => {
+userRoutes.get('/bolsistas', authMiddleware, authorizeRoles(['coordinator', 'tutor']), (req: Request, res: Response) => {
 	logger.info('GET /usuarios/bolsistas - Listar bolsistas', { user: req.user });
 	listBolsistasController.handle(req, res);
 });

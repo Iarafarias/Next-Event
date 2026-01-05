@@ -29,11 +29,30 @@ export class AuthUsuarioUseCase {
     const senhaOk = await compare(senha, usuario.senha);
     if (!senhaOk) throw new Error('Email ou senha incorretos');
 
+    let role = 'student'; // default
+    if (usuario.coordenador) {
+      role = 'coordinator';
+    } else if (usuario.tutor) {
+      role = 'tutor';
+    } else if (usuario.bolsista) {
+      role = 'scholarship_holder';
+    }
+
+    console.log('DEBUG AUTH - Usuario:', {
+      id: usuario.id,
+      email: usuario.email,
+      coordenador: !!usuario.coordenador,
+      tutor: !!usuario.tutor,
+      bolsista: !!usuario.bolsista,
+      role: role
+    });
+
     const token = sign(
       {
         id: usuario.id,
         email: usuario.email,
         status: usuario.status,
+        role: role,
       },
       process.env.JWT_SECRET as string,
       { expiresIn: '1d' }

@@ -1,0 +1,75 @@
+# COMANDOS PARA CONFIGURAR O AMBIENTE NEXTCERTIFY
+
+## 1. Preparação inicial
+# Copie o arquivo de exemplo de variáveis de ambiente
+cp .env.example .env
+
+# Instale as dependências
+npm install
+
+## 2. Usando Docker (RECOMENDADO)
+
+# Construir e subir os serviços
+docker-compose up --build -d
+
+# Verificar se os serviços estão rodando
+docker-compose ps
+
+# Ver logs da aplicação
+docker-compose logs app
+
+# Ver logs do banco
+docker-compose logs postgres
+
+## 3. Configuração manual (sem Docker)
+
+# 1. Instalar PostgreSQL localmente
+# 2. Criar o banco de dados
+createdb nextcertify_db
+
+# 3. Configurar a DATABASE_URL no .env
+# DATABASE_URL="postgresql://usuario:senha@localhost:5432/nextcertify_db?schema=public"
+
+# 4. Gerar o Prisma Client
+npx prisma generate
+
+# 5. Aplicar o schema no banco
+npx prisma db push
+
+# 6. (Opcional) Executar seed de dados iniciais
+npm run db:seed
+
+# 7. Iniciar a aplicação
+npm run dev
+
+## 4. Comandos úteis
+
+# Visualizar o banco de dados no Prisma Studio
+npx prisma studio
+
+# Aplicar migrações (ambiente de produção)
+npx prisma migrate deploy
+
+# Resetar o banco completamente
+npx prisma migrate reset
+
+# Gerar nova migração
+npx prisma migrate dev --name nome_da_migracao
+
+## 5. Verificação
+
+# Testar se a API está funcionando
+curl http://localhost:3000/health
+
+## 6. Parar o ambiente Docker
+
+# Parar os serviços
+docker-compose down
+
+# Parar e remover volumes (CUIDADO: apaga dados do banco)
+docker-compose down -v
+
+## URLs importantes
+# - API: http://localhost:3000
+# - Prisma Studio: http://localhost:5555
+# - PostgreSQL: localhost:5432

@@ -9,7 +9,7 @@ paths:
   /users:
     post:
       summary: Cria um novo usuário
-      tags: [Usuários]
+      tags: ["Usuarios"]
       requestBody:
         required: true
         content:
@@ -37,7 +37,7 @@ paths:
           description: Dados inválidos
     get:
       summary: Lista todos os usuários
-      tags: [Usuários]
+      tags: ["Usuarios"]
       responses:
         '200':
           description: Lista de usuários
@@ -129,7 +129,7 @@ paths:
   /coordenadores/{id}/certificados:
     get:
       summary: Lista certificados de um coordenador
-      tags: [Certificados]
+      tags: ["Certificados"]
       parameters:
         - in: path
           name: id
@@ -142,7 +142,7 @@ paths:
   /tutores/{id}/certificados:
     get:
       summary: Lista certificados de um tutor
-      tags: [Certificados]
+      tags: ["Certificados"]
       parameters:
         - in: path
           name: id
@@ -155,7 +155,7 @@ paths:
   /bolsistas/{id}/certificados:
     get:
       summary: Lista certificados de um bolsista
-      tags: [Certificados]
+      tags: ["Certificados"]
       parameters:
         - in: path
           name: id
@@ -168,7 +168,7 @@ paths:
   /coordenadores/{id}/validar-certificado:
     post:
       summary: Coordenador valida certificado
-      tags: [Certificados]
+      tags: ["Certificados"]
       parameters:
         - in: path
           name: id
@@ -190,7 +190,7 @@ paths:
   /tutores/{id}/emitir-certificado:
     post:
       summary: Tutor emite certificado
-      tags: [Certificados]
+      tags: ["Certificados"]
       parameters:
         - in: path
           name: id
@@ -212,7 +212,7 @@ paths:
   /bolsistas/{id}/solicitar-certificado:
     post:
       summary: Bolsista solicita certificado
-      tags: [Certificados]
+      tags: ["Certificados"]
       parameters:
         - in: path
           name: id

@@ -37,6 +37,7 @@ services:
       - ../uploads:/app/uploads
       - ..:/app
       - /app/node_modules
+       - ~/.npm:/home/nodejs/.npm
     networks:
       - nextcertify_network
     command: sh -c "npx prisma generate && npx prisma db push && npm run dev"

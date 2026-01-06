@@ -1,4 +1,5 @@
 import { hash } from 'bcryptjs';
+import { randomUUID } from 'crypto';
 import { Usuario } from '../../../domain/user/entities/Usuario';
 import { IUsuarioRepository } from '../../../domain/user/repositories/IUsuarioRepository';
 import { CreateUsuarioDTO } from '../dtos/CreateUserDTO';
@@ -30,7 +31,7 @@ export class CreateUsuarioUseCase {
 
     const senhaHash = await hash(data.senha, 8);
     // Gera id do usuário agora para usar nos perfis
-    const usuarioId = crypto.randomUUID();
+    const usuarioId = randomUUID();
     const usuario = new Usuario({
       nome: data.nome,
       email: data.email,
@@ -38,7 +39,7 @@ export class CreateUsuarioUseCase {
       status: data.status || 'ATIVO',
       coordenador: data.coordenador
         ? {
-            id: crypto.randomUUID(),
+            id: randomUUID(),
             usuarioId,
             area: data.coordenador.area,
             nivel: data.coordenador.nivel,
@@ -46,7 +47,7 @@ export class CreateUsuarioUseCase {
         : undefined,
       tutor: data.tutor
         ? {
-            id: crypto.randomUUID(),
+            id: randomUUID(),
             usuarioId,
             area: data.tutor.area,
             nivel: data.tutor.nivel,
@@ -55,7 +56,7 @@ export class CreateUsuarioUseCase {
         : undefined,
       bolsista: data.bolsista
         ? {
-            id: crypto.randomUUID(),
+            id: randomUUID(),
             usuarioId,
             anoIngresso: data.bolsista.anoIngresso,
             curso: data.bolsista.curso,

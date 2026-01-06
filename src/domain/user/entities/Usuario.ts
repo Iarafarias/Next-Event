@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto';
+
 export type UsuarioStatus = 'ATIVO' | 'INATIVO' | 'PENDENTE';
 export type UsuarioRole = 'COORDENADOR' | 'TUTOR' | 'BOLSISTA';
 
@@ -18,7 +20,7 @@ export class Usuario {
   constructor(props: Omit<Usuario, 'id' | 'criadoEm' | 'atualizadoEm'>) {
     Object.assign(this, {
       ...props,
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       criadoEm: new Date(),
       atualizadoEm: new Date(),
     });

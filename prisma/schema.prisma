@@ -1,27 +1,6 @@
-// =============================
-// Modelo de Notificação
-// =============================
-model Notification {
-  id                String   @id @default(uuid())
-  userId            String
-  type              String
-  title             String
-  message           String
-  status            String   // 'unread' | 'read'
-  relatedEntityId   String?  // id da entidade relacionada (opcional)
-  relatedEntityType String?  // tipo da entidade relacionada (opcional)
-  createdAt         DateTime @default(now())
-  readAt            DateTime?
-
-  usuario           Usuario  @relation(fields: [userId], references: [id])
-
-  @@map("notification")
-}
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
 }
 
 datasource db {
@@ -29,9 +8,260 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ================================================================
-// ENUMS
-// ================================================================
+model Notification {
+  id                String    @id @default(uuid())
+  userId            String
+  type              String
+  title             String
+  message           String
+  status            String
+  relatedEntityId   String?
+  relatedEntityType String?
+  createdAt         DateTime  @default(now())
+  readAt            DateTime?
+  usuario           Usuario   @relation(fields: [userId], references: [id])
+
+  @@map("notification")
+}
+
+/// Usuario - Entidade base para todos os usuários do sistema
+model Usuario {
+  id                String         @id @default(uuid())
+  nome              String
+  email             String         @unique
+  senha             String
+  matricula         String?        @unique
+  cpf               String?        @unique
+  status            StatusAtivacao @default(ATIVO)
+  criadoEm          DateTime       @default(now())
+  atualizadoEm      DateTime       @updatedAt
+  bolsista          Bolsista?
+  coordenador       Coordenador?
+  notificacoes      Notification[]
+  relatoriosGerados Relatorio[]    @relation("RelatorioGerador")
+  tutor             Tutor?
+
+  @@map("usuario")
+}
+
+/// Coordenador - Perfil específico de coordenador
+model Coordenador {
+  id        String  @id @default(uuid())
+  usuarioId String  @unique
+  area      String?
+  nivel     String?
+  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("coordenador")
+}
+
+/// Tutor - Perfil específico de tutor
+model Tutor {
+  id                       String                    @id @default(uuid())
+  usuarioId                String                    @unique
+  area                     String?
+  nivel                    String?
+  capacidadeMaxima         Int                       @default(5)
+  alocacoes                AlocarTutorAluno[]
+  formsAcompanhamento      FormAcompanhamento[]      @relation("FormTutor")
+  relatoriosAcompanhamento RelatorioAcompanhamento[]
+  relatoriosTutor          RelatorioTutor[]
+  usuario                  Usuario                   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("tutor")
+}
+
+/// Bolsista - Perfil específico de bolsista (aluno)
+model Bolsista {
+  id                  String               @id @default(uuid())
+  usuarioId           String               @unique
+  anoIngresso         Int?
+  curso               String?
+  alocacoes           AlocarTutorAluno[]
+  usuario             Usuario              @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  certificados        Certificado[]
+  formsAcompanhamento FormAcompanhamento[] @relation("FormBolsista")
+  relatoriosAluno     RelatorioAluno[]
+  relatoriosAvaliacao RelatorioAvaliacao[]
+
+  @@map("bolsista")
+}
+
+/// Relatorio - Entidade principal de relatórios
+model Relatorio {
+  id                      String                   @id @default(uuid())
+  titulo                  String
+  descricao               String?
+  tipo                    TipoRelatorio
+  geradorId               String
+  periodoId               String?
+  arquivoUrl              String?
+  criadoEm                DateTime                 @default(now())
+  atualizadoEm            DateTime                 @updatedAt
+  gerador                 Usuario                  @relation("RelatorioGerador", fields: [geradorId], references: [id])
+  periodo                 PeriodoTutoria?          @relation(fields: [periodoId], references: [id])
+  relatorioAcompanhamento RelatorioAcompanhamento?
+  relatorioAluno          RelatorioAluno?
+  relatorioAvaliacao      RelatorioAvaliacao?
+  relatorioCertificado    RelatorioCertificado?
+  relatorioTutor          RelatorioTutor?
+
+  @@map("relatorio")
+}
+
+/// RelatorioAluno - Relatório específico de aluno
+model RelatorioAluno {
+  id          String    @id @default(uuid())
+  relatorioId String    @unique
+  bolsistaId  String
+  periodo     String
+  atividades  Json?
+  observacoes String?
+  bolsista    Bolsista  @relation(fields: [bolsistaId], references: [id])
+  relatorio   Relatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
+
+  @@map("relatorio_aluno")
+}
+
+/// RelatorioTutor - Relatório específico de tutor
+model RelatorioTutor {
+  id              String    @id @default(uuid())
+  relatorioId     String    @unique
+  tutorId         String
+  periodo         String
+  atividades      Json?
+  alunosAtendidos Int?
+  relatorio       Relatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
+  tutor           Tutor     @relation(fields: [tutorId], references: [id])
+
+  @@map("relatorio_tutor")
+}
+
+/// RelatorioCertificado - Relatório específico de certificados
+model RelatorioCertificado {
+  id            String      @id @default(uuid())
+  relatorioId   String      @unique
+  certificadoId String
+  validacao     String?
+  observacoes   String?
+  certificado   Certificado @relation(fields: [certificadoId], references: [id])
+  relatorio     Relatorio   @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
+
+  @@map("relatorio_certificado")
+}
+
+/// RelatorioAcompanhamento - Relatório específico de acompanhamento
+model RelatorioAcompanhamento {
+  id          String    @id @default(uuid())
+  relatorioId String    @unique
+  tutorId     String
+  periodo     String
+  atividades  Json?
+  resultados  String?
+  relatorio   Relatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
+  tutor       Tutor     @relation(fields: [tutorId], references: [id])
+
+  @@map("relatorio_acompanhamento")
+}
+
+/// RelatorioAvaliacao - Relatório específico de avaliação
+model RelatorioAvaliacao {
+  id          String    @id @default(uuid())
+  relatorioId String    @unique
+  bolsistaId  String
+  nota        Float?
+  comentarios String?
+  periodo     String
+  bolsista    Bolsista  @relation(fields: [bolsistaId], references: [id])
+  relatorio   Relatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
+
+  @@map("relatorio_avaliacao")
+}
+
+/// Certificado - Documentos dos alunos
+model Certificado {
+  id                    String                 @id @default(uuid())
+  bolsistaId            String
+  titulo                String
+  instituicao           String
+  cargaHoraria          Int
+  categoria             CategoriaWorkload
+  dataInicio            DateTime
+  dataFim               DateTime
+  status                StatusCertificado      @default(PENDENTE)
+  arquivoUrl            String                 @unique
+  comentariosAdmin      String?
+  criadoEm              DateTime               @default(now())
+  atualizadoEm          DateTime               @updatedAt
+  bolsista              Bolsista               @relation(fields: [bolsistaId], references: [id])
+  relatoriosCertificado RelatorioCertificado[]
+
+  @@map("certificado")
+}
+
+/// FormAcompanhamento - Formulários de acompanhamento
+model FormAcompanhamento {
+  id          String         @id @default(uuid())
+  tutorId     String
+  bolsistaId  String
+  periodoId   String
+  conteudo    Json
+  dataEnvio   DateTime       @default(now())
+  observacoes String?
+  bolsista    Bolsista       @relation("FormBolsista", fields: [bolsistaId], references: [id])
+  periodo     PeriodoTutoria @relation(fields: [periodoId], references: [id])
+  tutor       Tutor          @relation("FormTutor", fields: [tutorId], references: [id])
+
+  @@map("form_acompanhamento")
+}
+
+/// PeriodoTutoria - Controle de períodos de tutoria
+model PeriodoTutoria {
+  id                  String               @id @default(uuid())
+  nome                String
+  dataInicio          DateTime
+  dataFim             DateTime
+  ativo               Boolean              @default(false)
+  descricao           String?
+  alocacoes           AlocarTutorAluno[]
+  cargasHorariaMinima CargaHorariaMinima[]
+  formsAcompanhamento FormAcompanhamento[]
+  relatorios          Relatorio[]
+
+  @@map("periodo_tutoria")
+}
+
+/// AlocarTutorAluno - Tabela associativa para relacionamento N:N entre Tutor e Aluno
+model AlocarTutorAluno {
+  id         String         @id @default(uuid())
+  tutorId    String
+  bolsistaId String
+  periodoId  String
+  dataInicio DateTime
+  dataFim    DateTime?
+  ativo      Boolean        @default(true)
+  bolsista   Bolsista       @relation(fields: [bolsistaId], references: [id])
+  periodo    PeriodoTutoria @relation(fields: [periodoId], references: [id])
+  tutor      Tutor          @relation(fields: [tutorId], references: [id])
+
+  @@unique([bolsistaId, periodoId])
+  @@index([tutorId])
+  @@index([bolsistaId])
+  @@map("alocar_tutor_aluno")
+}
+
+/// CargaHorariaMinima - Configuração de cargas horárias mínimas
+model CargaHorariaMinima {
+  id           String            @id @default(uuid())
+  periodoId    String
+  categoria    CategoriaWorkload
+  horasMinimas Int
+  descricao    String?
+  periodo      PeriodoTutoria    @relation(fields: [periodoId], references: [id])
+
+  @@unique([periodoId, categoria])
+  @@map("carga_horaria_minima")
+}
 
 enum StatusAtivacao {
   ATIVO
@@ -63,275 +293,4 @@ enum CategoriaWorkload {
   EVENTOS
   MONITORIA
   ESTUDOS_INDIVIDUAIS
-}
-
-// ================================================================
-// MODELOS PRINCIPAIS
-// ================================================================
-
-/// Usuario - Entidade base para todos os usuários do sistema
-model Usuario {
-  id        String   @id @default(uuid())
-  nome      String
-  email     String   @unique
-  senha     String
-  matricula String?  @unique
-  cpf       String?  @unique
-  status    StatusAtivacao @default(ATIVO)
-  criadoEm  DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-
-  // Relacionamentos com perfis específicos
-  coordenador Coordenador?
-  tutor       Tutor?
-  bolsista    Bolsista?
-
-  // Relacionamentos com relatórios
-  relatoriosGerados Relatorio[] @relation("RelatorioGerador")
-    notificacoes Notification[]
-
-  @@map("usuario")
-}
-
-/// Coordenador - Perfil específico de coordenador
-model Coordenador {
-  id        String @id @default(uuid())
-  usuarioId String @unique
-  area      String?
-  nivel     String?
-  
-  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-
-  @@map("coordenador")
-}
-
-/// Tutor - Perfil específico de tutor
-model Tutor {
-  id        String @id @default(uuid())
-  usuarioId String @unique
-  area      String?
-  nivel     String?
-  capacidadeMaxima Int @default(5)
-
-  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  
-  // Relacionamentos
-  alocacoes AlocarTutorAluno[]
-  relatoriosTutor RelatorioTutor[]
-  formsAcompanhamento FormAcompanhamento[] @relation("FormTutor")
-  relatoriosAcompanhamento RelatorioAcompanhamento[]
-
-  @@map("tutor")
-}
-
-/// Bolsista - Perfil específico de bolsista (aluno)
-model Bolsista {
-  id        String @id @default(uuid())
-  usuarioId String @unique
-  anoIngresso Int?
-  curso     String?
-
-  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  
-  // Relacionamentos
-  certificados Certificado[]
-  alocacoes AlocarTutorAluno[]
-  relatoriosAluno RelatorioAluno[]
-  formsAcompanhamento FormAcompanhamento[] @relation("FormBolsista")
-  relatoriosAvaliacao RelatorioAvaliacao[]
-
-  @@map("bolsista")
-}
-
-/// Relatorio - Entidade principal de relatórios
-model Relatorio {
-  id           String @id @default(uuid())
-  titulo       String
-  descricao    String?
-  tipo         TipoRelatorio
-  geradorId    String
-  periodoId    String?
-  arquivoUrl   String?
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-
-  gerador  Usuario @relation("RelatorioGerador", fields: [geradorId], references: [id])
-  periodo  PeriodoTutoria? @relation(fields: [periodoId], references: [id])
-
-  // Relacionamentos com subtipos de relatório
-  relatorioAluno RelatorioAluno?
-  relatorioTutor RelatorioTutor?
-  relatorioCertificado RelatorioCertificado?
-  relatorioAcompanhamento RelatorioAcompanhamento?
-  relatorioAvaliacao RelatorioAvaliacao?
-
-  @@map("relatorio")
-}
-
-/// RelatorioAluno - Relatório específico de aluno
-model RelatorioAluno {
-  id          String @id @default(uuid())
-  relatorioId String @unique
-  bolsistaId  String
-  periodo     String
-  atividades  Json?
-  observacoes String?
-
-  relatorio Relatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
-  bolsista  Bolsista @relation(fields: [bolsistaId], references: [id])
-
-  @@map("relatorio_aluno")
-}
-
-/// RelatorioTutor - Relatório específico de tutor
-model RelatorioTutor {
-  id          String @id @default(uuid())
-  relatorioId String @unique
-  tutorId     String
-  periodo     String
-  atividades  Json?
-  alunosAtendidos Int?
-
-  relatorio Relatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
-  tutor     Tutor @relation(fields: [tutorId], references: [id])
-
-  @@map("relatorio_tutor")
-}
-
-/// RelatorioCertificado - Relatório específico de certificados
-model RelatorioCertificado {
-  id           String @id @default(uuid())
-  relatorioId  String @unique
-  certificadoId String
-  validacao    String?
-  observacoes  String?
-
-  relatorio   Relatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
-  certificado Certificado @relation(fields: [certificadoId], references: [id])
-
-  @@map("relatorio_certificado")
-}
-
-/// RelatorioAcompanhamento - Relatório específico de acompanhamento
-model RelatorioAcompanhamento {
-  id          String @id @default(uuid())
-  relatorioId String @unique
-  tutorId     String
-  periodo     String
-  atividades  Json?
-  resultados  String?
-
-  relatorio Relatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
-  tutor     Tutor @relation(fields: [tutorId], references: [id])
-
-  @@map("relatorio_acompanhamento")
-}
-
-/// RelatorioAvaliacao - Relatório específico de avaliação
-model RelatorioAvaliacao {
-  id          String @id @default(uuid())
-  relatorioId String @unique
-  bolsistaId  String
-  nota        Float?
-  comentarios String?
-  periodo     String
-
-  relatorio Relatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
-  bolsista  Bolsista @relation(fields: [bolsistaId], references: [id])
-
-  @@map("relatorio_avaliacao")
-}
-
-/// Certificado - Documentos dos alunos
-model Certificado {
-  id          String @id @default(uuid())
-  bolsistaId  String
-  titulo      String
-  instituicao String
-  cargaHoraria Int
-  categoria   CategoriaWorkload
-  dataInicio  DateTime
-  dataFim     DateTime
-  status      StatusCertificado @default(PENDENTE)
-  arquivoUrl  String @unique
-  comentariosAdmin String?
-  criadoEm    DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-
-  bolsista Bolsista @relation(fields: [bolsistaId], references: [id])
-  
-  // Relacionamento com relatórios
-  relatoriosCertificado RelatorioCertificado[]
-
-  @@map("certificado")
-}
-
-/// FormAcompanhamento - Formulários de acompanhamento
-model FormAcompanhamento {
-  id          String @id @default(uuid())
-  tutorId     String
-  bolsistaId  String
-  periodoId   String
-  conteudo    Json
-  dataEnvio   DateTime @default(now())
-  observacoes String?
-
-  tutor    Tutor @relation("FormTutor", fields: [tutorId], references: [id])
-  bolsista Bolsista @relation("FormBolsista", fields: [bolsistaId], references: [id])
-  periodo  PeriodoTutoria @relation(fields: [periodoId], references: [id])
-
-  @@map("form_acompanhamento")
-}
-
-/// PeriodoTutoria - Controle de períodos de tutoria
-model PeriodoTutoria {
-  id        String @id @default(uuid())
-  nome      String
-  dataInicio DateTime
-  dataFim   DateTime
-  ativo     Boolean @default(false)
-  descricao String?
-
-  // Relacionamentos
-  alocacoes AlocarTutorAluno[]
-  formsAcompanhamento FormAcompanhamento[]
-  cargasHorariaMinima CargaHorariaMinima[]
-  relatorios Relatorio[]
-
-  @@map("periodo_tutoria")
-}
-
-/// AlocarTutorAluno - Tabela associativa para relacionamento N:N entre Tutor e Aluno
-model AlocarTutorAluno {
-  id          String @id @default(uuid())
-  tutorId     String
-  bolsistaId  String
-  periodoId   String
-  dataInicio  DateTime
-  dataFim     DateTime?
-  ativo       Boolean @default(true)
-
-  tutor    Tutor @relation(fields: [tutorId], references: [id])
-  bolsista Bolsista @relation(fields: [bolsistaId], references: [id])
-  periodo  PeriodoTutoria @relation(fields: [periodoId], references: [id])
-
-  // Um bolsista pode ter apenas um tutor por período
-  @@unique([bolsistaId, periodoId])
-  @@index([tutorId])
-  @@index([bolsistaId])
-  @@map("alocar_tutor_aluno")
-}
-
-/// CargaHorariaMinima - Configuração de cargas horárias mínimas
-model CargaHorariaMinima {
-  id          String @id @default(uuid())
-  periodoId   String
-  categoria   CategoriaWorkload
-  horasMinimas Int
-  descricao   String?
-
-  periodo PeriodoTutoria @relation(fields: [periodoId], references: [id])
-
-  @@unique([periodoId, categoria])
-  @@map("carga_horaria_minima")
 }

@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto';
+
 export type NotificationType = 'certificate_approved' | 'certificate_rejected' | 'certificate_pending' | 'system_announcement';
 export type NotificationStatus = 'unread' | 'read';
 
@@ -25,7 +27,7 @@ export class Notification {
   constructor(props: NotificationProps) {
     Object.assign(this, {
       ...props,
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       status: 'unread' as NotificationStatus,
       createdAt: new Date(),
     });

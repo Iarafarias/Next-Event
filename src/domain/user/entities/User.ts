@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto';
+
 export type UserRole = 'admin' | 'student' | 'tutor' | 'scholarship_holder' | 'coordinator';
 
 export class User {
@@ -14,7 +16,7 @@ export class User {
   constructor(props: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) {
     Object.assign(this, {
       ...props,
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       createdAt: new Date(),
       updatedAt: new Date(),
     });

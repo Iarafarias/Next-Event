@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto';
+
 export class Event {
   public readonly id: string;
   public name: string;
@@ -10,6 +12,6 @@ export class Event {
     this.description = props.description;
     this.date = props.date;
     this.location = props.location;
-    this.id = id ?? crypto.randomUUID();
+    this.id = id ?? randomUUID();
   }
 }

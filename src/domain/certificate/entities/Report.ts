@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 export interface ReportData {
   userId: string;
   userName: string;
@@ -33,7 +34,7 @@ export class Report {
   constructor(props: Omit<Report, 'id' | 'generatedAt'>) {
     Object.assign(this, {
       ...props,
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       generatedAt: new Date(),
     });
   }

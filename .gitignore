@@ -6,5 +6,4 @@ dist/
 README.md
 
 # Documentação e arquivos de teste
-*.md
 !README.md

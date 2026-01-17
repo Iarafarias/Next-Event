@@ -2,17 +2,18 @@ import { Request, Response } from 'express';
 import { CreateUsuarioUseCase } from '../../../application/user/use-cases/CreateUserUseCase';
 
 export class CreateUsuarioController {
-  constructor(private createUsuarioUseCase: CreateUsuarioUseCase) {}
+  constructor(private createUsuarioUseCase: CreateUsuarioUseCase) { }
 
   async handle(request: Request, response: Response): Promise<Response> {
     try {
-      const { nome, email, senha, status, coordenador, tutor, bolsista } = request.body;
+      const { nome, email, senha, status, aluno, coordenador, tutor, bolsista } = request.body;
 
       const result = await this.createUsuarioUseCase.execute({
         nome,
         email,
         senha,
         status,
+        aluno,
         coordenador,
         tutor,
         bolsista,

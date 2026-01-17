@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto';
+
 export class Subscription {
   public readonly id: string;
   public userId: string;
@@ -8,6 +10,6 @@ export class Subscription {
     this.userId = props.userId;
     this.eventId = props.eventId;
     this.subscribedAt = new Date();
-    this.id = id ?? crypto.randomUUID();
+    this.id = id ?? randomUUID();
   }
 }

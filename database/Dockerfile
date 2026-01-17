@@ -9,7 +9,7 @@ COPY package*.json ./
 COPY prisma/ ./prisma/
 
 # Instalar dependências
-RUN npm ci --only=production
+RUN npm ci --only=production --legacy-peer-deps
 
 # Instalar Prisma CLI globalmente
 RUN npm install -g prisma
@@ -23,13 +23,11 @@ RUN npx prisma generate
 # Criar diretório para uploads
 RUN mkdir -p uploads/certificates
 
-# Criar usuário não-root para segurança
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
-
-# Definir permissões
-RUN chown -R nodejs:nodejs /app
-USER nodejs
+# Criar usuário não-root para segurança (Desativado temporariamente para resolver permissões em dev)
+# RUN addgroup -g 1001 -S nodejs
+# RUN adduser -S nodejs -u 1001
+# RUN chown -R nodejs:nodejs /app
+# USER nodejs
 
 # Expor porta da aplicação
 EXPOSE 3000

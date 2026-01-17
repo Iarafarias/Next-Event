@@ -1,9 +1,10 @@
+import { randomUUID } from 'crypto';
 import { IUsuarioRepository } from '../../../domain/user/repositories/IUsuarioRepository';
 import { UpdateUsuarioDTO } from '../dtos/UpdateUserDTO';
 import { Usuario } from '../../../domain/user/entities/Usuario';
 
 export class UpdateUsuarioUseCase {
-  constructor(private usuarioRepository: IUsuarioRepository) {}
+  constructor(private usuarioRepository: IUsuarioRepository) { }
 
   async execute(data: UpdateUsuarioDTO): Promise<Usuario | null> {
     try {
@@ -22,7 +23,7 @@ export class UpdateUsuarioUseCase {
       };
       if (data.coordenador) {
         updateData.coordenador = {
-          id: usuarioExists.coordenador?.id || crypto.randomUUID(),
+          id: usuarioExists.coordenador?.id || randomUUID(),
           usuarioId: data.id,
           area: data.coordenador.area,
           nivel: data.coordenador.nivel,
@@ -30,7 +31,7 @@ export class UpdateUsuarioUseCase {
       }
       if (data.tutor) {
         updateData.tutor = {
-          id: usuarioExists.tutor?.id || crypto.randomUUID(),
+          id: usuarioExists.tutor?.id || randomUUID(),
           usuarioId: data.id,
           area: data.tutor.area,
           nivel: data.tutor.nivel,
@@ -39,7 +40,7 @@ export class UpdateUsuarioUseCase {
       }
       if (data.bolsista) {
         updateData.bolsista = {
-          id: usuarioExists.bolsista?.id || crypto.randomUUID(),
+          id: usuarioExists.bolsista?.id || randomUUID(),
           usuarioId: data.id,
           anoIngresso: data.bolsista.anoIngresso,
           curso: data.bolsista.curso,

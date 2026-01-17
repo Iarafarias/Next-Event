@@ -4,48 +4,100 @@ import { User } from '../../../domain/user/entities/User';
 import { UpdateUsuarioDTO } from '../../../application/user/dtos/UpdateUserDTO';
 
 export class PostgresUserRepository implements IUserRepository {
-    async listByRole(role: 'coordenador' | 'tutor' | 'bolsista'): Promise<User[]> {
-      const dbRoleMap: Record<string, string> = {
-        coordenador: 'COORDINATOR',
-        tutor: 'TUTOR',
-        bolsista: 'SCHOLARSHIP_HOLDER',
-      };
-        let whereClause: any = {};
-        if (role === 'coordenador') {
-          whereClause = { coordenador: { isNot: null } };
-        } else if (role === 'tutor') {
-          whereClause = { tutor: { isNot: null } };
-        } else if (role === 'bolsista') {
-          whereClause = { bolsista: { isNot: null } };
-        }
-        const users = await this.prisma.usuario.findMany({ where: whereClause });
-        return users.map(this.mapToUser);
+  async listByRole(role: 'coordenador' | 'tutor' | 'bolsista'): Promise<User[]> {
+    const dbRoleMap: Record<string, string> = {
+      coordenador: 'COORDINATOR',
+      tutor: 'TUTOR',
+      bolsista: 'SCHOLARSHIP_HOLDER',
+    };
+    let whereClause: any = {};
+    if (role === 'coordenador') {
+      whereClause = { coordenador: { isNot: null } };
+    } else if (role === 'tutor') {
+      whereClause = { tutor: { isNot: null } };
+    } else if (role === 'bolsista') {
+      whereClause = { bolsista: { isNot: null } };
     }
+    const users = await this.prisma.usuario.findMany({ where: whereClause });
+    return users.map(this.mapToUser);
+  }
 
-    async atribuirPapel(userId: string, dto: { papel: 'coordenador' | 'tutor' | 'bolsista'; acao: 'atribuir' | 'remover' }): Promise<void> {
-      const dbRoleMap: Record<string, string> = {
-        coordenador: 'COORDINATOR',
-        tutor: 'TUTOR',
-        bolsista: 'SCHOLARSHIP_HOLDER',
-      };
-        if (dto.acao === 'atribuir') {
-          if (dto.papel === 'coordenador') {
-            await this.prisma.coordenador.create({ data: { usuarioId: userId } });
-          } else if (dto.papel === 'tutor') {
-            await this.prisma.tutor.create({ data: { usuarioId: userId } });
-          } else if (dto.papel === 'bolsista') {
-            await this.prisma.bolsista.create({ data: { usuarioId: userId } });
-          }
-        } else if (dto.acao === 'remover') {
-          if (dto.papel === 'coordenador') {
-            await this.prisma.coordenador.deleteMany({ where: { usuarioId: userId } });
-          } else if (dto.papel === 'tutor') {
-            await this.prisma.tutor.deleteMany({ where: { usuarioId: userId } });
-          } else if (dto.papel === 'bolsista') {
-            await this.prisma.bolsista.deleteMany({ where: { usuarioId: userId } });
-          }
+  async atribuirPapel(userId: string, dto: { papel: 'coordenador' | 'tutor' | 'bolsista'; acao: 'atribuir' | 'remover' }): Promise<void> {
+    const dbRoleMap: Record<string, string> = {
+      coordenador: 'COORDINATOR',
+      tutor: 'TUTOR',
+      bolsista: 'SCHOLARSHIP_HOLDER',
+    };
+    if (dto.acao === 'atribuir') {
+      if (dto.papel === 'coordenador') {
+        await this.prisma.coordenador.create({ data: { usuarioId: userId } });
+      } else if (dto.papel === 'tutor') {
+        const tutor = await this.prisma.tutor.create({ data: { usuarioId: userId } });
+
+        // Sincronizar com Aluno.role
+        const aluno = await this.prisma.aluno.findUnique({ where: { usuarioId: userId } });
+        if (aluno) {
+          const isBolsista = aluno.bolsistaProfileId !== null;
+          await this.prisma.aluno.update({
+            where: { usuarioId: userId },
+            data: {
+              tutorProfileId: tutor.id,
+              role: isBolsista ? 'TUTOR_BOLSISTA' : 'TUTOR'
+            }
+          });
         }
+      } else if (dto.papel === 'bolsista') {
+        const bolsista = await this.prisma.bolsista.create({ data: { usuarioId: userId } });
+
+        // Sincronizar com Aluno.role
+        const aluno = await this.prisma.aluno.findUnique({ where: { usuarioId: userId } });
+        if (aluno) {
+          const isTutor = aluno.tutorProfileId !== null;
+          await this.prisma.aluno.update({
+            where: { usuarioId: userId },
+            data: {
+              bolsistaProfileId: bolsista.id,
+              role: isTutor ? 'TUTOR_BOLSISTA' : 'BOLSISTA'
+            }
+          });
+        }
+      }
+    } else if (dto.acao === 'remover') {
+      if (dto.papel === 'coordenador') {
+        await this.prisma.coordenador.deleteMany({ where: { usuarioId: userId } });
+      } else if (dto.papel === 'tutor') {
+        await this.prisma.tutor.deleteMany({ where: { usuarioId: userId } });
+
+        // Sincronizar com Aluno.role
+        const aluno = await this.prisma.aluno.findUnique({ where: { usuarioId: userId } });
+        if (aluno) {
+          const isBolsista = aluno.bolsistaProfileId !== null;
+          await this.prisma.aluno.update({
+            where: { usuarioId: userId },
+            data: {
+              tutorProfileId: null,
+              role: isBolsista ? 'BOLSISTA' : 'ALUNO'
+            }
+          });
+        }
+      } else if (dto.papel === 'bolsista') {
+        await this.prisma.bolsista.deleteMany({ where: { usuarioId: userId } });
+
+        // Sincronizar com Aluno.role
+        const aluno = await this.prisma.aluno.findUnique({ where: { usuarioId: userId } });
+        if (aluno) {
+          const isTutor = aluno.tutorProfileId !== null;
+          await this.prisma.aluno.update({
+            where: { usuarioId: userId },
+            data: {
+              bolsistaProfileId: null,
+              role: isTutor ? 'TUTOR' : 'ALUNO'
+            }
+          });
+        }
+      }
     }
+  }
   private prisma: PrismaClient;
 
   constructor() {

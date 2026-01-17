@@ -44,9 +44,9 @@
     "@types/pg": "^8.15.4",
     "@types/supertest": "^6.0.3",
     "@types/swagger-ui-express": "^4.1.8",
-    "jest": "^30.0.4",
+    "jest": "^26.5.3",
     "supertest": "^7.1.1",
-    "ts-jest": "^29.4.0",
+    "ts-jest": "^26.5.6",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
   }

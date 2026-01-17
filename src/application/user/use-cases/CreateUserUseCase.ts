@@ -1,4 +1,5 @@
 import { hash } from 'bcryptjs';
+import { randomUUID } from 'crypto';
 import { Usuario } from '../../../domain/user/entities/Usuario';
 import { IUsuarioRepository } from '../../../domain/user/repositories/IUsuarioRepository';
 import { CreateUsuarioDTO } from '../dtos/CreateUserDTO';
@@ -18,7 +19,7 @@ interface CreateUsuarioResponse {
 }
 
 export class CreateUsuarioUseCase {
-  constructor(private usuarioRepository: IUsuarioRepository) {}
+  constructor(private usuarioRepository: IUsuarioRepository) { }
 
   async execute(data: CreateUsuarioDTO): Promise<CreateUsuarioResponse> {
     if (!data.nome) throw new Error('Nome é obrigatório');
@@ -30,7 +31,7 @@ export class CreateUsuarioUseCase {
 
     const senhaHash = await hash(data.senha, 8);
     // Gera id do usuário agora para usar nos perfis
-    const usuarioId = crypto.randomUUID();
+    const usuarioId = randomUUID();
     const usuario = new Usuario({
       nome: data.nome,
       email: data.email,
@@ -38,31 +39,35 @@ export class CreateUsuarioUseCase {
       status: data.status || 'ATIVO',
       coordenador: data.coordenador
         ? {
-            id: crypto.randomUUID(),
-            usuarioId,
-            area: data.coordenador.area,
-            nivel: data.coordenador.nivel,
-          }
+          id: randomUUID(),
+          usuarioId,
+          area: data.coordenador.area,
+          nivel: data.coordenador.nivel,
+        }
         : undefined,
       tutor: data.tutor
         ? {
-            id: crypto.randomUUID(),
-            usuarioId,
-            area: data.tutor.area,
-            nivel: data.tutor.nivel,
-            capacidadeMaxima: data.tutor.capacidadeMaxima ?? 5,
-          }
+          id: randomUUID(),
+          usuarioId,
+          area: data.tutor.area,
+          nivel: data.tutor.nivel,
+          capacidadeMaxima: data.tutor.capacidadeMaxima ?? 5,
+        }
         : undefined,
       bolsista: data.bolsista
         ? {
-            id: crypto.randomUUID(),
-            usuarioId,
-            anoIngresso: data.bolsista.anoIngresso,
-            curso: data.bolsista.curso,
-          }
+          id: randomUUID(),
+          usuarioId,
+          anoIngresso: data.bolsista.anoIngresso,
+          curso: data.bolsista.curso,
+        }
         : undefined,
     });
     usuario.id = usuarioId;
+
+    // Passar dados do aluno para o repositório (será criado automaticamente)
+    usuario.aluno = data.aluno;
+
     const created = await this.usuarioRepository.create(usuario);
     return {
       usuario: {

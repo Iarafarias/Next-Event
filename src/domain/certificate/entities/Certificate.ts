@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 export type CertificateStatus = 'pending' | 'approved' | 'rejected';
 import type { CategoriaWorkload } from '@prisma/client';
 
@@ -35,7 +36,7 @@ export class Certificate {
   constructor(props: CertificateProps) {
     Object.assign(this, {
       ...props,
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       status: 'pending',
       createdAt: new Date(),
       updatedAt: new Date(),

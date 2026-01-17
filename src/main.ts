@@ -20,6 +20,8 @@ import { relatorioRoutes } from './presentation/relatorio/routes/relatorioRoutes
 import { formAcompanhamentoRoutes } from './presentation/formAcompanhamento/routes/formAcompanhamentoRoutes';
 import { periodoTutoriaRoutes } from './presentation/periodoTutoria/routes/periodoTutoriaRoutes';
 import { notificationRoutes } from './presentation/notification/routes/notificationRoutes';
+import { cursoRoutes } from './presentation/curso/routes/cursoRoutes';
+import { alunoRoutes } from './presentation/aluno/routes/alunoRoutes';
 
 const app = express();
 setupSwagger(app);
@@ -56,6 +58,8 @@ app.use('/api/form-acompanhamento', formAcompanhamentoRoutes);
 app.use('/api/periodo-tutoria', periodoTutoriaRoutes);
 app.use('/api/alocar-tutor-aluno', alocarTutorAlunoRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/cursos', cursoRoutes);
+app.use('/api/alunos', alunoRoutes);
 
 app.use('/api/carga-horaria-minima', cargaHorariaMinimaRoutes);
 

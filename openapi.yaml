@@ -62,13 +62,49 @@ paths:
                   type: string
                 senha:
                   type: string
-                matricula:
-                  type: string
-                cpf:
-                  type: string
                 status:
                   type: string
                   enum: [ATIVO, INATIVO, PENDENTE]
+                aluno:
+                  type: object
+                  description: Dados do perfil de aluno (criado automaticamente para todos os usuários)
+                  properties:
+                    cursoId:
+                      type: string
+                      description: ID do curso para vincular o aluno
+                    matricula:
+                      type: string
+                      description: Número de matrícula do aluno
+                coordenador:
+                  type: object
+                  description: Dados do perfil de coordenador (opcional)
+                  properties:
+                    area:
+                      type: string
+                    nivel:
+                      type: string
+                tutor:
+                  type: object
+                  description: Dados do perfil de tutor (opcional)
+                  properties:
+                    area:
+                      type: string
+                    nivel:
+                      type: string
+                    capacidadeMaxima:
+                      type: integer
+                bolsista:
+                  type: object
+                  description: Dados do perfil de bolsista (opcional)
+                  properties:
+                    anoIngresso:
+                      type: integer
+                    curso:
+                      type: string
+              required:
+                - nome
+                - email
+                - senha
       responses:
         '201':
           description: Usuário criado com sucesso
@@ -351,3 +387,266 @@ paths:
       responses:
         '200':
           description: Lista de relatórios
+
+  /cursos:
+    post:
+      summary: Criar um novo curso
+      tags: ["Cursos"]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                  description: Nome do curso
+                codigo:
+                  type: string
+                  description: Código único do curso
+                descricao:
+                  type: string
+                  description: Descrição do curso (opcional)
+              required:
+                - nome
+                - codigo
+      responses:
+        '201':
+          description: Curso criado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  nome:
+                    type: string
+                  codigo:
+                    type: string
+                  descricao:
+                    type: string
+                  criadoEm:
+                    type: string
+                    format: date-time
+                  alunosCount:
+                    type: integer
+        '400':
+          description: Dados inválidos ou código duplicado
+        '401':
+          description: Não autenticado
+        '403':
+          description: Sem permissão (requer coordinator ou scholarship_holder)
+    get:
+      summary: Listar todos os cursos
+      tags: ["Cursos"]
+      responses:
+        '200':
+          description: Lista de cursos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    nome:
+                      type: string
+                    codigo:
+                      type: string
+                    descricao:
+                      type: string
+                    criadoEm:
+                      type: string
+                      format: date-time
+                    alunosCount:
+                      type: integer
+        '401':
+          description: Não autenticado
+
+  /cursos/{id}:
+    get:
+      summary: Buscar curso por ID
+      tags: ["Cursos"]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Curso encontrado
+        '404':
+          description: Curso não encontrado
+    put:
+      summary: Atualizar curso
+      tags: ["Cursos"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                codigo:
+                  type: string
+                descricao:
+                  type: string
+      responses:
+        '200':
+          description: Curso atualizado
+        '400':
+          description: Dados inválidos ou código duplicado
+        '403':
+          description: Sem permissão (requer coordinator ou scholarship_holder)
+        '404':
+          description: Curso não encontrado
+    delete:
+      summary: Deletar curso
+      tags: ["Cursos"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Curso deletado
+        '400':
+          description: Não é possível deletar curso com alunos vinculados
+        '403':
+          description: Sem permissão (requer coordinator)
+        '404':
+          description: Curso não encontrado
+
+  /alunos:
+    get:
+      summary: Listar alunos (com filtros opcionais)
+      tags: ["Alunos"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: cursoId
+          schema:
+            type: string
+          description: Filtrar por ID do curso
+        - in: query
+          name: role
+          schema:
+            type: string
+            enum: [ALUNO, TUTOR, BOLSISTA, TUTOR_BOLSISTA]
+          description: Filtrar por role do aluno
+      responses:
+        '200':
+          description: Lista de alunos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    usuarioId:
+                      type: string
+                    cursoId:
+                      type: string
+                    matricula:
+                      type: string
+                    role:
+                      type: string
+                      enum: [ALUNO, TUTOR, BOLSISTA, TUTOR_BOLSISTA]
+                    usuario:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        nome:
+                          type: string
+                        email:
+                          type: string
+                    curso:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        nome:
+                          type: string
+                        codigo:
+                          type: string
+        '401':
+          description: Não autenticado
+        '403':
+          description: Sem permissão (requer coordinator, tutor ou scholarship_holder)
+
+  /alunos/{id}:
+    get:
+      summary: Buscar aluno por ID
+      tags: ["Alunos"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Aluno encontrado
+        '404':
+          description: Aluno não encontrado
+    put:
+      summary: Atualizar dados do aluno
+      tags: ["Alunos"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cursoId:
+                  type: string
+                  description: ID do curso para vincular o aluno
+                matricula:
+                  type: string
+                  description: Número de matrícula do aluno
+      responses:
+        '200':
+          description: Aluno atualizado
+        '400':
+          description: Dados inválidos
+        '403':
+          description: Sem permissão (requer coordinator ou scholarship_holder)
+        '404':
+          description: Aluno não encontrado

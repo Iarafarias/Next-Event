@@ -11,6 +11,7 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
 
   async create(usuario: Usuario): Promise<Usuario> {
     const result = await this.prisma.$transaction(async (tx) => {
+      // 1. Criar Usuario
       const created = await tx.usuario.create({
         data: {
           nome: usuario.nome,
@@ -20,6 +21,12 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
         },
       });
 
+      // 2. Determinar role do Aluno e IDs de perfis
+      let studentRole: 'ALUNO' | 'TUTOR' | 'BOLSISTA' | 'TUTOR_BOLSISTA' = 'ALUNO';
+      let tutorProfileId: string | null = null;
+      let bolsistaProfileId: string | null = null;
+
+      // 3. Criar perfis adicionais e ajustar role
       if (usuario.coordenador) {
         await tx.coordenador.create({
           data: {
@@ -31,7 +38,7 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
       }
 
       if (usuario.tutor) {
-        await tx.tutor.create({
+        const tutor = await tx.tutor.create({
           data: {
             usuarioId: created.id,
             area: usuario.tutor.area,
@@ -39,24 +46,46 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
             capacidadeMaxima: usuario.tutor.capacidadeMaxima ?? 5,
           }
         });
+        tutorProfileId = tutor.id;
+        studentRole = 'TUTOR';
       }
 
       if (usuario.bolsista) {
-        await tx.bolsista.create({
+        const bolsista = await tx.bolsista.create({
           data: {
             usuarioId: created.id,
             anoIngresso: usuario.bolsista.anoIngresso,
             curso: usuario.bolsista.curso,
           }
         });
+        bolsistaProfileId = bolsista.id;
+        studentRole = tutorProfileId ? 'TUTOR_BOLSISTA' : 'BOLSISTA';
       }
 
+      // 4. SEMPRE criar registro Aluno (perfil base)
+      await tx.aluno.create({
+        data: {
+          usuarioId: created.id,
+          cursoId: usuario.aluno?.cursoId,
+          matricula: usuario.aluno?.matricula,
+          role: studentRole,
+          tutorProfileId,
+          bolsistaProfileId,
+        }
+      });
+
+      // 5. Retornar usuario com todos os relacionamentos
       return await tx.usuario.findUnique({
         where: { id: created.id },
         include: {
           coordenador: true,
           tutor: true,
           bolsista: true,
+          aluno: {
+            include: {
+              curso: true,
+            }
+          },
         }
       });
     });
@@ -65,7 +94,7 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
   }
 
   async findByEmail(email: string): Promise<Usuario | null> {
-    const usuario = await this.prisma.usuario.findUnique({ 
+    const usuario = await this.prisma.usuario.findUnique({
       where: { email },
       include: {
         coordenador: true,
@@ -77,7 +106,7 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
   }
 
   async findById(id: string): Promise<Usuario | null> {
-    const usuario = await this.prisma.usuario.findUnique({ 
+    const usuario = await this.prisma.usuario.findUnique({
       where: { id },
       include: {
         coordenador: true,
@@ -136,7 +165,7 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
     if (data.bolsista) {
       usuario.bolsista = data.bolsista;
     }
-    
+
     return usuario;
   }
 }

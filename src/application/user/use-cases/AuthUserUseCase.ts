@@ -13,6 +13,8 @@ interface AuthUsuarioResponse {
     nome: string;
     email: string;
     status: string;
+    role: string;
+    aluno?: any;
     criadoEm: Date;
     atualizadoEm: Date;
   };
@@ -20,7 +22,7 @@ interface AuthUsuarioResponse {
 }
 
 export class AuthUsuarioUseCase {
-  constructor(private usuarioRepository: IUsuarioRepository) {}
+  constructor(private usuarioRepository: IUsuarioRepository) { }
 
   async execute({ email, senha }: AuthUsuarioRequest): Promise<AuthUsuarioResponse> {
     const usuario = await this.usuarioRepository.findByEmail(email);
@@ -37,15 +39,6 @@ export class AuthUsuarioUseCase {
     } else if (usuario.bolsista) {
       role = 'scholarship_holder';
     }
-
-    console.log('DEBUG AUTH - Usuario:', {
-      id: usuario.id,
-      email: usuario.email,
-      coordenador: !!usuario.coordenador,
-      tutor: !!usuario.tutor,
-      bolsista: !!usuario.bolsista,
-      role: role
-    });
 
     const token = sign(
       {
@@ -64,6 +57,8 @@ export class AuthUsuarioUseCase {
         nome: usuario.nome,
         email: usuario.email,
         status: usuario.status,
+        role: role,
+        aluno: usuario.aluno,
         criadoEm: usuario.criadoEm,
         atualizadoEm: usuario.atualizadoEm,
       },

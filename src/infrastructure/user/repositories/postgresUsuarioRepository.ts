@@ -100,6 +100,7 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
         coordenador: true,
         tutor: true,
         bolsista: true,
+        aluno: true,
       }
     });
     return usuario ? this.mapToUsuario(usuario) : null;
@@ -112,6 +113,7 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
         coordenador: true,
         tutor: true,
         bolsista: true,
+        aluno: true,
       }
     });
     return usuario ? this.mapToUsuario(usuario) : null;
@@ -140,6 +142,7 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
         coordenador: true,
         tutor: true,
         bolsista: true,
+        aluno: true,
       }
     });
     return usuarios.map(this.mapToUsuario);
@@ -164,6 +167,10 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
     }
     if (data.bolsista) {
       usuario.bolsista = data.bolsista;
+    }
+
+    if (data.aluno) {
+      usuario.aluno = data.aluno;
     }
 
     return usuario;

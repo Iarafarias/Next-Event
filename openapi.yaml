@@ -40,8 +40,32 @@ paths:
                 properties:
                   token:
                     type: string
-                  user:
+                  usuario:
                     type: object
+                    properties:
+                      id:
+                        type: string
+                      nome:
+                        type: string
+                      email:
+                        type: string
+                      status:
+                        type: string
+                      role:
+                        type: string
+                      aluno:
+                        type: object
+                        properties:
+                          matricula:
+                            type: string
+                          role:
+                            type: string
+                      criadoEm:
+                        type: string
+                        format: date-time
+                      atualizadoEm:
+                        type: string
+                        format: date-time
         '401':
           description: Credenciais inválidas
 

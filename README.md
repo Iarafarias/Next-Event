@@ -109,7 +109,7 @@ GET  /api/certificates/report          # Gerar relatório
 
 1. **Instalar Dependências**: `npm install`
 2. **Configurar Ambiente**: Criar `.env` baseado no `.env.example`
-3. **Subir Banco de Dados**: `cd database && docker-compose up -d`
+3. **Subir Banco de Dados**: `cd database && docker compose up -d`
 4. **Migrações Prisma**: `npx prisma migrate dev`
 5. **Iniciar Servidor**: `npm run dev` (Acessível em `http://localhost:3000`)
 
@@ -120,10 +120,10 @@ GET  /api/certificates/report          # Gerar relatório
 ### **Executar com Docker:**
 ```bash
 # Apenas banco de dados
-docker-compose -f database/docker-compose.yml up -d
+docker compose -f database/docker-compose.yml up -d
 
-# Aplicação completa (futuro)
-docker-compose up -d
+# Aplicação completa
+docker compose up --build -d
 ```
 
 ### **Configuração do PostgreSQL:**

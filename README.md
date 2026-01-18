@@ -1,94 +1,26 @@
-# Documentação da API Next-Event
-
-## Swagger UI (Documentação Interativa)
-
-Após iniciar o servidor, acesse:
-
-    http://localhost:3000/api-docs
-
-para visualizar e testar todos os endpoints da API de forma interativa.
-
-O Swagger UI é gerado automaticamente a partir do arquivo `openapi.yaml`.
-# Documentação da API Next-Event
-
-## Documentação Automática (Swagger/OpenAPI)
-
-O arquivo `openapi.yaml` na raiz do projeto descreve todos os endpoints REST da API, parâmetros, exemplos e fluxos principais.
-
-Você pode visualizar a documentação interativa utilizando o Swagger Editor online:
-
-1. Acesse: https://editor.swagger.io/
-2. Clique em "File" > "Import File" e selecione o arquivo `openapi.yaml` deste projeto.
-3. Explore e teste todos os endpoints, parâmetros e exemplos de resposta.
-
-## Exemplos de Uso
-
-### Listar Coordenadores
-```http
-GET /api/usuarios/coordenadores
-```
-
-### Validar Certificado (Coordenador)
-```http
-POST /api/coordenadores/{id}/validar-certificado
-Content-Type: application/json
-{
-  "certificateId": "abc123"
-}
-```
-
-### Atribuir Papel a Usuário
-```http
-PATCH /api/usuarios/{id}/atribuir-papel
-Content-Type: application/json
-{
-  "papel": "tutor"
-}
-```
-
-### Listar Relatórios de Tutor
-```http
-GET /api/tutores/{id}/relatorios
-```
-
-## Setup do Projeto
-
-1. Instale as dependências:
-    ```bash
-    npm install
-    ```
-2. Configure o banco de dados PostgreSQL (veja `database/` e `.env.example`).
-3. Execute as migrações Prisma:
-    ```bash
-    npx prisma migrate deploy
-    ```
-4. Inicie o servidor:
-    ```bash
-    npm run dev
-    ```
-5. Acesse os endpoints REST em `http://localhost:3000/api`.
-
-## Fluxos Principais
-
-- Cadastro e autenticação de usuários
-- Solicitação, emissão e validação de certificados
-- Listagem e atribuição de papéis (coordenador, tutor, bolsista)
-- Relatórios por papel
-
-Consulte o arquivo `openapi.yaml` para detalhes completos de cada endpoint, parâmetros e exemplos de resposta.
-# � NextCertify - Sistema de Gestão de Certificados e Tutoria
+# 🚀 NextCertify - Sistema de Gestão de Certificados e Tutoria
 
 Sistema completo para gerenciamento de certificados acadêmicos, tutoria de alunos e relatórios administrativos usando Clean Architecture.
 
+## 📋 Swagger UI (Documentação Interativa)
+
+Após iniciar o servidor, acesse:
+`http://localhost:3000/api-docs`
+
+para visualizar e testar todos os endpoints da API de forma interativa. A documentação é gerada automaticamente a partir do arquivo `openapi.yaml`.
+
+---
+
 ## 📁 Estrutura do Projeto (Clean Code)
 
-O **NextEvent** é uma plataforma que permite:
+O **NextCertify** é uma plataforma que permite:
 
-- 👤 **Participantes** fazem upload de certificados em PDF
-- 👨‍💼 **Administradores** validam (aprovam/rejeitam) os certificados  
-- 🔔 **Sistema** envia notificações automáticas sobre mudanças de status
-- 📊 **Relatórios** detalhados de certificados por período
-- 🔐 **Autenticação JWT** com controle de permissões baseado em roles
+- 👤 **Participantes** (Alunos) fazem upload de certificados em PDF.
+- 👨‍💼 **Administradores** validam os certificados.
+- 🎓 **Cursos** gerenciam o vínculo acadêmico dos alunos.
+- 📑 **Tutoria** realiza avaliações mensais e gestão de bolsistas.
+- 📊 **Relatórios** detalhados de certificados e atividades por período.
+- 🔐 **Autenticação JWT** com controle de permissões baseado em roles.
 
 ---
 
@@ -100,6 +32,8 @@ O projeto segue os princípios da **Clean Architecture**:
 src/
 ├── domain/              # Regras de negócio e entidades
 │   ├── user/           # Domínio de usuários
+│   ├── aluno/          # NOVO: Domínio de perfis acadêmicos
+│   ├── curso/          # NOVO: Domínio de cursos
 │   ├── certificate/    # Domínio de certificados  
 │   └── notification/   # Domínio de notificações
 ├── application/        # Casos de uso da aplicação
@@ -111,134 +45,75 @@ src/
 - **Backend**: Node.js + TypeScript + Express.js
 - **Database**: PostgreSQL + Prisma ORM  
 - **Auth**: JWT (JSON Web Tokens)
-- **Upload**: Multer (arquivos PDF)
+- **Documentação**: OpenAPI 3.0 (Swagger)
 - **Container**: Docker + Docker Compose
 
 ---
 
-## � **Funcionalidades**
+## ⚙️ **Funcionalidades**
 
-### ✅ **Sistema de Usuários**
-- [x] Cadastro e autenticação JWT
-- [x] Roles: `participant` e `admin`  
-- [x] Middleware de autorização
-- [x] Gestão de perfil
+### ✅ **Sistema de Usuários e Perfis**
+- [x] Cadastro integrado (Criação automática de perfil Aluno)
+- [x] Autenticação JWT com retorno de Roles
+- [x] Roles: `student`, `tutor`, `scholarship_holder`, `coordinator`
+- [x] Gestão de cursos e vínculo acadêmico
 
 ### ✅ **Gestão de Certificados**  
-- [x] Upload de arquivos PDF
+- [x] Upload de arquivos PDF (via Multer)
 - [x] Metadados: título, instituição, carga horária, período
-- [x] Status: `pending`, `approved`, `rejected`
-- [x] Comentários do administrador
-- [x] Listagem com filtros
+- [x] Fluxo de aprovação: `pending`, `approved`, `rejected`
+- [x] Relatórios mensais e por usuário
 
 ### ✅ **Sistema de Notificações**
-- [x] Notificações automáticas na validação
-- [x] Contagem de não lidas
-- [x] Marcar como lida (individual/em lote)
-- [x] Tipos: aprovação, rejeição, anúncios
-
-### ✅ **APIs RESTful**
-- [x] Endpoints documentados
-- [x] Validação de dados
-- [x] Tratamento de erros
-- [x] Paginação e filtros
-
----
-
-## �️ **Instalação e Setup**
-
-### **Pré-requisitos**
-- Node.js 18+
-- Docker e Docker Compose
-- Git
-
-### **1. Clonar o Repositório**
-```bash
-git clone https://github.com/Iarafarias/Next-Event.git
-cd NextEvent
-```
-
-### **2. Instalar Dependências**
-```bash
-npm install
-```
-
-### **3. Configurar Ambiente**
-```bash
-# Copiar variáveis de ambiente
-cp .env.example .env
-
-# Editar as configurações necessárias
-nano .env
-```
-
-### **4. Iniciar Banco de Dados**
-```bash
-# Subir PostgreSQL com Docker
-cd database
-docker-compose up -d
-
-# Voltar para raiz do projeto
-cd ..
-```
-
-### **5. Configurar Banco**
-```bash
-# Aplicar migrações
-npx prisma migrate dev
-
-# Gerar cliente Prisma
-npx prisma generate
-
-# (Opcional) Popular com dados de exemplo
-npx prisma db seed
-```
-
-### **6. Executar Aplicação**
-```bash
-# Desenvolvimento
-npm run dev
-
-# Produção
-npm run build
-npm start
-```
-
-**🎉 Aplicação rodando em:** `http://localhost:3000`
+- [x] Notificações automáticas na validação de certificados
+- [x] Gestão de leitura (marcar individual ou em lote)
+- [x] Contagem de notificações não lidas
 
 ---
 
 ## 🔌 **API Reference**
 
-### **Base URL**: `http://localhost:3000/api`
-
-### **Autenticação**
+### **Autenticação & Usuários**
 ```http
-POST /users/login
-POST /users (criar usuário)
-GET  /users/me (dados do usuário logado)
+POST /api/users        # Cadastro (Usuario + Aluno)
+POST /api/users/login  # Login (Retorna Token e Role)
+PATCH /api/users/{id}/atribuir-papel # Atribuir papel a usuário
+```
+
+### **Cursos (Gestão Acadêmica)**
+```http
+GET  /api/cursos       # Listar cursos (Público)
+POST /api/cursos       # Criar novo curso (Admin)
+PUT  /api/cursos/{id}  # Editar curso
+```
+
+### **Alunos**
+```http
+GET  /api/alunos       # Listar alunos e seus cursos
+GET  /api/alunos/{id}  # Detalhes do perfil acadêmico
 ```
 
 ### **Certificados**
 ```http
-POST   /certificates/upload          # Upload de certificado
-GET    /certificates/user/{userId}   # Certificados do usuário  
-PATCH  /certificates/{id}/status     # Validar certificado (ADMIN)
-DELETE /certificates/{id}            # Deletar certificado
+POST /api/certificates/upload          # Upload de PDF
+GET  /api/certificates/user/{userId}   # Lista por usuário
+PATCH /api/certificates/{id}/status    # Validar (Admin)
+GET  /api/certificates/report          # Gerar relatório
 ```
 
-### **Notificações**
-```http
-GET    /notifications                # Listar notificações
-GET    /notifications/unread-count   # Contar não lidas
-PATCH  /notifications/{id}/read      # Marcar como lida
-PATCH  /notifications/mark-all-read  # Marcar todas como lidas
-```
-
-**� Documentação completa:** [API_REFERENCE.md](./API_REFERENCE.md)
+**📄 Documentação detalhada:** [API_REFERENCE.md](./docs/API_REFERENCE.md)
 
 ---
 
+## 🛠️ **Instalação e Setup**
+
+1. **Instalar Dependências**: `npm install`
+2. **Configurar Ambiente**: Criar `.env` baseado no `.env.example`
+3. **Subir Banco de Dados**: `cd database && docker-compose up -d`
+4. **Migrações Prisma**: `npx prisma migrate dev`
+5. **Iniciar Servidor**: `npm run dev` (Acessível em `http://localhost:3000`)
+
+---
 
 ## 🐳 **Docker**
 
@@ -275,36 +150,57 @@ npm run test:integration
 
 ---
 
-## � **Banco de Dados**
+## 🧪 **Banco de Dados**
 
 ### **Tabelas Principais:**
-```sql
-users          # Usuários (participantes e admins)  
-certificates   # Certificados enviados
-notifications  # Notificações do sistema
+- `users`: Credenciais e dados de acesso.
+- `alunos`: Perfil acadêmico (matrícula, curso, role interna).
+- `cursos`: Cadastro de cursos da instituição.
+- `certificates`: Arquivos e metadados de certificados.
+- `notifications`: Alertas do sistema.
 
 ---
 
----
+## 🔄 **Fluxo de Trabalho por Papel**
 
-## 🔄 **Fluxo de Trabalho**
+O sistema NextCertify opera com quatro fluxos principais de usuário, cada um com permissões e objetivos específicos:
 
-### **1. Participante**
+### **1. 🎓 Aluno (Perfil Base)**
+Todo usuário inicia como Aluno ao se cadastrar e vincular-se a um curso.
 ```mermaid
 graph LR
-    A[Login] --> B[Upload PDF]
-    B --> C[Aguarda Validação]  
-    C --> D[Recebe Notificação]
-    D --> E[Certificado Aprovado/Rejeitado]
+    A["Cadastro + Curso"] --> B["Login"]
+    B --> C["Upload de Certificado PDF"]
+    C --> D["Monitorar Status"]
+    D --> E["Relatório de Horas"]
 ```
 
-### **2. Administrador**
+### **2. 💰 Bolsista (Apoio Administrativo)**
+Alunos promovidos a Bolsistas possuem acesso a ferramentas de solicitação e gestão de eventos.
 ```mermaid
 graph LR
-    A[Login Admin] --> B[Lista Pendentes]
-    B --> C[Analisar PDF]
-    C --> D[Aprovar/Rejeitar]  
-    D --> E[Sistema Notifica Usuário]
+    A["Login"] --> B["Solicitar Emissão de Certificados"]
+    B --> C["Apoio na Gestão de Cursos"]
+    C --> D["Dashboard de Bolsista"]
+```
+
+### **3. 👨‍🏫 Tutor (Gestão Acadêmica)**
+Responsável por acompanhar o desenvolvimento dos alunos e validar atividades de tutoria.
+```mermaid
+graph LR
+    A["Login"] --> B["Emitir Certificados de Tutoria"]
+    B --> C["Monitorar Alunos do Grupo"]
+    C --> D["Relatório de Atividades"]
+```
+
+### **4. 🛡️ Coordenador (Administrador do Sistema)**
+Detém o poder de auditoria final, validação de certificados externos e gestão de toda a hierarquia.
+```mermaid
+graph TD
+    A["Gestão de Cursos"] --> B["Validação (Aprovar/Rejeitar) Certificados"]
+    B --> C["Atribuir Papéis (Promover Alunos)"]
+    C --> D["Configurar Período de Referência"]
+    D --> E["Auditoria Geral e Relatórios Consolidados"]
 ```
 
 ---
@@ -312,10 +208,11 @@ graph LR
 ## 🎯 **Roadmap**
 
 ### **Versão Atual (v1.0)**
-- ✅ CRUD completo de usuários
+- ✅ CRUD completo de usuários e alunos
+- ✅ Gestão de Cursos e vínculos acadêmicos
 - ✅ Upload e validação de certificados  
-- ✅ Sistema de notificações
-- ✅ APIs RESTful documentadas
+- ✅ Sistema de notificações automáticas
+- ✅ APIs RESTful documentadas (Swagger)
 
 ---
 
@@ -329,14 +226,7 @@ graph LR
 6. Abra um **Pull Request**
 
 ### **Padrão de Commits:**
-```
-feat: nova funcionalidade
-fix: correção de bug  
-docs: documentação
-refactor: refatoração de código
-test: testes
-chore: tarefas de manutenção
-```
+`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
 
 ---
 
@@ -344,11 +234,6 @@ chore: tarefas de manutenção
 
 - **Iara Farias** - [@Iarafarias](https://github.com/Iarafarias)
 
-
----
-
 <div align="center">
-
 **⭐ Se este projeto foi útil, deixe uma estrela!**
-
 </div>

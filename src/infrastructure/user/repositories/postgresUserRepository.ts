@@ -145,10 +145,10 @@ export class PostgresUserRepository implements IUserRepository {
     } catch (error: any) {
       if (error.code === 'P2002') {
         if (error.meta?.target?.includes('email')) {
-          throw new Error('Email already exists');
+          throw new Error('Este e-mail já está sendo usado');
         }
         if (error.meta?.target?.includes('cpf')) {
-          throw new Error('CPF already exists');
+          throw new Error('Este CPF já está sendo usado');
         }
       }
       throw error;

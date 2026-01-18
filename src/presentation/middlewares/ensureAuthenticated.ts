@@ -19,7 +19,7 @@ export function ensureAuthenticated(
   const authHeader = request.headers.authorization;
 
   if (!authHeader) {
-    throw new Error('JWT token is missing');
+    throw new Error('Token JWT não fornecido');
   }
 
   const [, token] = authHeader.split(' ');
@@ -35,6 +35,6 @@ export function ensureAuthenticated(
 
     return next();
   } catch {
-    throw new Error('Invalid JWT token');
+    throw new Error('Token JWT inválido');
   }
 } 

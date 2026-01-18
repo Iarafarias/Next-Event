@@ -24,14 +24,14 @@ export class CargaHorariaMinimaController {
     const { id } = req.params;
     const data = req.body;
     const carga = await this.updateUseCase.execute(id, data);
-    if (!carga) return res.status(404).json({ message: 'Not found' });
+    if (!carga) return res.status(404).json({ message: 'Não encontrado' });
     res.json(carga);
   }
 
   async getById(req: Request, res: Response) {
     const { id } = req.params;
     const carga = await this.getByIdUseCase.execute(id);
-    if (!carga) return res.status(404).json({ message: 'Not found' });
+    if (!carga) return res.status(404).json({ message: 'Não encontrado' });
     res.json(carga);
   }
 

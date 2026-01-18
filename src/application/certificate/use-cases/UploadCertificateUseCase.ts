@@ -16,11 +16,11 @@ export class UploadCertificateUseCase {
     try {
       const setReferenceUseCase = new SetReferenceMonthUseCase();
       const reference = await setReferenceUseCase.getCurrentReference();
-      
+
       if (!reference) {
-        throw new Error('Reference month not set by admin');
+        throw new Error('Mês de referência não definido pelo coordenador');
       }
-      
+
       const filePath = await this.storageService.uploadFile(data.file);
 
       let pdfInfo = null;
@@ -33,19 +33,19 @@ export class UploadCertificateUseCase {
         pdfInfo = await this.pdfProcessor.extractInformation(physicalPath);
         workload = pdfInfo.workload;
 
-        const certificateStartDate = new Date(pdfInfo.year, pdfInfo.month - 1, 1);
-        const certificateEndDate = new Date(pdfInfo.year, pdfInfo.endMonth, 0);
+        const certificateStartDate = new Date(pdfInfo.year, pdfInfo.month - 1, pdfInfo.day || 1);
+        const certificateEndDate = new Date(pdfInfo.year, pdfInfo.endMonth - 1, pdfInfo.endDay || 0);
 
         const referenceStartDate = new Date(reference.year, reference.month - 1, 1);
         const referenceEndDate = new Date(reference.year, reference.month, 0);
 
         if (certificateStartDate > referenceStartDate || certificateEndDate < referenceEndDate) {
           await this.storageService.deleteFile(filePath);
-          throw new Error(`Certificate period (${pdfInfo.month}/${pdfInfo.year} to ${pdfInfo.endMonth}/${pdfInfo.year}) must include reference month ${reference.month}/${reference.year}`);
+          throw new Error(`Período do certificado: (${pdfInfo.month}/${pdfInfo.year} até ${pdfInfo.endMonth}/${pdfInfo.year}). Mês de referência: ${reference.month}/${reference.year}`);
         }
 
-        startDate = new Date(pdfInfo.year, pdfInfo.month - 1, 1);
-        endDate = new Date(pdfInfo.year, pdfInfo.endMonth, 0);
+        startDate = certificateStartDate;
+        endDate = certificateEndDate;
       } else {
         startDate = data.startDate ? new Date(data.startDate) : new Date(reference.year, reference.month - 1, 1);
         endDate = data.endDate ? new Date(data.endDate) : new Date(reference.year, reference.month, 0);
@@ -53,8 +53,8 @@ export class UploadCertificateUseCase {
 
       const certificate = new Certificate({
         userId: data.userId,
-        requestId: undefined, 
-        title: data.title || data.file.originalname,
+        requestId: undefined,
+        title: data.title || pdfInfo?.title || data.file.originalname,
         description: data.description || `Certificado enviado em ${new Date().toLocaleDateString('pt-BR')}`,
         institution: data.institution || 'Não informado',
         workload: workload || 0,
@@ -68,9 +68,9 @@ export class UploadCertificateUseCase {
       return savedCertificate;
     } catch (error) {
       if (error instanceof Error) {
-        throw new Error('Failed to process certificate: ' + error.message);
+        throw new Error('Falha ao processar certificado: ' + error.message);
       }
-      throw new Error('Failed to process certificate');
+      throw new Error('Falha ao processar certificado');
     }
   }
 } 

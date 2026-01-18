@@ -15,7 +15,7 @@ export function authorizeRoles(roles: UserRole[]) {
     const user = (request as AuthenticatedRequest).user;
 
     if (!user) {
-      response.status(401).json({ message: 'User not authenticated' });
+      response.status(401).json({ message: 'Usuário não autenticado' });
       return;
     }
 

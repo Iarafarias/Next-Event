@@ -160,14 +160,14 @@ certificateRoutes.get(
 certificateRoutes.post(
   '/reference-month',
   authMiddleware,
-  authorizeRoles(['admin']),
+  authorizeRoles(['admin', 'coordinator']),
   (req: Request, res: Response) => certificateController.setReferenceMonth(req as AuthenticatedRequest, res)
 );
 
 certificateRoutes.get(
   '/reference-month',
   authMiddleware,
-  authorizeRoles(['admin', 'student']),
+  authorizeRoles(['admin', 'student', 'coordinator']),
   (req: Request, res: Response) => certificateController.getCurrentReferenceMonth(req as AuthenticatedRequest, res)
 );
 

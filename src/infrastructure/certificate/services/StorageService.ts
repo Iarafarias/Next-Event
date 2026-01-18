@@ -18,9 +18,9 @@ export class StorageService implements IStorageService {
       return `/uploads/certificates/${fileName}`;
     } catch (error) {
       if (error instanceof Error) {
-        throw new Error(`Failed to store file: ${error.message}`);
+        throw new Error(`Falha ao salvar o arquivo: ${error.message}`);
       }
-      throw new Error('Failed to store file');
+      throw new Error('Falha ao salvar o arquivo');
     }
   }
 
@@ -31,12 +31,17 @@ export class StorageService implements IStorageService {
 
   async deleteFile(filePath: string): Promise<void> {
     try {
-      await fs.unlink(filePath);
+      // Se o caminho começar com /uploads/, resolve para o caminho físico
+      const physicalPath = filePath.startsWith('/uploads/')
+        ? this.getPhysicalPath(filePath)
+        : filePath;
+
+      await fs.unlink(physicalPath);
     } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Failed to delete file: ${error.message}`);
+      if (error instanceof Error && (error as any).code !== 'ENOENT') {
+        throw new Error(`Falha ao excluir o arquivo: ${error.message}`);
       }
-      throw new Error('Failed to delete file');
+      // Se não existir (ENOENT), ignoramos o erro silenciosamente
     }
   }
 } 

@@ -6,16 +6,16 @@ export interface DeleteCertificateRequest {
 }
 
 export class DeleteCertificateUseCase {
-  constructor(private certificateRepository: ICertificateRepository) {}
+  constructor(private certificateRepository: ICertificateRepository) { }
 
   async execute({ id, userId }: DeleteCertificateRequest): Promise<void> {
     const certificate = await this.certificateRepository.findById(id);
-    
+
     if (!certificate) {
-      throw new Error('Certificate not found');
+      throw new Error('Certificado não encontrado');
     }
     if (userId && certificate.userId !== userId) {
-      throw new Error('Unauthorized to delete this certificate');
+      throw new Error('Não autorizado a excluir este certificado');
     }
 
     await this.certificateRepository.delete(id);

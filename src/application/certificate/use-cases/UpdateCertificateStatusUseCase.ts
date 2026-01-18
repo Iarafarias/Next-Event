@@ -12,21 +12,21 @@ export class UpdateCertificateStatusUseCase {
   constructor(
     private certificateRepository: ICertificateRepository,
     private sendNotificationUseCase: SendCertificateValidationNotificationUseCase
-  ) {}
+  ) { }
 
   async execute({ id, status, adminComments }: UpdateCertificateStatusRequest): Promise<Certificate> {
     const certificate = await this.certificateRepository.findById(id);
-    
+
     if (!certificate) {
-      throw new Error('Certificate not found');
+      throw new Error('Certificado não encontrado');
     }
 
     if (status === 'approved') {
       certificate.approve();
     } else {
-      certificate.reject(adminComments || 'No comments provided');
+      certificate.reject(adminComments || 'Nenhuma justificativa fornecida');
     }
-    
+
     certificate.adminComments = adminComments;
     certificate.updatedAt = new Date();
 

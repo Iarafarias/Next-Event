@@ -24,14 +24,14 @@ export class RelatorioAcompanhamentoController {
     const { id } = req.params;
     const data = req.body;
     const result = await this.updateUseCase.execute(id, data);
-    if (!result) return res.status(404).json({ message: 'Not found' });
+    if (!result) return res.status(404).json({ message: 'Não encontrado' });
     res.json(result);
   }
 
   async getById(req: Request, res: Response) {
     const { id } = req.params;
     const result = await this.getByIdUseCase.execute(id);
-    if (!result) return res.status(404).json({ message: 'Not found' });
+    if (!result) return res.status(404).json({ message: 'Não encontrado' });
     res.json(result);
   }
 

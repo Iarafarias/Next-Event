@@ -14,11 +14,11 @@ export class SetReferenceMonthUseCase {
 
   async execute(data: SetReferenceMonthDTO): Promise<void> {
     if (data.month < 1 || data.month > 12) {
-      throw new Error('Invalid month. Must be between 1 and 12');
+      throw new Error('Mês inválido. Deve estar entre 1 e 12');
     }
 
     if (data.year < 2000) {
-      throw new Error('Invalid year');
+      throw new Error('Ano inválido');
     }
 
     await (this.prisma as any).config.upsert({

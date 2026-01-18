@@ -51,6 +51,7 @@ const authUsuarioController = new AuthUsuarioController(authUsuarioUseCase);
 const atribuirPapelUseCase = new AtribuirPapelUseCase(userRepository);
 const atribuirPapelController = new AtribuirPapelController(atribuirPapelUseCase);
 
+// 1. Rotas Públicas ou Sem Autenticação Necessária para certas condições
 userRoutes.post('/', (req: Request, res: Response) => {
 	logger.info('POST /usuarios - Criar usuário', { body: req.body });
 	createUsuarioController.handle(req, res);
@@ -59,18 +60,39 @@ userRoutes.post('/login', (req: Request, res: Response) => {
 	logger.info('POST /usuarios/login - Tentativa de login', { body: req.body });
 	authUsuarioController.handle(req, res);
 });
+
+// 2. Rotas Estáticas (Precisam vir ANTES das rotas com parâmetro :id)
+userRoutes.get('/coordenadores', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
+	logger.info('GET /usuarios/coordenadores - Listar coordenadores', { user: req.user });
+	listCoordenadoresController.handle(req, res);
+});
+
+userRoutes.get('/tutores', authMiddleware, authorizeRoles(['coordinator', 'student', 'scholarship_holder']), (req: Request, res: Response) => {
+	logger.info('GET /usuarios/tutores - Listar tutores', { user: req.user });
+	listTutoresController.handle(req, res);
+});
+
+userRoutes.get('/bolsistas', authMiddleware, authorizeRoles(['coordinator', 'tutor']), (req: Request, res: Response) => {
+	logger.info('GET /usuarios/bolsistas - Listar bolsistas', { user: req.user });
+	listBolsistasController.handle(req, res);
+});
+
+// 3. Rotas Genéricas/Curingas (Devem vir DEPOIS)
 userRoutes.get('/', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
 	logger.info('GET /usuarios - Listar usuários', { user: req.user });
 	listUsuariosController.handle(req, res);
 });
+
 userRoutes.get('/:id', authMiddleware, (req: Request, res: Response) => {
 	logger.info('GET /usuarios/:id - Buscar usuário', { user: req.user, params: req.params });
 	getUsuarioByIdController.handle(req, res);
 });
+
 userRoutes.put('/:id', authMiddleware, (req: Request, res: Response) => {
 	logger.info('PUT /usuarios/:id - Atualizar usuário', { user: req.user, params: req.params, body: req.body });
 	updateUsuarioController.handle(req, res);
 });
+
 userRoutes.delete('/:id', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
 	logger.info('DELETE /usuarios/:id - Remover usuário', { user: req.user, params: req.params });
 	deleteUsuarioController.handle(req, res);
@@ -86,18 +108,5 @@ userRoutes.patch(
 		atribuirPapelController.handle(req, res);
 	}
 );
-
-userRoutes.get('/coordenadores', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
-	logger.info('GET /usuarios/coordenadores - Listar coordenadores', { user: req.user });
-	listCoordenadoresController.handle(req, res);
-});
-userRoutes.get('/tutores', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
-	logger.info('GET /usuarios/tutores - Listar tutores', { user: req.user });
-	listTutoresController.handle(req, res);
-});
-userRoutes.get('/bolsistas', authMiddleware, authorizeRoles(['coordinator', 'tutor']), (req: Request, res: Response) => {
-	logger.info('GET /usuarios/bolsistas - Listar bolsistas', { user: req.user });
-	listBolsistasController.handle(req, res);
-});
 
 export { userRoutes };

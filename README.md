@@ -15,12 +15,12 @@ para visualizar e testar todos os endpoints da API de forma interativa. A docume
 
 O **NextCertify** é uma plataforma que permite:
 
-- 👤 **Participantes** (Alunos) fazem upload de certificados em PDF.
-- 👨‍💼 **Administradores** validam os certificados.
-- 🎓 **Cursos** gerenciam o vínculo acadêmico dos alunos.
-- 📑 **Tutoria** realiza avaliações mensais e gestão de bolsistas.
-- 📊 **Relatórios** detalhados de certificados e atividades por período.
-- 🔐 **Autenticação JWT** com controle de permissões baseado em roles.
+- 🎓 **Alunos**: Realizam upload de certificados externos em PDF, acompanham o status de validação e geram relatórios de carga horária para atividades complementares.
+- 👨‍ **Tutores**: Emitem certificados de tutoria para seus alunos, monitoram o progresso do grupo e gerenciam atividades acadêmicas específicas.
+- 💰 **Bolsistas**: Atuam no apoio administrativo, solicitando emissão de certificados, auxiliando na gestão de cursos e monitorando fluxos do sistema.
+- 🏛️ **Coordenadores**: Possuem poder de auditoria total, validam certificados externos, gerenciam o cadastro de cursos e promovem alunos aos papéis de bolsista ou tutor.
+- 📊 **Gestão Inteligente**: Geração de relatórios detalhados, controle de carga horária mínima por curso e notificações automáticas de status.
+- 🔐 **Segurança**: Autenticação JWT robusta com controle de acesso baseado em múltiplos papéis (Roles).
 
 ---
 
@@ -208,9 +208,9 @@ graph TD
 ## 🎯 **Roadmap**
 
 ### **Versão Atual (v1.0)**
-- ✅ CRUD completo de usuários e alunos
+- ✅ CRUD completo de usuários
 - ✅ Gestão de Cursos e vínculos acadêmicos
-- ✅ Upload e validação de certificados  
+- ✅ Upload e validação de certificados
 - ✅ Sistema de notificações automáticas
 - ✅ APIs RESTful documentadas (Swagger)
 

@@ -1,13 +1,20 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>/src'],
+  roots: ['<rootDir>/src', '<rootDir>/tests'], 
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+  
+  // Garantindo que o ts-jest processe JS vindo do node_modules quando necessário
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.(t|j)sx?$': ['ts-jest', { useESM: true }],
   },
-  collectCoverageFrom: [
-    'src/**/*.ts',
-    '!src/**/*.d.ts',
+
+  // Transformando o Faker v8 de ESM para CJS
+  transformIgnorePatterns: [
+    'node_modules/(?!(@faker-js)/)'
   ],
+
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
 };

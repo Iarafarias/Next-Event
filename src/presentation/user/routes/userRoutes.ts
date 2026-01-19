@@ -30,6 +30,8 @@ import { authMiddleware } from '../../middlewares/authMiddleware';
 const userRoutes = Router();
 const usuarioRepository = new PostgresUsuarioRepository();
 const userRepository = new PostgresUserRepository();
+
+// UseCases e Controllers
 const listCoordenadoresUseCase = new ListCoordenadoresUseCase(userRepository);
 const listTutoresUseCase = new ListTutoresUseCase(userRepository);
 const listBolsistasUseCase = new ListBolsistasUseCase(userRepository);
@@ -51,6 +53,7 @@ const authUsuarioController = new AuthUsuarioController(authUsuarioUseCase);
 const atribuirPapelUseCase = new AtribuirPapelUseCase(userRepository);
 const atribuirPapelController = new AtribuirPapelController(atribuirPapelUseCase);
 
+// --- ROTAS PÚBLICAS ---
 userRoutes.post('/', (req: Request, res: Response) => {
 	logger.info('POST /usuarios - Criar usuário', { body: req.body });
 	createUsuarioController.handle(req, res);
@@ -59,10 +62,29 @@ userRoutes.post('/login', (req: Request, res: Response) => {
 	logger.info('POST /usuarios/login - Tentativa de login', { body: req.body });
 	authUsuarioController.handle(req, res);
 });
+
+// --- ROTAS ESPECÍFICAS (DEVEM VIR ANTES DE /:id) ---
+//* Importante: A ordem define quem captura a requisição primeiro.
+userRoutes.get('/coordenadores', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
+	logger.info('GET /usuarios/coordenadores - Listar coordenadores', { user: req.user });
+	listCoordenadoresController.handle(req, res);
+});
+userRoutes.get('/tutores', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
+	logger.info('GET /usuarios/tutores - Listar tutores', { user: req.user });
+	listTutoresController.handle(req, res);
+});
+userRoutes.get('/bolsistas', authMiddleware, authorizeRoles(['coordinator', 'tutor']), (req: Request, res: Response) => {
+	logger.info('GET /usuarios/bolsistas - Listar bolsistas', { user: req.user });
+	listBolsistasController.handle(req, res);
+});
+
+// --- ROTAS DE LISTAGEM GERAL E AÇÕES POR ID ---
 userRoutes.get('/', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
 	logger.info('GET /usuarios - Listar usuários', { user: req.user });
 	listUsuariosController.handle(req, res);
 });
+
+//* A rota /:id deve ficar ABAIXO das rotas específicas (/bolsistas, etc)
 userRoutes.get('/:id', authMiddleware, (req: Request, res: Response) => {
 	logger.info('GET /usuarios/:id - Buscar usuário', { user: req.user, params: req.params });
 	getUsuarioByIdController.handle(req, res);
@@ -86,18 +108,5 @@ userRoutes.patch(
 		atribuirPapelController.handle(req, res);
 	}
 );
-
-userRoutes.get('/coordenadores', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
-	logger.info('GET /usuarios/coordenadores - Listar coordenadores', { user: req.user });
-	listCoordenadoresController.handle(req, res);
-});
-userRoutes.get('/tutores', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
-	logger.info('GET /usuarios/tutores - Listar tutores', { user: req.user });
-	listTutoresController.handle(req, res);
-});
-userRoutes.get('/bolsistas', authMiddleware, authorizeRoles(['coordinator', 'tutor']), (req: Request, res: Response) => {
-	logger.info('GET /usuarios/bolsistas - Listar bolsistas', { user: req.user });
-	listBolsistasController.handle(req, res);
-});
 
 export { userRoutes };

@@ -7,6 +7,7 @@ Durante esta sessão, implementamos uma significativa reestruturação do sistem
 ### 1. **Nova Estrutura de Alunos e Cursos**
 
 #### 1.1 Criação do Módulo Curso
+
 - **Entidade Curso**: `src/domain/curso/entities/Curso.ts`
 - **Repository Interface**: `src/domain/curso/repositories/ICursoRepository.ts`
 - **Repository Implementation**: `src/infrastructure/curso/repositories/PostgresCursoRepository.ts`
@@ -15,6 +16,7 @@ Durante esta sessão, implementamos uma significativa reestruturação do sistem
 - **Routes**: `src/presentation/curso/routes/cursoRoutes.ts`
 
 #### 1.2 Reestruturação do Módulo Aluno
+
 - **Mudança Conceitual**: Alunos agora podem acessar o sistema de duas formas:
   - `ACESSO_TUTOR`: Alunos que atuam como tutores
   - `ACESSO_BOLSISTA`: Alunos que são bolsistas
@@ -24,6 +26,7 @@ Durante esta sessão, implementamos uma significativa reestruturação do sistem
 ### 2. **Mudanças no Schema do Banco de Dados**
 
 #### 2.1 Model Curso
+
 ```prisma
 model Curso {
   id            String         @id @default(uuid())
@@ -41,6 +44,7 @@ model Curso {
 ```
 
 #### 2.2 Model Aluno Atualizado
+
 ```prisma
 model Aluno {
   id           String          @id @default(uuid())
@@ -63,6 +67,7 @@ model Aluno {
 ```
 
 #### 2.3 Model Coordenador Atualizado
+
 ```prisma
 model Coordenador {
   id        String  @id @default(uuid())
@@ -78,6 +83,7 @@ model Coordenador {
 ```
 
 #### 2.4 Novo Enum
+
 ```prisma
 enum TipoAcessoAluno {
   ACESSO_TUTOR
@@ -86,6 +92,7 @@ enum TipoAcessoAluno {
 ```
 
 #### 2.5 Cursos Pré-definidos Inseridos
+
 - Sistemas de Informação
 - Ciências da Computação
 - Engenharia Ambiental e Sanitária
@@ -95,27 +102,32 @@ enum TipoAcessoAluno {
 ### 3. **Novas Rotas Implementadas**
 
 #### 3.1 Rotas de Alunos (`/api/alunos`)
+
 - `POST /api/alunos` - Criar aluno (apenas coordenadores)
 - `GET /api/alunos` - Listar todos os alunos (coordenadores e tutores)
 - `GET /api/alunos/tutores` - Listar alunos tutores (coordenadores e tutores)
 - `GET /api/alunos/bolsistas` - Listar alunos bolsistas (coordenadores e tutores)
 
 #### 3.2 Rotas de Cursos (`/api/cursos`)
+
 - `POST /api/cursos` - Criar curso (apenas coordenadores)
 - `GET /api/cursos` - Listar cursos (todos os usuários autenticados)
 
 ### 4. **Correções de TypeScript**
 
 #### 4.1 Problema com `req.user`
+
 **Problema**: TypeScript não reconhecia a propriedade `user` no objeto `Request`
 
 **Solução Implementada**:
+
 ```typescript
 // Em vez de criar interfaces conflitantes, usamos casting
 const userId = (req as any).user?.id;
 ```
 
 **Arquivos Corrigidos**:
+
 - `src/presentation/user/routes/userRoutes.ts`
 - `src/presentation/certificate/routes/certificateRoutes.ts`
 - `src/presentation/notification/controllers/NotificationController.ts`
@@ -150,24 +162,24 @@ export class Professor {
     public readonly usuarioId: string,
     public readonly cursoId: string,
     public readonly departamento: string,
-    public readonly nivel: 'GRADUACAO' | 'POS_GRADUACAO',
+    public readonly nivel: "GRADUACAO" | "POS_GRADUACAO",
     public readonly ativo: boolean = true,
     public readonly criadoEm: Date = new Date(),
-    public readonly atualizadoEm?: Date
+    public readonly atualizadoEm?: Date,
   ) {}
 
   static create(data: {
     usuarioId: string;
     cursoId: string;
     departamento: string;
-    nivel: 'GRADUACAO' | 'POS_GRADUACAO';
+    nivel: "GRADUACAO" | "POS_GRADUACAO";
   }): Professor {
     return new Professor(
       crypto.randomUUID(),
       data.usuarioId,
       data.cursoId,
       data.departamento,
-      data.nivel
+      data.nivel,
     );
   }
 }
@@ -234,8 +246,8 @@ export class PostgresProfessorRepository implements IProfessorRepository {
         nivel: professor.nivel,
         ativo: professor.ativo,
         criadoEm: professor.criadoEm,
-        atualizadoEm: professor.atualizadoEm
-      }
+        atualizadoEm: professor.atualizadoEm,
+      },
     });
   }
 
@@ -251,7 +263,7 @@ export class CreateProfessorUseCase {
   constructor(
     private professorRepository: IProfessorRepository,
     private usuarioRepository: IUsuarioRepository,
-    private cursoRepository: ICursoRepository
+    private cursoRepository: ICursoRepository,
   ) {}
 
   async execute(data: CreateProfessorDTO): Promise<void> {
@@ -270,15 +282,15 @@ export class ProfessorController {
   async create(req: Request, res: Response): Promise<void> {
     try {
       const { usuarioId, cursoId, departamento, nivel } = req.body;
-      
+
       await this.createProfessorUseCase.execute({
         usuarioId,
         cursoId,
         departamento,
-        nivel
+        nivel,
       });
 
-      res.status(201).json({ message: 'Professor criado com sucesso' });
+      res.status(201).json({ message: "Professor criado com sucesso" });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }
@@ -290,12 +302,15 @@ export class ProfessorController {
 // src/presentation/professor/routes/professorRoutes.ts
 const router = Router();
 
-router.post('/', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => 
-  professorController.create(req, res)
+router.post(
+  "/",
+  authMiddleware,
+  authorizeRoles(["coordinator"]),
+  (req: Request, res: Response) => professorController.create(req, res),
 );
 
-router.get('/', authMiddleware, (req: Request, res: Response) => 
-  professorController.list(req, res)
+router.get("/", authMiddleware, (req: Request, res: Response) =>
+  professorController.list(req, res),
 );
 
 export default router;
@@ -305,9 +320,9 @@ export default router;
 
 ```typescript
 // src/main.ts
-import professorRoutes from './presentation/professor/routes/professorRoutes';
+import professorRoutes from "./presentation/professor/routes/professorRoutes";
 
-app.use('/api/professores', professorRoutes);
+app.use("/api/professores", professorRoutes);
 ```
 
 #### 8. **Gerar e Aplicar Migração**
@@ -323,6 +338,7 @@ npx prisma generate
 ### Exemplo de Uso das Novas APIs
 
 #### Criar um Aluno Tutor
+
 ```bash
 POST /api/alunos
 Content-Type: application/json
@@ -339,6 +355,7 @@ Authorization: Bearer <token_coordenador>
 ```
 
 #### Criar um Aluno Bolsista
+
 ```bash
 POST /api/alunos
 Content-Type: application/json
@@ -355,6 +372,7 @@ Authorization: Bearer <token_coordenador>
 ```
 
 #### Listar Cursos Disponíveis
+
 ```bash
 GET /api/cursos
 Authorization: Bearer <token_qualquer_usuario>

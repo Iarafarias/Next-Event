@@ -2,7 +2,7 @@ Resumo da implementação — Aluno e Curso
 
 O que foi implementado
 
-- Adicionados no `prisma/schema.prisma` os novos elementos: 
+- Adicionados no `prisma/schema.prisma` os novos elementos:
   - `enum StudentRole` com valores `ALUNO`, `TUTOR`, `BOLSISTA`, `TUTOR_BOLSISTA`.
   - `model Curso` (id, nome, codigo, descricao, criadoEm) e relação com `Aluno`.
   - `model Aluno` (id, usuarioId, cursoId, matricula, role, tutorProfileId, bolsistaProfileId, criadoEm, atualizadoEm) com relações:
@@ -18,19 +18,19 @@ Arquivos alterados / gerados
 
 Comandos principais (executar na raiz do projeto)
 
-1) Gerar/atualizar client Prisma:
+1. Gerar/atualizar client Prisma:
 
 ```bash
 npx prisma generate
 ```
 
-2) Aplicar migração (se ainda não aplicou):
+2. Aplicar migração (se ainda não aplicou):
 
 ```bash
 npx prisma migrate dev --name add-aluno-curso
 ```
 
-3) Abrir Prisma Studio para inspecionar dados:
+3. Abrir Prisma Studio para inspecionar dados:
 
 ```bash
 npx prisma studio
@@ -39,6 +39,7 @@ npx prisma studio
 Como testar manualmente
 
 Opção A — Usando `Prisma Studio`:
+
 - Rode `npx prisma studio` e verifique as tabelas `Usuario`, `Curso`, `Aluno`, `Tutor`, `Bolsista`.
 - Crie um `Usuario`, depois crie um `Curso`, e crie um `Aluno` vinculando `usuarioId` e `cursoId`.
 - Verifique as relações (se aluno.role = `TUTOR` ou `BOLSISTA`, confira se os perfis `Tutor`/`Bolsista` estão populados conforme esperado).
@@ -48,33 +49,46 @@ Opção B — Script Node rápido (exemplo):
 - Crie um arquivo `scripts/test-aluno-curso.js` com o seguinte conteúdo:
 
 ```js
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-async function main(){
+async function main() {
   // criar curso
-  const curso = await prisma.curso.create({ data: { nome: 'Engenharia', codigo: 'ENG-01' } });
+  const curso = await prisma.curso.create({
+    data: { nome: "Engenharia", codigo: "ENG-01" },
+  });
 
   // criar usuário (substitua campos conforme seu model Usuario)
-  const usuario = await prisma.usuario.create({ data: { nome: 'Maria Silva', email: 'maria@example.com', senha: 'senha123' } });
+  const usuario = await prisma.usuario.create({
+    data: {
+      nome: "Maria Silva",
+      email: "maria@example.com",
+      senha: "senha123",
+    },
+  });
 
   // criar aluno vinculado ao usuário e ao curso
   const aluno = await prisma.aluno.create({
     data: {
       usuario: { connect: { id: usuario.id } },
       curso: { connect: { id: curso.id } },
-      matricula: '2026.0001',
-      role: 'ALUNO'
+      matricula: "2026.0001",
+      role: "ALUNO",
     },
-    include: { usuario: true, curso: true }
+    include: { usuario: true, curso: true },
   });
 
-  console.log('Aluno criado:', aluno);
+  console.log("Aluno criado:", aluno);
 }
 
 main()
-  .catch(e => { console.error(e); process.exit(1); })
-  .finally(async () => { await prisma.$disconnect(); });
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
 ```
 
 - Executar (certifique-se de usar Node com `type: module` ou adaptar para CommonJS):

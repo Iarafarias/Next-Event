@@ -29,6 +29,7 @@ flowchart LR
 ```
 
 Notas:
+
 - Aplicação Web: Interface React/Next.js consumindo a API via HTTPS/JSON.
 - API Backend: Serviços REST (Express), documentação via Swagger, regras de negócio.
 - Banco de Dados: PostgreSQL, acesso via Prisma.

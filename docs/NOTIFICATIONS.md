@@ -7,6 +7,7 @@ O sistema de notificações foi implementado para avisar os usuários quando seu
 ## Funcionalidades Implementadas
 
 ### 1. **Entidade Notification**
+
 - Tipos de notificação: `certificate_approved`, `certificate_rejected`, `certificate_pending`, `system_announcement`
 - Status: `unread`, `read`
 - Relacionamento com entidades (certificados, usuários)
@@ -15,31 +16,41 @@ O sistema de notificações foi implementado para avisar os usuários quando seu
 ### 2. **APIs de Notificação**
 
 #### **GET /api/notifications**
+
 Busca todas as notificações do usuário autenticado
+
 ```bash
 curl -H "Authorization: Bearer <token>" http://localhost:3000/api/notifications
 ```
 
 #### **GET /api/notifications?unread=true**
+
 Busca apenas notificações não lidas
+
 ```bash
 curl -H "Authorization: Bearer <token>" http://localhost:3000/api/notifications?unread=true
 ```
 
 #### **GET /api/notifications/unread-count**
+
 Retorna a quantidade de notificações não lidas
+
 ```bash
 curl -H "Authorization: Bearer <token>" http://localhost:3000/api/notifications/unread-count
 ```
 
 #### **PATCH /api/notifications/:id/read**
+
 Marca uma notificação específica como lida
+
 ```bash
 curl -X PATCH -H "Authorization: Bearer <token>" http://localhost:3000/api/notifications/123/read
 ```
 
 #### **PATCH /api/notifications/mark-all-read**
+
 Marca todas as notificações do usuário como lidas
+
 ```bash
 curl -X PATCH -H "Authorization: Bearer <token>" http://localhost:3000/api/notifications/mark-all-read
 ```
@@ -47,6 +58,7 @@ curl -X PATCH -H "Authorization: Bearer <token>" http://localhost:3000/api/notif
 ### 3. **Integração com Validação de Certificados**
 
 Quando um administrador aprova ou rejeita um certificado via:
+
 ```bash
 PATCH /api/certificates/:id/status
 {
@@ -58,6 +70,7 @@ PATCH /api/certificates/:id/status
 **Automaticamente será enviada uma notificação para o usuário:**
 
 #### Exemplo de notificação de aprovação:
+
 ```json
 {
   "id": "uuid",
@@ -72,10 +85,11 @@ PATCH /api/certificates/:id/status
 ```
 
 #### Exemplo de notificação de rejeição:
+
 ```json
 {
   "id": "uuid",
-  "type": "certificate_rejected", 
+  "type": "certificate_rejected",
   "title": "❌ Certificado Rejeitado",
   "message": "Seu certificado \"certificado.pdf\" foi rejeitado. Observação do administrador: Documento ilegível, favor reenviar com melhor qualidade.",
   "status": "unread",
@@ -88,6 +102,7 @@ PATCH /api/certificates/:id/status
 ## Banco de Dados
 
 ### Tabela `notifications`
+
 ```sql
 CREATE TABLE notifications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -115,22 +130,27 @@ CREATE TABLE notifications (
 ## Próximos Passos Sugeridos
 
 ### 1. **Notificações em Tempo Real**
+
 - Implementar WebSocket ou Server-Sent Events
 - Notificações push no frontend
 
 ### 2. **Templates de Notificação**
+
 - Sistema de templates personalizáveis
 - Suporte a múltiplos idiomas
 
 ### 3. **Configurações de Notificação**
+
 - Permitir usuário escolher tipos de notificação
 - Configuração de frequência (imediata, diária, semanal)
 
 ### 4. **Notificações por Email**
+
 - Integração com serviços de email (SendGrid, SES)
 - Templates HTML para emails
 
 ### 5. **Limpeza Automática**
+
 - Job/cron para excluir notificações antigas
 - Configuração de retenção por tipo
 
@@ -139,7 +159,7 @@ CREATE TABLE notifications (
 Para testar o sistema completo:
 
 1. **Criar usuário participante**
-2. **Fazer login e obter token** 
+2. **Fazer login e obter token**
 3. **Fazer upload de certificado**
 4. **Login como admin e aprovar/rejeitar**
 5. **Verificar notificações do participante**

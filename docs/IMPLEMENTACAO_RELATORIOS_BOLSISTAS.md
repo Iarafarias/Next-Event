@@ -3,6 +3,7 @@
 ## 📋 Resumo da Implementação
 
 Esta implementação adiciona funcionalidades avançadas para:
+
 - **Relatórios consolidados**: Geração de relatórios com estatísticas detalhadas do sistema
 - **Permissões para bolsistas**: Visualização específica de dados e controle de acesso
 
@@ -11,6 +12,7 @@ Esta implementação adiciona funcionalidades avançadas para:
 ### 1. Relatórios Consolidados
 
 #### DTO de Relatório Consolidado
+
 **Arquivo**: `src/application/relatorio/dtos/RelatorioConsolidadoDTO.ts`
 
 ```typescript
@@ -67,9 +69,11 @@ export interface RelatorioConsolidadoDTO {
 ```
 
 #### Use Case de Geração de Relatórios
+
 **Arquivo**: `src/application/relatorio/use-cases/GenerateRelatorioConsolidadoUseCase.ts`
 
 **Funcionalidades**:
+
 - Agregação de dados de múltiplas fontes
 - Cálculo de estatísticas em tempo real
 - Análise de tendências temporais
@@ -79,14 +83,15 @@ export interface RelatorioConsolidadoDTO {
 ### 2. Permissões para Bolsistas
 
 #### Use Case de Visualização para Bolsistas
+
 **Arquivo**: `src/application/user/use-cases/BolsistaViewDataUseCase.ts`
 
 ```typescript
 export interface BolsistaDataView {
   alunos: {
     total: number;
-    porCurso: Array<{curso: string; quantidade: number}>;
-    porTipo: Array<{tipo: string; quantidade: number}>;
+    porCurso: Array<{ curso: string; quantidade: number }>;
+    porTipo: Array<{ tipo: string; quantidade: number }>;
     registros: Array<{
       id: string;
       nome: string;
@@ -127,9 +132,11 @@ export interface BolsistaDataView {
 ```
 
 #### Controller para Bolsistas
+
 **Arquivo**: `src/presentation/user/controllers/BolsistaController.ts`
 
 **Endpoints disponíveis**:
+
 - `GET /bolsistas/dashboard` - Dashboard completo
 - `GET /bolsistas/alunos` - Lista de alunos com estatísticas
 - `GET /bolsistas/tutores` - Dados dos tutores
@@ -140,31 +147,36 @@ export interface BolsistaDataView {
 ## 🛠️ Estrutura de Rotas
 
 ### Rotas para Bolsistas
+
 **Arquivo**: `src/presentation/bolsista/routes/bolsistaRoutes.ts`
 
 ```typescript
 // Middleware de autenticação e autorização
 router.use(authMiddleware);
-router.use(roleMiddleware(['bolsista']));
+router.use(roleMiddleware(["bolsista"]));
 
 // Rotas específicas para bolsistas
-router.get('/dashboard', bolsistaController.getDashboardData);
-router.get('/alunos', bolsistaController.getAlunos);
-router.get('/tutores', bolsistaController.getTutores);
-router.get('/certificados', bolsistaController.getCertificados);
-router.get('/forms-acompanhamento', bolsistaController.getFormsAcompanhamento);
-router.post('/relatorio-consolidado', bolsistaController.generateRelatorioConsolidado);
+router.get("/dashboard", bolsistaController.getDashboardData);
+router.get("/alunos", bolsistaController.getAlunos);
+router.get("/tutores", bolsistaController.getTutores);
+router.get("/certificados", bolsistaController.getCertificados);
+router.get("/forms-acompanhamento", bolsistaController.getFormsAcompanhamento);
+router.post(
+  "/relatorio-consolidado",
+  bolsistaController.generateRelatorioConsolidado,
+);
 ```
 
 ### Rotas para Relatórios Consolidados
+
 **Arquivo**: `src/presentation/relatorio/routes/relatorioConsolidadoRoutes.ts`
 
 ```typescript
 // Acessível para coordinators e bolsistas
-router.use(roleMiddleware(['coordinator', 'bolsista']));
+router.use(roleMiddleware(["coordinator", "bolsista"]));
 
-router.post('/consolidado', generateRelatorioConsolidado);
-router.get('/template', getTemplate);
+router.post("/consolidado", generateRelatorioConsolidado);
+router.get("/template", getTemplate);
 ```
 
 ## 🔐 Sistema de Permissões
@@ -186,8 +198,8 @@ router.get('/template', getTemplate);
 
 ```typescript
 // Aplicado automaticamente às rotas
-router.use(authMiddleware);              // Verificar JWT
-router.use(roleMiddleware(['bolsista'])); // Verificar papel específico
+router.use(authMiddleware); // Verificar JWT
+router.use(roleMiddleware(["bolsista"])); // Verificar papel específico
 ```
 
 ## 📊 Métricas e Análises
@@ -215,12 +227,14 @@ router.use(roleMiddleware(['bolsista'])); // Verificar papel específico
 ### Exemplos de Requisições
 
 #### 1. Dashboard do Bolsista
+
 ```bash
 GET /api/bolsistas/dashboard
 Authorization: Bearer <token-bolsista>
 ```
 
 **Resposta**:
+
 ```json
 {
   "message": "Dados do dashboard carregados com sucesso",
@@ -247,6 +261,7 @@ Authorization: Bearer <token-bolsista>
 ```
 
 #### 2. Gerar Relatório Consolidado
+
 ```bash
 POST /api/bolsistas/relatorio-consolidado
 Authorization: Bearer <token-bolsista>
@@ -260,12 +275,14 @@ Content-Type: application/json
 ```
 
 #### 3. Visualizar Alunos
+
 ```bash
 GET /api/bolsistas/alunos
 Authorization: Bearer <token-bolsista>
 ```
 
 ### Template de Relatório
+
 ```bash
 GET /api/relatorios/template
 ```
@@ -275,6 +292,7 @@ Retorna a estrutura completa do relatório consolidado para referência.
 ## 📁 Arquivos Modificados/Criados
 
 ### Novos Arquivos
+
 - `src/application/relatorio/dtos/RelatorioConsolidadoDTO.ts`
 - `src/application/relatorio/use-cases/GenerateRelatorioConsolidadoUseCase.ts`
 - `src/application/user/use-cases/BolsistaViewDataUseCase.ts`
@@ -284,6 +302,7 @@ Retorna a estrutura completa do relatório consolidado para referência.
 - `src/config/bolsistaConfig.ts`
 
 ### Arquivos Atualizados
+
 - `src/main.ts` - Registrar novas rotas
 - `openapi.yaml` - Documentação Swagger atualizada
 

@@ -8,6 +8,9 @@ describe('userRoutes', () => {
   const ROUTE_BASE = '/api/users/';
   const ROUTE_LOGIN = '/api/users/login';
 
+  // Aumentando timeout para 15 segundos devido à latência do banco
+  jest.setTimeout(15000);
+
   afterAll(async () => {
     await prisma.$disconnect();
   });
@@ -24,7 +27,15 @@ describe('userRoutes', () => {
       senha: senha
     });
     
-    return { token: login.body.token, id: login.body.usuario.id };
+    // Verificar se o login foi bem-sucedido antes de extrair dados
+    if (login.status !== 200 || !login.body.token) {
+      throw new Error(`Login falhou: Status ${login.status}, Body: ${JSON.stringify(login.body)}`);
+    }
+    
+    return { 
+      token: login.body.token, 
+      id: login.body.usuario?.id || login.body.user?.id 
+    };
   }
 
   describe('Fluxo de acesso', () => {

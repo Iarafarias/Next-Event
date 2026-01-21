@@ -20,6 +20,11 @@ import { relatorioRoutes } from './presentation/relatorio/routes/relatorioRoutes
 import { formAcompanhamentoRoutes } from './presentation/formAcompanhamento/routes/formAcompanhamentoRoutes';
 import { periodoTutoriaRoutes } from './presentation/periodoTutoria/routes/periodoTutoriaRoutes';
 import { notificationRoutes } from './presentation/notification/routes/notificationRoutes';
+import alunoRoutes from './presentation/aluno/routes/alunoRoutes';
+import cursoRoutes from './presentation/curso/routes/cursoRoutes';
+import tutorRoutes from './presentation/user/routes/tutorRoutes';
+import avaliacaoTutoriaRoutes from './presentation/avaliacaoTutoria/routes/avaliacaoTutoriaRoutes';
+import { bolsistaRoutes, relatorioConsolidadoRoutes } from './config/bolsistaConfig';
 
 const app = express();
 setupSwagger(app);
@@ -44,6 +49,12 @@ app.use((req, res, next) => {
 
 app.use('/api/users', userRoutes);
 app.use('/api/certificates', certificateRoutes);
+app.use('/api/alunos', alunoRoutes);
+app.use('/api/cursos', cursoRoutes);
+app.use('/api/tutores', tutorRoutes);
+app.use('/api/avaliacao-tutoria', avaliacaoTutoriaRoutes);
+app.use('/api/bolsistas', bolsistaRoutes);
+app.use('/api/relatorios', relatorioConsolidadoRoutes);
 
 app.use('/api/relatorios', relatorioRoutes);
 app.use('/api/relatorio-aluno', relatorioAlunoRoutes);
@@ -76,11 +87,16 @@ function findFreePort(startPort: number, cb: (port: number) => void) {
   });
 }
 
-const desiredPort = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
-findFreePort(desiredPort, (PORT) => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port http://localhost:${PORT}`);
+// Only start the HTTP server when this file is executed directly.
+// This prevents the server from being started when `app` is imported by tests,
+// avoiding open handles that prevent Jest from exiting.
+if (require.main === module) {
+  const desiredPort = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+  findFreePort(desiredPort, (PORT) => {
+    app.listen(PORT, () => {
+      console.log(`Server running on port http://localhost:${PORT}`);
+    });
   });
-});
+}
 
 export default app;

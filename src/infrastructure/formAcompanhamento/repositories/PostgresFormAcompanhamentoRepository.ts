@@ -4,13 +4,42 @@ import { CreateFormAcompanhamentoDTO } from '../../../application/formAcompanham
 import { UpdateFormAcompanhamentoDTO } from '../../../application/formAcompanhamento/dtos/UpdateFormAcompanhamentoDTO';
 import { FormAcompanhamentoResponseDTO } from '../../../application/formAcompanhamento/dtos/FormAcompanhamentoResponseDTO';
 
+type FormAcompanhamentoConteudo = {
+  modalidadeReuniao: 'VIRTUAL' | 'PRESENCIAL';
+  maiorDificuldadeAluno: string;
+  quantidadeReunioes: number;
+  descricaoDificuldade: string;
+  nomeAluno: string;
+  nomeTutor: string;
+  dataPreenchimento: Date;
+};
+
 const prisma = new PrismaClient();
 
 export class PostgresFormAcompanhamentoRepository implements IFormAcompanhamentoRepository {
   async create(data: CreateFormAcompanhamentoDTO): Promise<FormAcompanhamentoResponseDTO> {
-    const form = await prisma.formAcompanhamento.create({ data });
+    const formData = {
+      tutorId: data.tutorId,
+      bolsistaId: data.bolsistaId, 
+      periodoId: data.periodoId,
+      observacoes: data.observacoes,
+      dataEnvio: new Date(),
+      conteudo: {
+        modalidadeReuniao: data.modalidadeReuniao,
+        maiorDificuldadeAluno: data.maiorDificuldadeAluno,
+        quantidadeReunioes: data.quantidadeReunioes,
+        descricaoDificuldade: data.descricaoDificuldade,
+        nomeAluno: data.nomeAluno || '',
+        nomeTutor: data.nomeTutor || '',
+        dataPreenchimento: data.dataPreenchimento || new Date()
+      }
+    };
+    
+    const form = await prisma.formAcompanhamento.create({ 
+      data: formData
+    });
     return {
-      ...form,
+      id: form.id, periodoId: form.periodoId, conteudo: form.conteudo as unknown as FormAcompanhamentoConteudo, dataEnvio: form.dataEnvio, tutorId: form.tutorId, bolsistaId: form.bolsistaId,
       observacoes: form.observacoes === null ? undefined : form.observacoes,
     };
   }
@@ -21,7 +50,7 @@ export class PostgresFormAcompanhamentoRepository implements IFormAcompanhamento
       data,
     });
     return {
-      ...form,
+      id: form.id, periodoId: form.periodoId, conteudo: form.conteudo as unknown as FormAcompanhamentoConteudo, dataEnvio: form.dataEnvio, tutorId: form.tutorId, bolsistaId: form.bolsistaId,
       observacoes: form.observacoes === null ? undefined : form.observacoes,
     };
   }
@@ -30,7 +59,7 @@ export class PostgresFormAcompanhamentoRepository implements IFormAcompanhamento
     const form = await prisma.formAcompanhamento.findUnique({ where: { id } });
     if (!form) return null;
     return {
-      ...form,
+      id: form.id, periodoId: form.periodoId, conteudo: form.conteudo as unknown as FormAcompanhamentoConteudo, dataEnvio: form.dataEnvio, tutorId: form.tutorId, bolsistaId: form.bolsistaId,
       observacoes: form.observacoes === null ? undefined : form.observacoes,
     };
   }
@@ -38,7 +67,7 @@ export class PostgresFormAcompanhamentoRepository implements IFormAcompanhamento
   async list(): Promise<FormAcompanhamentoResponseDTO[]> {
     const forms = await prisma.formAcompanhamento.findMany();
     return forms.map(form => ({
-      ...form,
+      id: form.id, periodoId: form.periodoId, conteudo: form.conteudo as unknown as FormAcompanhamentoConteudo, dataEnvio: form.dataEnvio, tutorId: form.tutorId, bolsistaId: form.bolsistaId,
       observacoes: form.observacoes === null ? undefined : form.observacoes,
     }));
   }

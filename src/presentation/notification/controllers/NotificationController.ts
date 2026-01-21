@@ -14,7 +14,7 @@ export class NotificationController {
 
   async getMyNotifications(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const userId = (req as any).user?.id;
       if (!userId) {
         res.status(401).json({ error: 'Usuário não autenticado' });
         return;
@@ -44,7 +44,7 @@ export class NotificationController {
 
   async markAsRead(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const userId = (req as any).user?.id;
       if (!userId) {
         res.status(401).json({ error: 'Usuário não autenticado' });
         return;
@@ -74,7 +74,7 @@ export class NotificationController {
 
   async markAllAsRead(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const userId = (req as any).user?.id;
       if (!userId) {
         res.status(401).json({ error: 'Usuário não autenticado' });
         return;
@@ -91,7 +91,7 @@ export class NotificationController {
 
   async getUnreadCount(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const userId = (req as any).user?.id;
       if (!userId) {
         res.status(401).json({ error: 'Usuário não autenticado' });
         return;

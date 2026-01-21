@@ -47,6 +47,14 @@ export class InMemoryUsuarioRepository implements IUsuarioRepository {
             if (role === 'tutor') return !!u.tutor;
             if (role === 'coordenador' || role === 'coordinator') return !!u.coordenador;
             return false;
+        }).map(u => {
+            // Garantir que as propriedades sejam preservadas corretamente
+            return {
+                ...u,
+                coordenador: u.coordenador || undefined,
+                tutor: u.tutor || undefined,
+                bolsista: u.bolsista || undefined
+            };
         });
     }
 

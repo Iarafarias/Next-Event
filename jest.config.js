@@ -1,20 +1,54 @@
-module.exports = {
+const baseProjectConfig = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>/src', '<rootDir>/tests'], 
-  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
-  
-  // Garantindo que o ts-jest processe JS vindo do node_modules quando necessário
+
+  // Setup files
+  setupFilesAfterEnv: ['<rootDir>/tests/setup/jest.setup.ts'],
+
+  // Global test timeout
+  testTimeout: 10000,
+
+  // Transform TypeScript (and the few JS deps we allow)
   transform: {
-    '^.+\\.(t|j)sx?$': ['ts-jest', { useESM: true }],
+    '^.+\\.(t|j)sx?$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.test.json' }],
   },
 
-  // Transformando o Faker v8 de ESM para CJS
-  transformIgnorePatterns: [
-    'node_modules/(?!(@faker-js)/)'
-  ],
+  // Transformando o Faker (ESM) para funcionar no Jest
+  transformIgnorePatterns: ['node_modules/(?!(@faker-js)/)'],
 
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+};
+
+module.exports = {
+  ...baseProjectConfig,
+  roots: ['<rootDir>/src', '<rootDir>/tests'],
+  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+  
+  // Configuração de coverage
+  collectCoverage: false, // Enable via --coverage flag
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    '!src/**/*.d.ts',
+    '!src/main.ts',
+    '!src/**/*Config.ts',
+    '!src/infrastructure/database/**',
+  ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'html'],
+  
+  // Test patterns for different test types
+  projects: [
+    {
+      ...baseProjectConfig,
+      displayName: 'unit',
+      testMatch: ['<rootDir>/tests/unit/**/*.spec.ts'],
+    },
+    {
+      ...baseProjectConfig,
+      displayName: 'integration', 
+      testMatch: ['<rootDir>/tests/integration/**/*.spec.ts'],
+    }
+  ]
 };

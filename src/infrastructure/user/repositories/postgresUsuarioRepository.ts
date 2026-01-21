@@ -116,6 +116,32 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
     return usuarios.map(this.mapToUsuario);
   }
 
+  async listByRole(role: string): Promise<Usuario[]> {
+    const whereCondition: any = {};
+    
+    if (role === 'coordenador' || role === 'coordinator') {
+      whereCondition.coordenador = { isNot: null };
+    } else if (role === 'tutor') {
+      whereCondition.tutor = { isNot: null };
+    } else if (role === 'bolsista' || role === 'scholarship_holder') {
+      whereCondition.bolsista = { isNot: null };
+    } else {
+      // Retorna lista vazia para roles desconhecidos
+      return [];
+    }
+
+    const usuarios = await this.prisma.usuario.findMany({
+      where: whereCondition,
+      include: {
+        coordenador: true,
+        tutor: true,
+        bolsista: true,
+      }
+    });
+    
+    return usuarios.map(this.mapToUsuario);
+  }
+
   private mapToUsuario(data: any): Usuario {
     const usuario = new Usuario({
       nome: data.nome,

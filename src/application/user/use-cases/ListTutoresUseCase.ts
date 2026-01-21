@@ -1,23 +1,36 @@
-import { IUserRepository } from '../../../domain/user/repositories/IUserRepository';
+import { IUsuarioRepository } from '../../../domain/user/repositories/IUsuarioRepository';
 import { UsuarioResponseDTO } from '../dtos/UserResponseDTO';
-import { User } from '../../../domain/user/entities/User';
-function toUsuarioResponseDTO(user: User): UsuarioResponseDTO {
+import { Usuario } from '../../../domain/user/entities/Usuario';
+
+function toUsuarioResponseDTO(user: Usuario): UsuarioResponseDTO {
   return {
     id: user.id,
-    nome: user.name,
+    nome: user.nome,
     email: user.email,
-    status: user.role,
-    criadoEm: user.createdAt,
-    atualizadoEm: user.updatedAt,
-    // Adicionar os campos de perfil conforme necessário
+    status: user.status,
+    criadoEm: user.criadoEm,
+    atualizadoEm: user.atualizadoEm,
+    coordenador: user.coordenador ? {
+      area: user.coordenador.area,
+      nivel: user.coordenador.nivel
+    } : undefined,
+    tutor: user.tutor ? {
+      area: user.tutor.area,
+      nivel: user.tutor.nivel,
+      capacidadeMaxima: user.tutor.capacidadeMaxima
+    } : undefined,
+    bolsista: user.bolsista ? {
+      anoIngresso: user.bolsista.anoIngresso,
+      curso: user.bolsista.curso
+    } : undefined
   };
 }
 
 export class ListTutoresUseCase {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(private usuarioRepository: IUsuarioRepository) {}
 
   async execute(): Promise<UsuarioResponseDTO[]> {
-    const users = await this.userRepository.listByRole('tutor');
-    return users.map(toUsuarioResponseDTO);
+    const usuarios = await this.usuarioRepository.listByRole('tutor');
+    return usuarios.map(toUsuarioResponseDTO);
   }
 }

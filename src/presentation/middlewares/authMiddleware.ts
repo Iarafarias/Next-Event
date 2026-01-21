@@ -1,7 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction) {
+interface AuthPayload {
+  id: string;
+  email: string;
+  role: 'admin' | 'student' | 'tutor' | 'scholarship_holder' | 'coordinator';
+  [key: string]: any;
+}
+
+// Interface para Request com user
+interface AuthenticatedRequest extends Request {
+  user?: AuthPayload;
+}
+
+export function authMiddleware(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   if (!token) {
@@ -10,8 +22,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
   try {
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error('JWT_SECRET não configurado.');
-    const payload = jwt.verify(token, secret);
-    // @ts-ignore
+    const payload = jwt.verify(token, secret) as AuthPayload;
     req.user = payload;
     next();
   } catch (err) {

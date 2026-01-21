@@ -3,6 +3,16 @@ import { body, param } from 'express-validator';
 import { validationMiddleware } from '../../middlewares/validationMiddleware';
 import logger from '../../../infrastructure/logger/logger';
 import { authorizeRoles } from '../../middlewares/authorizeRoles';
+
+// Interface para Request com user
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+    email: string;
+    role: 'admin' | 'student' | 'tutor' | 'scholarship_holder' | 'coordinator';
+    [key: string]: any;
+  };
+}
 import { AtribuirPapelUseCase } from '../../../application/user/use-cases/AtribuirPapelUseCase';
 import { AtribuirPapelController } from '../controllers/AtribuirPapelController';
 import { PostgresUsuarioRepository } from '../../../infrastructure/user/repositories/postgresUsuarioRepository';
@@ -32,9 +42,9 @@ const usuarioRepository = new PostgresUsuarioRepository();
 const userRepository = new PostgresUserRepository();
 
 // UseCases e Controllers
-const listCoordenadoresUseCase = new ListCoordenadoresUseCase(userRepository);
-const listTutoresUseCase = new ListTutoresUseCase(userRepository);
-const listBolsistasUseCase = new ListBolsistasUseCase(userRepository);
+const listCoordenadoresUseCase = new ListCoordenadoresUseCase(usuarioRepository);
+const listTutoresUseCase = new ListTutoresUseCase(usuarioRepository);
+const listBolsistasUseCase = new ListBolsistasUseCase(usuarioRepository);
 const listCoordenadoresController = new ListCoordenadoresController(listCoordenadoresUseCase);
 const listTutoresController = new ListTutoresController(listTutoresUseCase);
 const listBolsistasController = new ListBolsistasController(listBolsistasUseCase);
@@ -58,42 +68,42 @@ userRoutes.post('/', (req: Request, res: Response) => {
 	logger.info('POST /usuarios - Criar usuário', { body: req.body });
 	createUsuarioController.handle(req, res);
 });
-userRoutes.post('/login', (req: Request, res: Response) => {
+userRoutes.post('/login', (req: AuthenticatedRequest, res: Response) => {
 	logger.info('POST /usuarios/login - Tentativa de login', { body: req.body });
 	authUsuarioController.handle(req, res);
 });
 
 // --- ROTAS ESPECÍFICAS (DEVEM VIR ANTES DE /:id) ---
 //* Importante: A ordem define quem captura a requisição primeiro.
-userRoutes.get('/coordenadores', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
+userRoutes.get('/coordenadores', authMiddleware, authorizeRoles(['coordinator']), (req: AuthenticatedRequest, res: Response) => {
 	logger.info('GET /usuarios/coordenadores - Listar coordenadores', { user: req.user });
 	listCoordenadoresController.handle(req, res);
 });
-userRoutes.get('/tutores', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
+userRoutes.get('/tutores', authMiddleware, authorizeRoles(['coordinator']), (req: AuthenticatedRequest, res: Response) => {
 	logger.info('GET /usuarios/tutores - Listar tutores', { user: req.user });
 	listTutoresController.handle(req, res);
 });
-userRoutes.get('/bolsistas', authMiddleware, authorizeRoles(['coordinator', 'tutor']), (req: Request, res: Response) => {
+userRoutes.get('/bolsistas', authMiddleware, authorizeRoles(['coordinator', 'tutor']), (req: AuthenticatedRequest, res: Response) => {
 	logger.info('GET /usuarios/bolsistas - Listar bolsistas', { user: req.user });
 	listBolsistasController.handle(req, res);
 });
 
 // --- ROTAS DE LISTAGEM GERAL E AÇÕES POR ID ---
-userRoutes.get('/', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
+userRoutes.get('/', authMiddleware, authorizeRoles(['coordinator']), (req: AuthenticatedRequest, res: Response) => {
 	logger.info('GET /usuarios - Listar usuários', { user: req.user });
 	listUsuariosController.handle(req, res);
 });
 
 //* A rota /:id deve ficar ABAIXO das rotas específicas (/bolsistas, etc)
-userRoutes.get('/:id', authMiddleware, (req: Request, res: Response) => {
+userRoutes.get('/:id', authMiddleware, (req: AuthenticatedRequest, res: Response) => {
 	logger.info('GET /usuarios/:id - Buscar usuário', { user: req.user, params: req.params });
 	getUsuarioByIdController.handle(req, res);
 });
-userRoutes.put('/:id', authMiddleware, (req: Request, res: Response) => {
+userRoutes.put('/:id', authMiddleware, (req: AuthenticatedRequest, res: Response) => {
 	logger.info('PUT /usuarios/:id - Atualizar usuário', { user: req.user, params: req.params, body: req.body });
 	updateUsuarioController.handle(req, res);
 });
-userRoutes.delete('/:id', authMiddleware, authorizeRoles(['coordinator']), (req: Request, res: Response) => {
+userRoutes.delete('/:id', authMiddleware, authorizeRoles(['coordinator']), (req: AuthenticatedRequest, res: Response) => {
 	logger.info('DELETE /usuarios/:id - Remover usuário', { user: req.user, params: req.params });
 	deleteUsuarioController.handle(req, res);
 });
@@ -103,7 +113,7 @@ userRoutes.patch(
 	authMiddleware,
 	authorizeRoles(['coordinator']),
 	[param('id').isString().notEmpty(), body('papel').isString().notEmpty(), validationMiddleware],
-	(req: Request, res: Response) => {
+	(req: AuthenticatedRequest, res: Response) => {
 		logger.info('PATCH /usuarios/:id/atribuir-papel - Atribuir/remover papel', { user: req.user, params: req.params, body: req.body });
 		atribuirPapelController.handle(req, res);
 	}

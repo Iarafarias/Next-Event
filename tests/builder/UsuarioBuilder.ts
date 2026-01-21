@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { Usuario } from '../../src/domain/user/entities/Usuario';
 import { CreateUsuarioDTO } from '../../src/application/user/dtos/CreateUserDTO';
+import { randomUUID } from 'crypto';
 
 export class UsuarioBuilder {
   private props = {
@@ -18,17 +19,33 @@ export class UsuarioBuilder {
   }
 
   public comoCoordenador(): this {
-    this.props.coordenador = { area: faker.commerce.department(), nivel: 'Sênior' };
+    this.props.coordenador = { 
+      id: randomUUID(),
+      usuarioId: '', // será definido quando o usuário for criado
+      area: faker.commerce.department(), 
+      nivel: 'Sênior' 
+    };
     return this;
   }
 
   public comoTutor(): this {
-    this.props.tutor = { area: faker.person.jobArea(), nivel: 'Doutorado', capacidadeMaxima: 10 };
+    this.props.tutor = { 
+      id: randomUUID(),
+      usuarioId: '', // será definido quando o usuário for criado
+      area: faker.person.jobArea(), 
+      nivel: 'Doutorado', 
+      capacidadeMaxima: 10 
+    };
     return this;
   }
 
   public comoBolsista(): this {
-    this.props.bolsista = { curso: faker.commerce.productName(), anoIngresso: 2024 };
+    this.props.bolsista = { 
+      id: randomUUID(),
+      usuarioId: '', // será definido quando o usuário for criado
+      curso: faker.commerce.productName(), 
+      anoIngresso: 2024 
+    };
     return this;
   }
 
@@ -49,7 +66,18 @@ export class UsuarioBuilder {
       tutor: this.props.tutor,
       bolsista: this.props.bolsista,
     });
-    usuario.id = crypto.randomUUID();
+    
+    // Configurar usuarioId nos perfis se existirem
+    if (usuario.coordenador) {
+      usuario.coordenador.usuarioId = usuario.id;
+    }
+    if (usuario.tutor) {
+      usuario.tutor.usuarioId = usuario.id;
+    }
+    if (usuario.bolsista) {
+      usuario.bolsista.usuarioId = usuario.id;
+    }
+    
     return usuario;
   }
 

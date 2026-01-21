@@ -1,21 +1,49 @@
-import { IUsuarioRepository } from './../../../../src/domain/user/repositories/IUsuarioRepository';
-import { UsuarioResponseDTO } from './../../../../src/application/user/dtos/UserResponseDTO';
-import { Usuario } from './../../../../src/domain/user/entities/Usuario';
+import { ListCoordenadoresUseCase } from '../../../../src/application/user/use-cases/ListCoordenadoresUseCase';
+import { IUsuarioRepository } from '../../../../src/domain/user/repositories/IUsuarioRepository';
+import { Usuario } from '../../../../src/domain/user/entities/Usuario';
 
-function toUsuarioResponseDTO(user: Usuario): UsuarioResponseDTO {
-  return {
-    id: user.id,
-    nome: user.nome,
-    email: user.email,
-    status: user.status,
-    criadoEm: user.criadoEm || new Date(),
-    atualizadoEm: user.atualizadoEm || new Date(),
+describe('ListCoordenadoresUseCase', () => {
+  let repository: jest.Mocked<IUsuarioRepository>;
+  let useCase: ListCoordenadoresUseCase;
+
+  beforeEach(() => {
+    repository = {
+      listByRole: jest.fn(),
+      findByEmail: jest.fn(),
+      findById: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      findAll: jest.fn(),
+    };
+    useCase = new ListCoordenadoresUseCase(repository);
+  });
+
+  it('Sucesso: Deve listar apenas usuários que possuem o perfil de coordenador', async () => {
+    const coordenador = new Usuario({
+      nome: 'João Coordenador',
+      email: 'joao@test.com',
+      senha: 'senha123',
+      status: 'ATIVO',
+      coordenador: { id: '1', usuarioId: '1', area: 'TI', nivel: 'Sênior' }
+    });
     
-    coordenador: user.coordenador ? {
-        area: user.coordenador.area,
-        nivel: user.coordenador.nivel
-    } : undefined,
-    tutor: user.tutor ? { ...user.tutor } : undefined,
-    bolsista: user.bolsista ? { ...user.bolsista } : undefined
-  };
-}
+    repository.listByRole.mockResolvedValue([coordenador]);
+
+    const resultado = await useCase.execute();
+
+    expect(repository.listByRole).toHaveBeenCalledWith('coordenador');
+    expect(resultado).toHaveLength(1);
+    expect(resultado[0].id).toBe(coordenador.id);
+    expect(resultado[0].nome).toBe(coordenador.nome);
+    expect(resultado[0].coordenador).toBeDefined();
+  });
+
+  it('Falha: Deve retornar uma lista vazia se não houver coordenadores', async () => {
+    repository.listByRole.mockResolvedValue([]);
+    
+    const resultado = await useCase.execute();
+    
+    expect(resultado).toEqual([]);
+  });
+});

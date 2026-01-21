@@ -7,4 +7,5 @@ export interface IUsuarioRepository {
   update(usuario: Partial<Usuario>): Promise<Usuario | null>;
   delete(id: string): Promise<void>;
   findAll(): Promise<Usuario[]>;
+  listByRole(role: string): Promise<Usuario[]>;
 }

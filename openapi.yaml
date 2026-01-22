@@ -428,7 +428,364 @@ paths:
         '200':
           description: Lista de relatórios
 
+  # ROTAS `/api/bolsistas` (montadas em /api/bolsistas no servidor)
+  /api/bolsistas/dashboard:
+    get:
+      summary: Obter dados do dashboard para bolsista
+      tags: [Bolsista]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dados do dashboard carregados com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BolsistaDataView'
+        '401':
+          description: Token de autenticação inválido
+        '403':
+          description: Usuário não tem permissão de bolsista
+        '500':
+          description: Erro interno do servidor
+
+  /api/bolsistas/alunos:
+    get:
+      summary: Visualizar registros de alunos para bolsista
+      tags: [Bolsista]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Registros de alunos carregados com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Token de autenticação inválido
+        '403':
+          description: Usuário não tem permissão de bolsista
+        '500':
+          description: Erro interno do servidor
+
+  /api/bolsistas/tutores:
+    get:
+      summary: Visualizar registros de tutores para bolsista
+      tags: [Bolsista]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Registros de tutores carregados com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Token de autenticação inválido
+        '403':
+          description: Usuário não tem permissão de bolsista
+        '500':
+          description: Erro interno do servidor
+
+  /api/bolsistas/certificados:
+    get:
+      summary: Visualizar dados de certificados para bolsista
+      tags: [Bolsista]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dados de certificados carregados com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Token de autenticação inválido
+        '403':
+          description: Usuário não tem permissão de bolsista
+        '500':
+          description: Erro interno do servidor
+
+  /api/bolsistas/forms-acompanhamento:
+    get:
+      summary: Visualizar formulários de acompanhamento para bolsista
+      tags: [Bolsista]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dados de formulários carregados com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Token de autenticação inválido
+        '403':
+          description: Usuário não tem permissão de bolsista
+        '500':
+          description: Erro interno do servidor
+
+  /api/bolsistas/relatorio-consolidado:
+    post:
+      summary: Gerar relatório consolidado (para bolsista)
+      tags: [Bolsista]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                periodoId:
+                  type: string
+                  description: ID do período específico (opcional)
+                dataInicio:
+                  type: string
+                  format: date
+                  description: Data de início para análise (opcional)
+                dataFim:
+                  type: string
+                  format: date
+                  description: Data de fim para análise (opcional)
+                incluirDetalhes:
+                  type: boolean
+                  description: Se deve incluir detalhes no relatório
+      responses:
+        '200':
+          description: Relatório consolidado gerado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelatorioConsolidadoDTO'
+        '400':
+          description: Parâmetros inválidos
+        '401':
+          description: Token de autenticação inválido
+        '403':
+          description: Usuário não tem permissão de bolsista
+        '500':
+          description: Erro interno do servidor
+
   # MÓDULO CURSO
+  # ROTAS `/api/certificates` (endpoints de upload, listagem e download)
+  /api/certificates/upload:
+    post:
+      summary: Upload de certificado (arquivo PDF)
+      tags: [Certificados]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Upload realizado com sucesso
+        '400':
+          description: Arquivo inválido
+        '401':
+          description: Token de autenticação inválido
+
+  /api/certificates:
+    get:
+      summary: Lista todos os certificados (requer autenticação)
+      tags: [Certificados]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de certificados
+        '401':
+          description: Token de autenticação inválido
+
+  /api/certificates/user/{userId}:
+    get:
+      summary: Lista certificados de um usuário
+      tags: [Certificados]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de certificados do usuário
+        '401':
+          description: Token de autenticação inválido
+
+  /api/certificates/{id}/download:
+    get:
+      summary: Download de certificado por ID
+      tags: [Certificados]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Arquivo do certificado (PDF)
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Token de autenticação inválido
+
+  /api/certificates/{id}/status:
+    patch:
+      summary: Atualiza status do certificado
+      tags: [Certificados]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+      responses:
+        '200':
+          description: Status atualizado
+        '401':
+          description: Token de autenticação inválido
+        '403':
+          description: Acesso negado
+
+  /api/certificates/{id}:
+    delete:
+      summary: Deleta um certificado por ID
+      tags: [Certificados]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Certificado deletado
+        '401':
+          description: Token de autenticação inválido
+
+  /api/certificates/report:
+    get:
+      summary: Gera relatório de certificados (usuário autenticado)
+      tags: [Certificados]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Relatório gerado
+
+  /api/certificates/report/{userId}:
+    get:
+      summary: Gera relatório de certificados para usuário (admin)
+      tags: [Certificados]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Relatório gerado
+
+  # MÓDULO CURSO
+  # ROTAS `/api/coordenadores` (aliases para endpoints de coordenador)
+  /api/users/coordenadores:
+    get:
+      summary: Lista todos os coordenadores
+      tags: [Usuarios]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de coordenadores
+
+  /api/coordenadores/{id}/certificados:
+    get:
+      summary: Lista certificados de um coordenador
+      tags: [Certificados]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de certificados
+
+  /api/coordenadores/{id}/validar-certificado:
+    post:
+      summary: Coordenador valida certificado
+      tags: [Certificados]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                certificateId:
+                  type: string
+      responses:
+        '200':
+          description: Certificado validado
+
+  /api/coordenadores/{id}/relatorios:
+    get:
+      summary: Lista relatórios sob responsabilidade do coordenador
+      tags: [Relatórios]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de relatórios
   /cursos:
     post:
       summary: Cria um novo curso

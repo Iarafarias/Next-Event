@@ -30,10 +30,9 @@ certificateRoutes.use(authMiddleware);
 // Rota básica de upload de certificado
 certificateRoutes.post(
   '/upload',
-  authMiddleware,
   upload.single('file'),
   (req: Request, res: Response) => {
-    logger.info('Upload de certificado', { user: (req as any).user });
+    logger.info('POST /certificates/upload - Upload de certificado', { user: (req as any).user });
     res.status(200).json({ message: 'Upload realizado com sucesso' });
   }
 );

@@ -87,6 +87,158 @@ components:
           type: string
           format: date-time
 
+    # Novos componentes para relatórios e bolsistas
+    RelatorioConsolidadoDTO:
+      type: object
+      properties:
+        periodo:
+          type: object
+          properties:
+            id:
+              type: string
+            nome:
+              type: string
+            dataInicio:
+              type: string
+              format: date-time
+            dataFim:
+              type: string
+              format: date-time
+        estatisticas:
+          type: object
+          properties:
+            totalAlunos:
+              type: integer
+            totalTutores:
+              type: integer
+            totalFormulariosAcompanhamento:
+              type: integer
+            totalAvaliacoesTutoria:
+              type: integer
+            totalCertificadosPendentes:
+              type: integer
+            totalCertificadosAprovados:
+              type: integer
+            totalCertificadosRejeitados:
+              type: integer
+        distribuicaoSatisfacao:
+          type: object
+          properties:
+            muitoInsatisfeito:
+              type: integer
+            insatisfeito:
+              type: integer
+            neutro:
+              type: integer
+            satisfeito:
+              type: integer
+            muitoSatisfeito:
+              type: integer
+        principaisDificuldades:
+          type: object
+          properties:
+            comunicacao:
+              type: integer
+            conteudo:
+              type: integer
+            metodologicas:
+              type: integer
+            recursos:
+              type: integer
+            outras:
+              type: integer
+        alunosPorTutor:
+          type: array
+          items:
+            type: object
+            properties:
+              tutorNome:
+                type: string
+              tutorEmail:
+                type: string
+              quantidadeAlunos:
+                type: integer
+              avaliacaoMedia:
+                type: number
+        certificadosPorCategoria:
+          type: array
+          items:
+            type: object
+            properties:
+              categoria:
+                type: string
+              total:
+                type: integer
+              aprovados:
+                type: integer
+              pendentes:
+                type: integer
+              rejeitados:
+                type: integer
+        formsAcompanhamentoPorMes:
+          type: array
+          items:
+            type: object
+            properties:
+              mes:
+                type: string
+              quantidade:
+                type: integer
+        geradoEm:
+          type: string
+          format: date-time
+        geradoPor:
+          type: string
+
+    BolsistaDataView:
+      type: object
+      properties:
+        alunos:
+          type: object
+          properties:
+            total:
+              type: integer
+            porCurso:
+              type: array
+              items:
+                type: object
+                properties:
+                  curso:
+                    type: string
+                  quantidade:
+                    type: integer
+            porTipo:
+              type: array
+              items:
+                type: object
+                properties:
+                  tipo:
+                    type: string
+                  quantidade:
+                    type: integer
+            registros:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  nome:
+                    type: string
+                  email:
+                    type: string
+                  matricula:
+                    type: string
+                  curso:
+                    type: string
+                  tipoAcesso:
+                    type: string
+                  ativo:
+                    type: boolean
+                  dataIngresso:
+                    type: string
+                    format: date-time
+
 paths:
   /users/login:
     post:
@@ -1345,157 +1497,7 @@ paths:
         '403':
           description: Acesso negado
 
-  # Novos componentes para relatórios e bolsistas
-  RelatorioConsolidadoDTO:
-    type: object
-    properties:
-      periodo:
-        type: object
-        properties:
-          id:
-            type: string
-          nome:
-            type: string
-          dataInicio:
-            type: string
-            format: date-time
-          dataFim:
-            type: string
-            format: date-time
-      estatisticas:
-        type: object
-        properties:
-          totalAlunos:
-            type: integer
-          totalTutores:
-            type: integer
-          totalFormulariosAcompanhamento:
-            type: integer
-          totalAvaliacoesTutoria:
-            type: integer
-          totalCertificadosPendentes:
-            type: integer
-          totalCertificadosAprovados:
-            type: integer
-          totalCertificadosRejeitados:
-            type: integer
-      distribuicaoSatisfacao:
-        type: object
-        properties:
-          muitoInsatisfeito:
-            type: integer
-          insatisfeito:
-            type: integer
-          neutro:
-            type: integer
-          satisfeito:
-            type: integer
-          muitoSatisfeito:
-            type: integer
-      principaisDificuldades:
-        type: object
-        properties:
-          comunicacao:
-            type: integer
-          conteudo:
-            type: integer
-          metodologicas:
-            type: integer
-          recursos:
-            type: integer
-          outras:
-            type: integer
-      alunosPorTutor:
-        type: array
-        items:
-          type: object
-          properties:
-            tutorNome:
-              type: string
-            tutorEmail:
-              type: string
-            quantidadeAlunos:
-              type: integer
-            avaliacaoMedia:
-              type: number
-      certificadosPorCategoria:
-        type: array
-        items:
-          type: object
-          properties:
-            categoria:
-              type: string
-            total:
-              type: integer
-            aprovados:
-              type: integer
-            pendentes:
-              type: integer
-            rejeitados:
-              type: integer
-      formsAcompanhamentoPorMes:
-        type: array
-        items:
-          type: object
-          properties:
-            mes:
-              type: string
-            quantidade:
-              type: integer
-      geradoEm:
-        type: string
-        format: date-time
-      geradoPor:
-        type: string
 
-  BolsistaDataView:
-    type: object
-    properties:
-      alunos:
-        type: object
-        properties:
-          total:
-            type: integer
-          porCurso:
-            type: array
-            items:
-              type: object
-              properties:
-                curso:
-                  type: string
-                quantidade:
-                  type: integer
-          porTipo:
-            type: array
-            items:
-              type: object
-              properties:
-                tipo:
-                  type: string
-                quantidade:
-                  type: integer
-          registros:
-            type: array
-            items:
-              type: object
-              properties:
-                id:
-                  type: string
-                nome:
-                  type: string
-                email:
-                  type: string
-                matricula:
-                  type: string
-                curso:
-                  type: string
-                tipoAcesso:
-                  type: string
-                ativo:
-                  type: boolean
-                dataIngresso:
-                  type: string
-                  format: date-time
 
 # Tags adicionais
 tags:

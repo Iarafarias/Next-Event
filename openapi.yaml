@@ -4,7 +4,7 @@ info:
   description: API REST para gerenciamento de usuários, certificados, relatórios e papéis (Coordenador, Tutor, Bolsista).
   version: 1.0.0
 servers:
-  - url: http://localhost:3001/api
+  - url: http://localhost:3000/api
 components:
   securitySchemes:
     bearerAuth:

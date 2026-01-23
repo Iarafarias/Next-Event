@@ -73,13 +73,11 @@ userRoutes.post('/login', (req: AuthenticatedRequest, res: Response) => {
 	authUsuarioController.handle(req, res);
 });
 
-// --- ROTAS ESPECÍFICAS (DEVEM VIR ANTES DE /:id) ---
-//* Importante: A ordem define quem captura a requisição primeiro.
 userRoutes.get('/coordenadores', authMiddleware, authorizeRoles(['coordinator']), (req: AuthenticatedRequest, res: Response) => {
 	logger.info('GET /usuarios/coordenadores - Listar coordenadores', { user: req.user });
 	listCoordenadoresController.handle(req, res);
 });
-userRoutes.get('/tutores', authMiddleware, authorizeRoles(['coordinator']), (req: AuthenticatedRequest, res: Response) => {
+userRoutes.get('/tutores', authMiddleware, (req: AuthenticatedRequest, res: Response) => {
 	logger.info('GET /usuarios/tutores - Listar tutores', { user: req.user });
 	listTutoresController.handle(req, res);
 });

@@ -1,5 +1,4 @@
 import { Router } from 'express';
-const relatorioRoutes = Router();
 import { RelatorioController } from '../controllers/RelatorioController';
 import { PostgresRelatorioRepository } from '../../../infrastructure/relatorio/repositories/postgresRelatorioRepository';
 import { CreateRelatorioUseCase } from '../../../application/relatorio/use-cases/CreateRelatorioUseCase';
@@ -18,28 +17,9 @@ import { authorizeRoles } from '../../middlewares/authorizeRoles';
 import { param } from 'express-validator';
 import { validationMiddleware } from '../../middlewares/validationMiddleware';
 
-relatorioRoutes.get(
-  '/coordenadores/:id/relatorios',
-  authMiddleware,
-  authorizeRoles(['coordinator', 'admin']),
-  [param('id').isString().notEmpty(), validationMiddleware],
-  (req: import('express').Request, res: import('express').Response) => listRelatoriosPorCoordenadorController.handle(req, res)
-);
-relatorioRoutes.get(
-  '/tutores/:id/relatorios',
-  authMiddleware,
-  authorizeRoles(['tutor', 'admin']),
-  [param('id').isString().notEmpty(), validationMiddleware],
-  (req: import('express').Request, res: import('express').Response) => listRelatoriosPorTutorController.handle(req, res)
-);
-relatorioRoutes.get(
-  '/bolsistas/:id/relatorios',
-  authMiddleware,
-  authorizeRoles(['scholarship_holder', 'admin']),
-  [param('id').isString().notEmpty(), validationMiddleware],
-  (req: import('express').Request, res: import('express').Response) => listRelatoriosPorBolsistaController.handle(req, res)
-);
+const relatorioRoutes = Router();
 
+// Inicializar repositório, use-cases e controllers
 const relatorioRepository = new PostgresRelatorioRepository();
 
 const listRelatoriosPorCoordenadorUseCase = new ListRelatoriosPorCoordenadorUseCase(relatorioRepository);
@@ -58,7 +38,30 @@ const relatorioController = new RelatorioController(
   new DeleteRelatorioUseCase(relatorioRepository)
 );
 
+// Rotas para listar relatórios por responsável (não duplicar 'relatorios' no path)
+relatorioRoutes.get(
+  '/coordenadores/:id',
+  authMiddleware,
+  authorizeRoles(['coordinator', 'admin']),
+  [param('id').isString().notEmpty(), validationMiddleware],
+  (req: import('express').Request, res: import('express').Response) => listRelatoriosPorCoordenadorController.handle(req, res)
+);
+relatorioRoutes.get(
+  '/tutores/:id',
+  authMiddleware,
+  authorizeRoles(['tutor', 'admin']),
+  [param('id').isString().notEmpty(), validationMiddleware],
+  (req: import('express').Request, res: import('express').Response) => listRelatoriosPorTutorController.handle(req, res)
+);
+relatorioRoutes.get(
+  '/bolsistas/:id',
+  authMiddleware,
+  authorizeRoles(['scholarship_holder', 'admin']),
+  [param('id').isString().notEmpty(), validationMiddleware],
+  (req: import('express').Request, res: import('express').Response) => listRelatoriosPorBolsistaController.handle(req, res)
+);
 
+// Rotas CRUD para relatórios
 relatorioRoutes.post('/', authMiddleware, authorizeRoles(['admin']), (req: import('express').Request, res: import('express').Response) => relatorioController.create(req, res));
 relatorioRoutes.put('/:id', authMiddleware, authorizeRoles(['admin']), (req: import('express').Request, res: import('express').Response) => relatorioController.update(req, res));
 relatorioRoutes.get('/:id', authMiddleware, (req: import('express').Request, res: import('express').Response) => relatorioController.getById(req, res));

@@ -4,7 +4,7 @@ info:
   description: API REST para gerenciamento de usuários, certificados, relatórios e papéis (Coordenador, Tutor, Bolsista).
   version: 1.0.0
 servers:
-  - url: http://localhost:3000/api
+  - url: http://localhost:3001/api
 components:
   securitySchemes:
     bearerAuth:
@@ -875,6 +875,205 @@ paths:
       responses:
         '200':
           description: Relatório gerado
+
+  # MÓDULO RELATÓRIOS (unificado)
+  # ROTAS `/api/relatorios` - endpoints consolidados para relatórios
+  /api/relatorios/coordenadores/{id}:
+    get:
+      summary: Lista relatórios sob responsabilidade de um coordenador
+      tags: [Relatórios]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de relatórios do coordenador
+        '401':
+          description: Token de autenticação inválido
+        '403':
+          description: Acesso negado
+
+  /api/relatorios/tutores/{id}:
+    get:
+      summary: Lista relatórios sob responsabilidade de um tutor
+      tags: [Relatórios]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de relatórios do tutor
+        '401':
+          description: Token de autenticação inválido
+        '403':
+          description: Acesso negado
+
+  /api/relatorios/bolsistas/{id}:
+    get:
+      summary: Lista relatórios sob responsabilidade de um bolsista
+      tags: [Relatórios]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de relatórios do bolsista
+        '401':
+          description: Token de autenticação inválido
+        '403':
+          description: Acesso negado
+
+  /api/relatorios:
+    post:
+      summary: Cria um novo relatório (admin)
+      tags: [Relatórios]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Relatório criado
+        '401':
+          description: Token de autenticação inválido
+        '403':
+          description: Acesso negado
+
+    get:
+      summary: Lista todos os relatórios (admin)
+      tags: [Relatórios]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de relatórios
+        '401':
+          description: Token de autenticação inválido
+        '403':
+          description: Acesso negado
+
+  /api/relatorios/{id}:
+    get:
+      summary: Busca relatório por ID
+      tags: [Relatórios]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Relatório encontrado
+        '404':
+          description: Relatório não encontrado
+
+    put:
+      summary: Atualiza relatório por ID (admin)
+      tags: [Relatórios]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Relatório atualizado
+
+    delete:
+      summary: Remove relatório por ID (admin)
+      tags: [Relatórios]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Relatório removido
+
+  /api/relatorios/consolidado:
+    post:
+      summary: Gerar relatório consolidado
+      tags: [Relatórios]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                periodoId:
+                  type: string
+                dataInicio:
+                  type: string
+                  format: date
+                dataFim:
+                  type: string
+                  format: date
+                incluirDetalhes:
+                  type: boolean
+      responses:
+        '200':
+          description: Relatório consolidado gerado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelatorioConsolidadoDTO'
+
+  /api/relatorios/template:
+    get:
+      summary: Obter template do relatório consolidado
+      tags: [Relatórios]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Template do relatório retornado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
 
   # MÓDULO CURSO
   # ROTAS `/api/coordenadores` (aliases para endpoints de coordenador)

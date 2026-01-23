@@ -21,7 +21,10 @@ export function authMiddleware(req: AuthenticatedRequest, res: Response, next: N
   }
   try {
     const secret = process.env.JWT_SECRET;
-    if (!secret) throw new Error('JWT_SECRET não configurado.');
+    if (!secret) {
+      console.error('JWT_SECRET não configurado.');
+      return res.status(500).json({ message: 'Server configuration error.' });
+    }
     const payload = jwt.verify(token, secret) as AuthPayload;
     req.user = payload;
     next();

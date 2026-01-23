@@ -14,7 +14,13 @@ export class StorageService implements IStorageService {
     const filePath = path.join(this.uploadDir, fileName);
 
     try {
-      await fs.rename(file.path, filePath);
+      if ((file as any).path) {
+        await fs.rename((file as any).path, filePath);
+      } else if ((file as any).buffer) {
+        await fs.writeFile(filePath, (file as any).buffer);
+      } else {
+        throw new Error('No file data available to store');
+      }
       return `/uploads/certificates/${fileName}`;
     } catch (error) {
       if (error instanceof Error) {

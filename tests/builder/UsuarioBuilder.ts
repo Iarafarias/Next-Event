@@ -21,7 +21,7 @@ export class UsuarioBuilder {
   public comoCoordenador(): this {
     this.props.coordenador = { 
       id: randomUUID(),
-      usuarioId: '', // será definido quando o usuário for criado
+      usuarioId: '',
       area: faker.commerce.department(), 
       nivel: 'Sênior' 
     };
@@ -31,7 +31,7 @@ export class UsuarioBuilder {
   public comoTutor(): this {
     this.props.tutor = { 
       id: randomUUID(),
-      usuarioId: '', // será definido quando o usuário for criado
+      usuarioId: '',
       area: faker.person.jobArea(), 
       nivel: 'Doutorado', 
       capacidadeMaxima: 10 
@@ -42,7 +42,7 @@ export class UsuarioBuilder {
   public comoBolsista(): this {
     this.props.bolsista = { 
       id: randomUUID(),
-      usuarioId: '', // será definido quando o usuário for criado
+      usuarioId: '',
       curso: faker.commerce.productName(), 
       anoIngresso: 2024 
     };
@@ -67,7 +67,6 @@ export class UsuarioBuilder {
       bolsista: this.props.bolsista,
     });
     
-    // Configurar usuarioId nos perfis se existirem
     if (usuario.coordenador) {
       usuario.coordenador.usuarioId = usuario.id;
     }

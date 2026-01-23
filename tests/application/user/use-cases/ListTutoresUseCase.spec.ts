@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { ListTutoresUseCase } from '../../../../src/application/user/use-cases/ListTutoresUseCase';
 import { IUsuarioRepository } from '../../../../src/domain/user/repositories/IUsuarioRepository';
 import { Usuario } from '../../../../src/domain/user/entities/Usuario';

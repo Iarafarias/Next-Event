@@ -100,3 +100,4 @@ if (require.main === module) {
 }
 
 export default app;
+export { app };

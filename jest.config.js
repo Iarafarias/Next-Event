@@ -26,8 +26,7 @@ module.exports = {
   roots: ['<rootDir>/src', '<rootDir>/tests'],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
   
-  // Configuração de coverage
-  collectCoverage: false, // Enable via --coverage flag
+  collectCoverage: false,
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.d.ts',
@@ -38,12 +37,15 @@ module.exports = {
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   
-  // Test patterns for different test types
   projects: [
     {
       ...baseProjectConfig,
       displayName: 'unit',
-      testMatch: ['<rootDir>/tests/unit/**/*.spec.ts'],
+      testMatch: [
+        '<rootDir>/tests/unit/**/*.spec.ts',
+        '<rootDir>/tests/application/**/*.spec.ts', // Adicionado
+        '<rootDir>/tests/prestation/**/*.spec.ts'   // Adicionado
+      ],
     },
     {
       ...baseProjectConfig,

@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { AtribuirPapelUseCase } from '../../../../src/application/user/use-cases/AtribuirPapelUseCase';
 import { InMemoryUsuarioRepository } from './../../../builder/InMemoryUsuarioRepository';
 import { UsuarioBuilder } from '../../../builder/UsuarioBuilder';

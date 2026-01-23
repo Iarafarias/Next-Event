@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll, afterAll, jest } from '@jest/globals';
 import request from 'supertest';
 import app from '../../../../src/main'; 
 import { UsuarioBuilder } from '../../../builder/UsuarioBuilder';
@@ -8,8 +9,18 @@ describe('userRoutes', () => {
   const ROUTE_BASE = '/api/users/';
   const ROUTE_LOGIN = '/api/users/login';
 
-  // Aumentando timeout para 15 segundos devido à latência do banco
-  jest.setTimeout(15000);
+  jest.setTimeout(30000);
+
+  beforeAll(async () => {
+    await prisma.relatorioCertificado.deleteMany().catch(() => {});
+    await prisma.certificado.deleteMany().catch(() => {});
+    await prisma.alocarTutorAluno.deleteMany().catch(() => {});
+    await prisma.bolsista.deleteMany().catch(() => {});
+    await prisma.tutor.deleteMany().catch(() => {});
+    await prisma.coordenador.deleteMany().catch(() => {});
+    await prisma.aluno.deleteMany().catch(() => {});
+    await prisma.usuario.deleteMany().catch(() => {});
+  });
 
   afterAll(async () => {
     await prisma.$disconnect();
@@ -21,15 +32,19 @@ describe('userRoutes', () => {
     const dto = perfil === 'coordenador' ? builder.comoCoordenador().buildDTO() : builder.comoAluno().buildDTO();
     dto.senha = senha;
 
-    await request(app).post(ROUTE_BASE).send(dto);
+    // Create user
+    const createRes = await request(app).post(ROUTE_BASE).send(dto);
+    if (createRes.status !== 201) {
+       throw new Error(`Failed to create test user (${perfil}): ${JSON.stringify(createRes.body)}`);
+    }
+
     const login = await request(app).post(ROUTE_LOGIN).send({
       email: dto.email,
       senha: senha
     });
     
-    // Verificar se o login foi bem-sucedido antes de extrair dados
     if (login.status !== 200 || !login.body.token) {
-      throw new Error(`Login falhou: Status ${login.status}, Body: ${JSON.stringify(login.body)}`);
+      throw new Error(`Login failed: Status ${login.status}, Body: ${JSON.stringify(login.body)}`);
     }
     
     return { 
@@ -107,6 +122,7 @@ describe('userRoutes', () => {
         expect(encontrado).toHaveProperty('coordenador');
       }
     });
+
     it('Sucesso: Coordenador deve listar todos os tutores', async () => {
       const { token } = await obterToken('coordenador');
     
@@ -120,42 +136,42 @@ describe('userRoutes', () => {
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
       
-    
       const encontrado = response.body.find((u: any) => u.email === tutorDTO.email);
       if (encontrado) {
         expect(encontrado).toHaveProperty('tutor');
         expect(encontrado.tutor).toHaveProperty('area');
       }
     });
+
     describe('GET /api/users/ (Listagem Geral/Alunos)', () => {
-    it('Sucesso: Coordenador deve conseguir listar todos os usuários', async () => {
-      const { token } = await obterToken('coordenador');
+        it('Sucesso: Coordenador deve conseguir listar todos os usuários', async () => {
+          const { token } = await obterToken('coordenador');
 
-      const response = await request(app)
-        .get('/api/users/')
-        .set('Authorization', `Bearer ${token}`);
+          const response = await request(app)
+            .get('/api/users/')
+            .set('Authorization', `Bearer ${token}`);
 
-      expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      
-      expect(response.body.length).toBeGreaterThanOrEqual(1);
+          expect(response.status).toBe(200);
+          expect(Array.isArray(response.body)).toBe(true);
+          
+          expect(response.body.length).toBeGreaterThanOrEqual(1);
+        });
+
+        it('Falha: Aluno NÃO deve ter permissão para listar todos os usuários (403)', async () => {
+          const { token } = await obterToken('aluno');
+
+          const response = await request(app)
+            .get('/api/users/')
+            .set('Authorization', `Bearer ${token}`);
+
+          expect(response.status).toBe(403);
+        });
+
+        it('Falha: Usuário não autenticado não deve acessar (401)', async () => {
+          const response = await request(app).get('/api/users/');
+          expect(response.status).toBe(401);
+        });
     });
-
-    it('Falha: Aluno NÃO deve ter permissão para listar todos os usuários (403)', async () => {
-      const { token } = await obterToken('aluno');
-
-      const response = await request(app)
-        .get('/api/users/')
-        .set('Authorization', `Bearer ${token}`);
-
-      expect(response.status).toBe(403);
-    });
-
-    it('Falha: Usuário não autenticado não deve acessar (401)', async () => {
-      const response = await request(app).get('/api/users/');
-      expect(response.status).toBe(401);
-    });
-  });
   });
 
   describe('Fluxo de manutenção (PUT/DELETE)', () => {
@@ -184,6 +200,13 @@ describe('userRoutes', () => {
     it('SUCESSO: Coordenador atribui papel de Bolsista', async () => {
       const { token: tCoord } = await obterToken('coordenador');
       const { id: idAluno } = await obterToken('aluno');
+
+      const userExists = await prisma.usuario.findUnique({ where: { id: idAluno } });
+      if (!userExists) {
+          throw new Error('User created in obterToken does not exist in DB');
+      }
+
+      await prisma.bolsista.deleteMany({ where: { usuarioId: idAluno } });
 
       const res = await request(app)
         .patch(ROUTE_PATCH(idAluno))

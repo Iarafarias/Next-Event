@@ -581,7 +581,7 @@ paths:
           description: Lista de relatórios
 
   # ROTAS `/api/bolsistas` (montadas em /api/bolsistas no servidor)
-  /api/bolsistas/dashboard:
+  /bolsistas/dashboard:
     get:
       summary: Obter dados do dashboard para bolsista
       tags: [Bolsista]
@@ -601,7 +601,7 @@ paths:
         '500':
           description: Erro interno do servidor
 
-  /api/bolsistas/alunos:
+  /bolsistas/alunos:
     get:
       summary: Visualizar registros de alunos para bolsista
       tags: [Bolsista]
@@ -621,7 +621,7 @@ paths:
         '500':
           description: Erro interno do servidor
 
-  /api/bolsistas/tutores:
+  /bolsistas/tutores:
     get:
       summary: Visualizar registros de tutores para bolsista
       tags: [Bolsista]
@@ -641,7 +641,7 @@ paths:
         '500':
           description: Erro interno do servidor
 
-  /api/bolsistas/certificados:
+  /bolsistas/certificados:
     get:
       summary: Visualizar dados de certificados para bolsista
       tags: [Bolsista]
@@ -661,7 +661,7 @@ paths:
         '500':
           description: Erro interno do servidor
 
-  /api/bolsistas/forms-acompanhamento:
+  /bolsistas/forms-acompanhamento:
     get:
       summary: Visualizar formulários de acompanhamento para bolsista
       tags: [Bolsista]
@@ -681,7 +681,7 @@ paths:
         '500':
           description: Erro interno do servidor
 
-  /api/bolsistas/relatorio-consolidado:
+  /bolsistas/relatorio-consolidado:
     post:
       summary: Gerar relatório consolidado (para bolsista)
       tags: [Bolsista]
@@ -726,7 +726,7 @@ paths:
 
   # MÓDULO CURSO
   # ROTAS `/api/certificates` (endpoints de upload, listagem e download)
-  /api/certificates/upload:
+  /certificates/upload:
     post:
       summary: Upload de certificado (arquivo PDF)
       tags: [Certificados]
@@ -750,7 +750,7 @@ paths:
         '401':
           description: Token de autenticação inválido
 
-  /api/certificates:
+  /certificates:
     get:
       summary: Lista todos os certificados (requer autenticação)
       tags: [Certificados]
@@ -762,7 +762,7 @@ paths:
         '401':
           description: Token de autenticação inválido
 
-  /api/certificates/user/{userId}:
+  /certificates/user/{userId}:
     get:
       summary: Lista certificados de um usuário
       tags: [Certificados]
@@ -780,7 +780,7 @@ paths:
         '401':
           description: Token de autenticação inválido
 
-  /api/certificates/{id}/download:
+  /certificates/{id}/download:
     get:
       summary: Download de certificado por ID
       tags: [Certificados]
@@ -803,7 +803,7 @@ paths:
         '401':
           description: Token de autenticação inválido
 
-  /api/certificates/{id}/status:
+  /certificates/{id}/status:
     patch:
       summary: Atualiza status do certificado
       tags: [Certificados]
@@ -832,7 +832,7 @@ paths:
         '403':
           description: Acesso negado
 
-  /api/certificates/{id}:
+  /certificates/{id}:
     delete:
       summary: Deleta um certificado por ID
       tags: [Certificados]
@@ -850,7 +850,7 @@ paths:
         '401':
           description: Token de autenticação inválido
 
-  /api/certificates/report:
+  /certificates/report:
     get:
       summary: Gera relatório de certificados (usuário autenticado)
       tags: [Certificados]
@@ -860,7 +860,7 @@ paths:
         '200':
           description: Relatório gerado
 
-  /api/certificates/report/{userId}:
+  /certificates/report/{userId}:
     get:
       summary: Gera relatório de certificados para usuário (admin)
       tags: [Certificados]
@@ -878,7 +878,7 @@ paths:
 
   # MÓDULO RELATÓRIOS (unificado)
   # ROTAS `/api/relatorios` - endpoints consolidados para relatórios
-  /api/relatorios/coordenadores/{id}:
+  /relatorios/coordenadores/{id}:
     get:
       summary: Lista relatórios sob responsabilidade de um coordenador
       tags: [Relatórios]
@@ -898,7 +898,7 @@ paths:
         '403':
           description: Acesso negado
 
-  /api/relatorios/tutores/{id}:
+  /relatorios/tutores/{id}:
     get:
       summary: Lista relatórios sob responsabilidade de um tutor
       tags: [Relatórios]
@@ -918,7 +918,7 @@ paths:
         '403':
           description: Acesso negado
 
-  /api/relatorios/bolsistas/{id}:
+  /relatorios/bolsistas/{id}:
     get:
       summary: Lista relatórios sob responsabilidade de um bolsista
       tags: [Relatórios]
@@ -938,7 +938,7 @@ paths:
         '403':
           description: Acesso negado
 
-  /api/relatorios:
+  /relatorios:
     post:
       summary: Cria um novo relatório (admin)
       tags: [Relatórios]
@@ -971,7 +971,7 @@ paths:
         '403':
           description: Acesso negado
 
-  /api/relatorios/{id}:
+  /relatorios/{id}:
     get:
       summary: Busca relatório por ID
       tags: [Relatórios]
@@ -1025,7 +1025,7 @@ paths:
         '204':
           description: Relatório removido
 
-  /api/relatorios/consolidado:
+  /relatorios/consolidado:
     post:
       summary: Gerar relatório consolidado
       tags: [Relatórios]
@@ -1056,7 +1056,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/RelatorioConsolidadoDTO'
 
-  /api/relatorios/template:
+  /relatorios/template:
     get:
       summary: Obter template do relatório consolidado
       tags: [Relatórios]
@@ -1075,68 +1075,6 @@ paths:
                   data:
                     type: object
 
-  # MÓDULO CURSO
-  # ROTAS `/api/coordenadores` (aliases para endpoints de coordenador)
-  /api/users/coordenadores:
-    get:
-      summary: Lista todos os coordenadores
-      tags: [Usuarios]
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Lista de coordenadores
-
-  /api/coordenadores/{id}/certificados:
-    get:
-      summary: Lista certificados de um coordenador
-      tags: [Certificados]
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Lista de certificados
-
-  /api/coordenadores/{id}/validar-certificado:
-    post:
-      summary: Coordenador valida certificado
-      tags: [Certificados]
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                certificateId:
-                  type: string
-      responses:
-        '200':
-          description: Certificado validado
-
-  /api/coordenadores/{id}/relatorios:
-    get:
-      summary: Lista relatórios sob responsabilidade do coordenador
-      tags: [Relatórios]
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Lista de relatórios
   /cursos:
     post:
       summary: Cria um novo curso

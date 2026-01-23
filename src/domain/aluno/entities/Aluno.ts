@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 export enum TipoAcessoAluno {
   ACESSO_TUTOR = 'ACESSO_TUTOR',
   ACESSO_BOLSISTA = 'ACESSO_BOLSISTA'
@@ -15,7 +16,7 @@ export class Aluno {
     public readonly ativo?: boolean,
     public readonly criadoEm?: Date,
     public readonly atualizadoEm?: Date
-  ) {}
+  ) { }
 
   public static create(data: {
     id?: string;

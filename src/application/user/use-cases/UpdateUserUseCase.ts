@@ -1,9 +1,10 @@
+import crypto from 'node:crypto';
 import { IUsuarioRepository } from '../../../domain/user/repositories/IUsuarioRepository';
 import { UpdateUsuarioDTO } from '../dtos/UpdateUserDTO';
 import { Usuario } from '../../../domain/user/entities/Usuario';
 
 export class UpdateUsuarioUseCase {
-  constructor(private usuarioRepository: IUsuarioRepository) {}
+  constructor(private usuarioRepository: IUsuarioRepository) { }
 
   async execute(data: UpdateUsuarioDTO): Promise<Usuario | null> {
     try {

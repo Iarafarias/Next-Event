@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 export type NivelSatisfacao = 'MUITO_INSATISFEITO' | 'INSATISFEITO' | 'NEUTRO' | 'SATISFEITO' | 'MUITO_SATISFEITO';
 export type StatusAvaliacao = 'RASCUNHO' | 'ENVIADA' | 'ANALISADA';
 
@@ -55,7 +56,7 @@ export class AvaliacaoTutoria {
     this.status = status;
     this.dataEnvio = dataEnvio;
     this.dataAtualizacao = dataAtualizacao;
-    
+
     this.validate();
   }
 
@@ -85,7 +86,7 @@ export class AvaliacaoTutoria {
   ): AvaliacaoTutoria {
     const id = crypto.randomUUID();
     const agora = new Date();
-    
+
     return new AvaliacaoTutoria(
       id,
       usuarioId,

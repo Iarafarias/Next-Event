@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 export type UserRole = 'admin' | 'student' | 'tutor' | 'scholarship_holder' | 'coordinator';
 
 export class User {

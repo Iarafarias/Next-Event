@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 export interface ReportData {
   userId: string;
   userName: string;

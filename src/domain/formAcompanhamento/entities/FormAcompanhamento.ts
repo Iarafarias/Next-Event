@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 export type ModalidadeReuniao = 'VIRTUAL' | 'PRESENCIAL';
 
 export interface FormAcompanhamentoConteudo {
@@ -35,7 +36,7 @@ export class FormAcompanhamento {
     this.conteudo = conteudo;
     this.dataEnvio = dataEnvio;
     this.observacoes = observacoes;
-    
+
     this.validate();
   }
 
@@ -72,7 +73,7 @@ export class FormAcompanhamento {
   ): FormAcompanhamento {
     const id = crypto.randomUUID();
     const dataEnvio = new Date();
-    
+
     return new FormAcompanhamento(
       id,
       tutorId,

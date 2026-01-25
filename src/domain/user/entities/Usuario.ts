@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 export type UsuarioStatus = 'ATIVO' | 'INATIVO' | 'PENDENTE';
 export type UsuarioRole = 'COORDENADOR' | 'TUTOR' | 'BOLSISTA';
 

@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 export class Curso {
   constructor(
     public readonly id: string,
@@ -7,7 +8,7 @@ export class Curso {
     public readonly ativo?: boolean,
     public readonly criadoEm?: Date,
     public readonly atualizadoEm?: Date
-  ) {}
+  ) { }
 
   public static create(data: {
     id?: string;

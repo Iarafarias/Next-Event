@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 export type NotificationType = 'certificate_approved' | 'certificate_rejected' | 'certificate_pending' | 'system_announcement';
 export type NotificationStatus = 'unread' | 'read';
 

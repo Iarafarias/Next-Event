@@ -1,9 +1,10 @@
+import crypto from 'node:crypto';
 import { CertificateRequest } from '../../../domain/certificate/entities/CertificateRequest';
 import { ICertificateRequestRepository } from '../../../domain/certificate/repositories/ICertificateRequestRepository';
 import { CreateCertificateRequestDTO } from '../dtos/CreateCertificateRequestDTO';
 
 export class CreateCertificateRequestUseCase {
-  constructor(private certificateRequestRepository: ICertificateRequestRepository) {}
+  constructor(private certificateRequestRepository: ICertificateRequestRepository) { }
 
   async execute(data: CreateCertificateRequestDTO): Promise<CertificateRequest> {
     const request: CertificateRequest = {

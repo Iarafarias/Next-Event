@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 export type CertificateStatus = 'pending' | 'approved' | 'rejected';
 import type { CategoriaWorkload } from '@prisma/client';
 

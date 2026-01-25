@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 export class Subscription {
   public readonly id: string;
   public userId: string;

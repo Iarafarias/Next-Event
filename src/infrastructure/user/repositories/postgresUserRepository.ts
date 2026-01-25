@@ -4,48 +4,60 @@ import { User } from '../../../domain/user/entities/User';
 import { UpdateUsuarioDTO } from '../../../application/user/dtos/UpdateUserDTO';
 
 export class PostgresUserRepository implements IUserRepository {
-    async listByRole(role: 'coordenador' | 'tutor' | 'bolsista'): Promise<User[]> {
-      const dbRoleMap: Record<string, string> = {
-        coordenador: 'COORDINATOR',
-        tutor: 'TUTOR',
-        bolsista: 'SCHOLARSHIP_HOLDER',
-      };
-        let whereClause: any = {};
-        if (role === 'coordenador') {
-          whereClause = { coordenador: { isNot: null } };
-        } else if (role === 'tutor') {
-          whereClause = { tutor: { isNot: null } };
-        } else if (role === 'bolsista') {
-          whereClause = { bolsista: { isNot: null } };
-        }
-        const users = await this.prisma.usuario.findMany({ where: whereClause });
-        return users.map(this.mapToUser);
+  async listByRole(role: 'coordenador' | 'tutor' | 'bolsista'): Promise<User[]> {
+    const dbRoleMap: Record<string, string> = {
+      coordenador: 'COORDINATOR',
+      tutor: 'TUTOR',
+      bolsista: 'SCHOLARSHIP_HOLDER',
+    };
+    let whereClause: any = {};
+    if (role === 'coordenador') {
+      whereClause = { coordenador: { isNot: null } };
+    } else if (role === 'tutor') {
+      whereClause = { tutor: { isNot: null } };
+    } else if (role === 'bolsista') {
+      whereClause = { bolsista: { isNot: null } };
     }
+    const users = await this.prisma.usuario.findMany({ where: whereClause });
+    return users.map(this.mapToUser);
+  }
 
-    async atribuirPapel(userId: string, dto: { papel: 'coordenador' | 'tutor' | 'bolsista'; acao: 'atribuir' | 'remover' }): Promise<void> {
-      const dbRoleMap: Record<string, string> = {
-        coordenador: 'COORDINATOR',
-        tutor: 'TUTOR',
-        bolsista: 'SCHOLARSHIP_HOLDER',
-      };
-        if (dto.acao === 'atribuir') {
-          if (dto.papel === 'coordenador') {
-            await this.prisma.coordenador.create({ data: { usuarioId: userId } });
-          } else if (dto.papel === 'tutor') {
-            await this.prisma.tutor.create({ data: { usuarioId: userId } });
-          } else if (dto.papel === 'bolsista') {
-            await this.prisma.bolsista.create({ data: { usuarioId: userId } });
-          }
-        } else if (dto.acao === 'remover') {
-          if (dto.papel === 'coordenador') {
-            await this.prisma.coordenador.deleteMany({ where: { usuarioId: userId } });
-          } else if (dto.papel === 'tutor') {
-            await this.prisma.tutor.deleteMany({ where: { usuarioId: userId } });
-          } else if (dto.papel === 'bolsista') {
-            await this.prisma.bolsista.deleteMany({ where: { usuarioId: userId } });
-          }
-        }
+  async atribuirPapel(userId: string, dto: { papel: 'coordenador' | 'tutor' | 'bolsista'; acao: 'atribuir' | 'remover' }): Promise<void> {
+    const dbRoleMap: Record<string, string> = {
+      coordenador: 'COORDINATOR',
+      tutor: 'TUTOR',
+      bolsista: 'SCHOLARSHIP_HOLDER',
+    };
+    if (dto.acao === 'atribuir') {
+      if (dto.papel === 'coordenador') {
+        await this.prisma.coordenador.upsert({
+          where: { usuarioId: userId },
+          update: {},
+          create: { usuarioId: userId }
+        });
+      } else if (dto.papel === 'tutor') {
+        await this.prisma.tutor.upsert({
+          where: { usuarioId: userId },
+          update: {},
+          create: { usuarioId: userId }
+        });
+      } else if (dto.papel === 'bolsista') {
+        await this.prisma.bolsista.upsert({
+          where: { usuarioId: userId },
+          update: {},
+          create: { usuarioId: userId }
+        });
+      }
+    } else if (dto.acao === 'remover') {
+      if (dto.papel === 'coordenador') {
+        await this.prisma.coordenador.deleteMany({ where: { usuarioId: userId } });
+      } else if (dto.papel === 'tutor') {
+        await this.prisma.tutor.deleteMany({ where: { usuarioId: userId } });
+      } else if (dto.papel === 'bolsista') {
+        await this.prisma.bolsista.deleteMany({ where: { usuarioId: userId } });
+      }
     }
+  }
   private prisma: PrismaClient;
 
   constructor() {

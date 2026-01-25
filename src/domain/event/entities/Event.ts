@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 export class Event {
   public readonly id: string;
   public name: string;

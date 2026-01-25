@@ -8,7 +8,19 @@ const prisma = new PrismaClient();
 
 export class PostgresCargaHorariaMinimaRepository implements ICargaHorariaMinimaRepository {
   async create(data: CreateCargaHorariaMinimaDTO): Promise<CargaHorariaMinimaResponseDTO> {
-    const carga = await prisma.cargaHorariaMinima.create({ data });
+    const carga = await prisma.cargaHorariaMinima.upsert({
+      where: {
+        periodoId_categoria: {
+          periodoId: data.periodoId,
+          categoria: data.categoria
+        }
+      },
+      update: {
+        horasMinimas: data.horasMinimas,
+        ...(data.descricao !== undefined && { descricao: data.descricao })
+      },
+      create: data
+    });
     return {
       ...carga,
       descricao: carga.descricao === null ? undefined : carga.descricao,

@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { DeleteUsuarioUseCase } from '../../../../src/application/user/use-cases/DeleteUserUseCase';
 import { InMemoryUsuarioRepository } from './../../../builder/InMemoryUsuarioRepository';
 import { UsuarioBuilder } from '../../../builder/UsuarioBuilder';

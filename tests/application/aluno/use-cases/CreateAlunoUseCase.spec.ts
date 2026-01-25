@@ -57,7 +57,6 @@ describe('CreateAlunoUseCase', () => {
   });
 
   it('deve criar um aluno com sucesso', async () => {
-    // Arrange
     const alunoData = {
       usuarioId: 'user-123',
       cursoId: 'curso-123',

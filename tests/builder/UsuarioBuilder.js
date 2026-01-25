@@ -61,7 +61,6 @@ class UsuarioBuilder {
             tutor: this.props.tutor,
             bolsista: this.props.bolsista,
         });
-        // Configurar usuarioId nos perfis se existirem
         if (usuario.coordenador) {
             usuario.coordenador.usuarioId = usuario.id;
         }

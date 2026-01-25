@@ -45,7 +45,6 @@ class InMemoryUsuarioRepository {
                 return !!u.coordenador;
             return false;
         }).map(u => {
-            // Garantir que as propriedades sejam preservadas corretamente
             return {
                 ...u,
                 coordenador: u.coordenador || undefined,

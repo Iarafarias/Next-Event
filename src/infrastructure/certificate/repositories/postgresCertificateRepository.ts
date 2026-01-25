@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from '.prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { Certificate } from '../../../domain/certificate/entities/Certificate';
 import { ICertificateRepository } from '../../../domain/certificate/repositories/ICertificateRepository';
 
@@ -98,7 +98,8 @@ export class PostgresCertificateRepository implements ICertificateRepository {
       endDate: new Date(data.dataFim),
       certificateUrl: data.arquivoUrl,
       adminComments: data.comentariosAdmin || undefined,
-      category: data.categoria
+      category: data.categoria,
+      studentName: data.bolsista?.usuario?.nome
     });
     certificate.id = data.id;
     const statusMap: Record<string, Certificate['status']> = {

@@ -2,9 +2,10 @@ import { ICargaHorariaMinimaRepository } from '../../../domain/cargaHorariaMinim
 import { CargaHorariaMinimaResponseDTO } from '../dtos/CargaHorariaMinimaResponseDTO';
 
 export class ListCargaHorariaMinimaUseCase {
-  constructor(private cargaHorariaMinimaRepository: ICargaHorariaMinimaRepository) {}
+  constructor(private cargaHorariaMinimaRepository: ICargaHorariaMinimaRepository) { }
 
-  async execute(): Promise<CargaHorariaMinimaResponseDTO[]> {
-    return this.cargaHorariaMinimaRepository.list();
+  async execute(periodoId?: string): Promise<CargaHorariaMinimaResponseDTO[]> {
+    return this.cargaHorariaMinimaRepository.list(periodoId);
   }
+
 }

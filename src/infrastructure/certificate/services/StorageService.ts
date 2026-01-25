@@ -35,14 +35,21 @@ export class StorageService implements IStorageService {
     return path.join(this.uploadDir, fileName);
   }
 
-  async deleteFile(filePath: string): Promise<void> {
+  async deleteFile(filePathOrUrl: string): Promise<void> {
     try {
-      await fs.unlink(filePath);
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Failed to delete file: ${error.message}`);
+      // Se for uma URL, converte para caminho físico
+      const physicalPath = filePathOrUrl.includes('/uploads/certificates/')
+        ? this.getPhysicalPath(filePathOrUrl)
+        : filePathOrUrl;
+
+      await fs.unlink(physicalPath);
+    } catch (error: any) {
+      // Ignora erro se o arquivo já não existir
+      if (error.code === 'ENOENT') {
+        return;
       }
-      throw new Error('Failed to delete file');
+
+      console.error(`Falha ao excluir arquivo: ${error.message}`);
     }
   }
-} 
+}

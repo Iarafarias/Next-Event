@@ -15,12 +15,16 @@ interface AuthUsuarioResponse {
     status: string;
     criadoEm: Date;
     atualizadoEm: Date;
+    bolsista?: any;
+    tutor?: any;
+    coordenador?: any;
   };
   token: string;
 }
 
+
 export class AuthUsuarioUseCase {
-  constructor(private usuarioRepository: IUsuarioRepository) {}
+  constructor(private usuarioRepository: IUsuarioRepository) { }
 
   async execute({ email, senha }: AuthUsuarioRequest): Promise<AuthUsuarioResponse> {
     const usuario = await this.usuarioRepository.findByEmail(email);
@@ -66,8 +70,12 @@ export class AuthUsuarioUseCase {
         status: usuario.status,
         criadoEm: usuario.criadoEm,
         atualizadoEm: usuario.atualizadoEm,
+        bolsista: usuario.bolsista,
+        tutor: usuario.tutor,
+        coordenador: usuario.coordenador,
       },
       token,
     };
+
   }
 }

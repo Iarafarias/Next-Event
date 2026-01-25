@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { ListUsuariosUseCase } from '../../../application/user/use-cases/ListUsersUseCase';
 
 export class ListUsuariosController {
-  constructor(private listUsuariosUseCase: ListUsuariosUseCase) {}
+  constructor(private listUsuariosUseCase: ListUsuariosUseCase) { }
 
   async handle(req: Request, res: Response): Promise<Response> {
     const usuarios = await this.listUsuariosUseCase.execute();

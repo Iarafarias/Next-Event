@@ -65,7 +65,7 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
   }
 
   async findByEmail(email: string): Promise<Usuario | null> {
-    const usuario = await this.prisma.usuario.findUnique({ 
+    const usuario = await this.prisma.usuario.findUnique({
       where: { email },
       include: {
         coordenador: true,
@@ -77,7 +77,7 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
   }
 
   async findById(id: string): Promise<Usuario | null> {
-    const usuario = await this.prisma.usuario.findUnique({ 
+    const usuario = await this.prisma.usuario.findUnique({
       where: { id },
       include: {
         coordenador: true,
@@ -118,7 +118,7 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
 
   async listByRole(role: string): Promise<Usuario[]> {
     const whereCondition: any = {};
-    
+
     if (role === 'coordenador' || role === 'coordinator') {
       whereCondition.coordenador = { isNot: null };
     } else if (role === 'tutor') {
@@ -138,7 +138,7 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
         bolsista: true,
       }
     });
-    
+
     return usuarios.map(this.mapToUsuario);
   }
 
@@ -162,7 +162,7 @@ export class PostgresUsuarioRepository implements IUsuarioRepository {
     if (data.bolsista) {
       usuario.bolsista = data.bolsista;
     }
-    
+
     return usuario;
   }
 }

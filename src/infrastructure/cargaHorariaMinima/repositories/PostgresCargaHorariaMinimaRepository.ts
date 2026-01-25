@@ -47,13 +47,16 @@ export class PostgresCargaHorariaMinimaRepository implements ICargaHorariaMinima
     };
   }
 
-  async list(): Promise<CargaHorariaMinimaResponseDTO[]> {
-    const cargas = await prisma.cargaHorariaMinima.findMany();
+  async list(periodoId?: string): Promise<CargaHorariaMinimaResponseDTO[]> {
+    const cargas = await prisma.cargaHorariaMinima.findMany({
+      where: periodoId ? { periodoId } : undefined
+    });
     return cargas.map(carga => ({
       ...carga,
       descricao: carga.descricao === null ? undefined : carga.descricao,
     }));
   }
+
 
   async delete(id: string): Promise<void> {
     await prisma.cargaHorariaMinima.delete({ where: { id } });

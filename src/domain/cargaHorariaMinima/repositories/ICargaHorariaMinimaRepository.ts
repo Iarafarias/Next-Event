@@ -6,6 +6,7 @@ export interface ICargaHorariaMinimaRepository {
   create(data: CreateCargaHorariaMinimaDTO): Promise<CargaHorariaMinimaResponseDTO>;
   update(id: string, data: UpdateCargaHorariaMinimaDTO): Promise<CargaHorariaMinimaResponseDTO | null>;
   getById(id: string): Promise<CargaHorariaMinimaResponseDTO | null>;
-  list(): Promise<CargaHorariaMinimaResponseDTO[]>;
+  list(periodoId?: string): Promise<CargaHorariaMinimaResponseDTO[]>;
   delete(id: string): Promise<void>;
 }
+

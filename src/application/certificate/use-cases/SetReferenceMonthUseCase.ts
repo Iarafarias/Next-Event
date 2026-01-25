@@ -21,32 +21,30 @@ export class SetReferenceMonthUseCase {
       throw new Error('Invalid year');
     }
 
-    await (this.prisma as any).config.upsert({
-      where: { id: 'singleton-config' },
-      create: {
-        id: 'singleton-config',
-        referenceMonth: data.month,
-        referenceYear: data.year,
-      },
-      update: {
-        referenceMonth: data.month,
-        referenceYear: data.year,
-      },
+    // Como o modelo 'config' não existe no banco, vamos usar o PeriodoTutoria ativo 
+    // ou apenas validar a existência de um período para o upload.
+    const activePeriod = await this.prisma.periodoTutoria.findFirst({
+      where: { ativo: true }
     });
+
+    if (!activePeriod) {
+      throw new Error('Nenhum período de tutoria ativo encontrado para definir referência.');
+    }
   }
 
   async getCurrentReference(): Promise<{ month: number; year: number } | null> {
-    const config = await (this.prisma as any).config.findUnique({
-      where: { id: 'singleton-config' }
+    // Busca o período ativo para servir como referência de data
+    const period = await this.prisma.periodoTutoria.findFirst({
+      where: { ativo: true }
     });
 
-    if (!config || !config.referenceMonth || !config.referenceYear) {
+    if (!period) {
       return null;
     }
 
     return {
-      month: config.referenceMonth,
-      year: config.referenceYear
+      month: period.dataInicio.getMonth() + 1,
+      year: period.dataInicio.getFullYear()
     };
   }
-} 
+}

@@ -6,6 +6,7 @@ export interface IAlocarTutorAlunoRepository {
   create(data: CreateAlocarTutorAlunoDTO): Promise<AlocarTutorAlunoResponseDTO>;
   update(id: string, data: UpdateAlocarTutorAlunoDTO): Promise<AlocarTutorAlunoResponseDTO | null>;
   getById(id: string): Promise<AlocarTutorAlunoResponseDTO | null>;
-  list(): Promise<AlocarTutorAlunoResponseDTO[]>;
+  list(filters?: { tutorId?: string; bolsistaId?: string; periodoId?: string }): Promise<AlocarTutorAlunoResponseDTO[]>;
   delete(id: string): Promise<void>;
+
 }

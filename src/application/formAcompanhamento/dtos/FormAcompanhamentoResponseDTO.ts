@@ -7,7 +7,10 @@ export interface FormAcompanhamentoResponseDTO {
     modalidadeReuniao: 'VIRTUAL' | 'PRESENCIAL';
     maiorDificuldadeAluno: string;
     quantidadeReunioes: number;
+    quantidadeVirtuais: number;
+    quantidadePresenciais: number;
     descricaoDificuldade: string;
+
     nomeAluno: string;
     nomeTutor: string;
     dataPreenchimento: Date;

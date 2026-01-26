@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { IFormAcompanhamentoRepository } from '../../../domain/formAcompanhamento/repositories/IFormAcompanhamentoRepository';
+import { IFormAcompanhamentoRepository, FormAcompanhamentoFilters } from '../../../domain/formAcompanhamento/repositories/IFormAcompanhamentoRepository';
 import { CreateFormAcompanhamentoDTO } from '../../../application/formAcompanhamento/dtos/CreateFormAcompanhamentoDTO';
 import { UpdateFormAcompanhamentoDTO } from '../../../application/formAcompanhamento/dtos/UpdateFormAcompanhamentoDTO';
 import { FormAcompanhamentoResponseDTO } from '../../../application/formAcompanhamento/dtos/FormAcompanhamentoResponseDTO';
@@ -8,7 +8,10 @@ type FormAcompanhamentoConteudo = {
   modalidadeReuniao: 'VIRTUAL' | 'PRESENCIAL';
   maiorDificuldadeAluno: string;
   quantidadeReunioes: number;
+  quantidadeVirtuais: number;
+  quantidadePresenciais: number;
   descricaoDificuldade: string;
+
   nomeAluno: string;
   nomeTutor: string;
   dataPreenchimento: Date;
@@ -20,22 +23,26 @@ export class PostgresFormAcompanhamentoRepository implements IFormAcompanhamento
   async create(data: CreateFormAcompanhamentoDTO): Promise<FormAcompanhamentoResponseDTO> {
     const formData = {
       tutorId: data.tutorId,
-      bolsistaId: data.bolsistaId, 
+      bolsistaId: data.bolsistaId,
       periodoId: data.periodoId,
       observacoes: data.observacoes,
       dataEnvio: new Date(),
       conteudo: {
         modalidadeReuniao: data.modalidadeReuniao,
         maiorDificuldadeAluno: data.maiorDificuldadeAluno,
-        quantidadeReunioes: data.quantidadeReunioes,
+        quantidadeReunioes: Number(data.quantidadeReunioes) || 0,
+        quantidadeVirtuais: Number(data.quantidadeVirtuais) || 0,
+        quantidadePresenciais: Number(data.quantidadePresenciais) || 0,
         descricaoDificuldade: data.descricaoDificuldade,
+
+
         nomeAluno: data.nomeAluno || '',
         nomeTutor: data.nomeTutor || '',
         dataPreenchimento: data.dataPreenchimento || new Date()
       }
     };
-    
-    const form = await prisma.formAcompanhamento.create({ 
+
+    const form = await prisma.formAcompanhamento.create({
       data: formData
     });
     return {
@@ -64,10 +71,22 @@ export class PostgresFormAcompanhamentoRepository implements IFormAcompanhamento
     };
   }
 
-  async list(): Promise<FormAcompanhamentoResponseDTO[]> {
-    const forms = await prisma.formAcompanhamento.findMany();
+  async list(filters?: FormAcompanhamentoFilters): Promise<FormAcompanhamentoResponseDTO[]> {
+    const forms = await prisma.formAcompanhamento.findMany({
+      where: {
+        tutorId: filters?.tutorId,
+        bolsistaId: filters?.bolsistaId,
+        periodoId: filters?.periodoId,
+      },
+    });
+
     return forms.map(form => ({
-      id: form.id, periodoId: form.periodoId, conteudo: form.conteudo as unknown as FormAcompanhamentoConteudo, dataEnvio: form.dataEnvio, tutorId: form.tutorId, bolsistaId: form.bolsistaId,
+      id: form.id,
+      periodoId: form.periodoId,
+      conteudo: form.conteudo as unknown as FormAcompanhamentoConteudo,
+      dataEnvio: form.dataEnvio,
+      tutorId: form.tutorId,
+      bolsistaId: form.bolsistaId,
       observacoes: form.observacoes === null ? undefined : form.observacoes,
     }));
   }

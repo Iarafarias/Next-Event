@@ -12,7 +12,7 @@ export class AlocarTutorAlunoController {
     private getByIdUseCase: GetAlocarTutorAlunoByIdUseCase,
     private listUseCase: ListAlocacoesTutorAlunoUseCase,
     private deleteUseCase: DeleteAlocarTutorAlunoUseCase
-  ) {}
+  ) { }
 
   async create(req: Request, res: Response) {
     const data = req.body;
@@ -36,9 +36,15 @@ export class AlocarTutorAlunoController {
   }
 
   async list(req: Request, res: Response) {
-    const result = await this.listUseCase.execute();
+    const { tutorId, bolsistaId, periodoId } = req.query;
+    const result = await this.listUseCase.execute({
+      tutorId: tutorId as string,
+      bolsistaId: bolsistaId as string,
+      periodoId: periodoId as string,
+    });
     res.json(result);
   }
+
 
   async delete(req: Request, res: Response) {
     const { id } = req.params;

@@ -75,13 +75,21 @@ export class PostgresAlocarTutorAlunoRepository implements IAlocarTutorAlunoRepo
     };
   }
 
-  async list(): Promise<AlocarTutorAlunoResponseDTO[]> {
-    const alocacoes = await prisma.alocarTutorAluno.findMany();
+  async list(filters?: { tutorId?: string; bolsistaId?: string; periodoId?: string }): Promise<AlocarTutorAlunoResponseDTO[]> {
+    const alocacoes = await prisma.alocarTutorAluno.findMany({
+      where: {
+        tutorId: filters?.tutorId,
+        bolsistaId: filters?.bolsistaId,
+        periodoId: filters?.periodoId,
+      },
+    });
+
     return alocacoes.map(alocacao => ({
       ...alocacao,
       dataFim: alocacao.dataFim === null ? undefined : alocacao.dataFim,
     }));
   }
+
 
   async delete(id: string): Promise<void> {
     await prisma.alocarTutorAluno.delete({ where: { id } });

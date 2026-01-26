@@ -239,6 +239,73 @@ components:
                     type: string
                     format: date-time
 
+    PeriodoTutoria:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        dataInicio:
+          type: string
+          format: date-time
+        dataFim:
+          type: string
+          format: date-time
+        ativo:
+          type: boolean
+        descricao:
+          type: string
+      required:
+        - nome
+        - dataInicio
+        - dataFim
+
+    CargaHorariaMinima:
+      type: object
+      properties:
+        id:
+          type: string
+        periodoId:
+          type: string
+        categoria:
+          type: string
+          enum: [EVENTOS, MONITORIA, ESTUDOS_INDIVIDUAIS]
+        horasMinimas:
+          type: integer
+        descricao:
+          type: string
+      required:
+        - periodoId
+        - categoria
+        - horasMinimas
+
+    AlocarTutorAluno:
+      type: object
+      properties:
+        id:
+          type: string
+        tutorId:
+          type: string
+        bolsistaId:
+          type: string
+        periodoId:
+          type: string
+        dataInicio:
+          type: string
+          format: date-time
+        dataFim:
+          type: string
+          format: date-time
+        ativo:
+          type: boolean
+      required:
+        - tutorId
+        - bolsistaId
+        - periodoId
+        - dataInicio
+
+
 paths:
   /users/login:
     post:
@@ -1633,6 +1700,160 @@ paths:
           description: Token não fornecido ou inválido
         '403':
           description: Acesso negado
+
+  /periodo-tutoria:
+    get:
+      summary: Lista todos os períodos de tutoria
+      tags: ["Configurações"]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de períodos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PeriodoTutoria'
+    post:
+      summary: Cria um novo período de tutoria
+      tags: ["Configurações"]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PeriodoTutoria'
+      responses:
+        '201':
+          description: Período criado com sucesso
+
+  /periodo-tutoria/{id}:
+    put:
+      summary: Atualiza um período de tutoria
+      tags: ["Configurações"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PeriodoTutoria'
+      responses:
+        '200':
+          description: Período atualizado
+    delete:
+      summary: Remove um período de tutoria
+      tags: ["Configurações"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Período removido
+
+  /carga-horaria-minima:
+    get:
+      summary: Lista configurações de carga horária mínima
+      tags: ["Configurações"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: periodoId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de configurações
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CargaHorariaMinima'
+    post:
+      summary: Salva/Atualiza configuração de carga horária mínima
+      tags: ["Configurações"]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CargaHorariaMinima'
+      responses:
+        '200':
+          description: Configuração salva com sucesso
+
+  /alocar-tutor-aluno:
+    get:
+      summary: Lista vínculos entre tutores e alunos
+      tags: ["Configurações"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: periodoId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de vínculos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AlocarTutorAluno'
+    post:
+      summary: Cria um novo vínculo entre tutor e aluno
+      tags: ["Configurações"]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlocarTutorAluno'
+      responses:
+        '201':
+          description: Vínculo criado com sucesso
+
+  /alocar-tutor-aluno/{id}:
+    delete:
+      summary: Remove um vínculo entre tutor e aluno
+      tags: ["Configurações"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Vínculo removido
 
 
 

@@ -5,16 +5,38 @@ import { authMiddleware } from '../../middlewares/authMiddleware';
 import { authorizeRoles } from '../../middlewares/authorizeRoles';
 import { validationMiddleware } from '../../middlewares/validationMiddleware';
 import logger from '../../../infrastructure/logger/logger';
+import { CertificateController } from '../controllers/CertificateController';
+import { UploadCertificateUseCase } from '../../../application/certificate/use-cases/UploadCertificateUseCase';
+import { GenerateReportUseCase } from '../../../application/certificate/use-cases/GenerateReportUseCase';
+import { SetReferenceMonthUseCase } from '../../../application/certificate/use-cases/SetReferenceMonthUseCase';
+import { PostgresCertificateRepository } from '../../../infrastructure/certificate/repositories/postgresCertificateRepository';
+import { StorageService } from '../../../infrastructure/certificate/services/StorageService';
+import { PDFProcessorService } from '../../../infrastructure/certificate/services/PDFProcessorService';
+import { AuthenticatedRequest } from '../../types/AuthenticatedRequest';
 
-// Use apenas o que for necessário para as rotas básicas
 const certificateRoutes = Router();
 
-// Configuração do multer para upload de arquivos
+// Injeção de Dependências
+const repository = new PostgresCertificateRepository();
+const storageService = new StorageService();
+const pdfProcessor = new PDFProcessorService();
+
+const uploadCertificateUseCase = new UploadCertificateUseCase(repository, pdfProcessor, storageService);
+const generateReportUseCase = new GenerateReportUseCase(repository);
+const setReferenceMonthUseCase = new SetReferenceMonthUseCase();
+
+const controller = new CertificateController(
+  uploadCertificateUseCase,
+  generateReportUseCase,
+  setReferenceMonthUseCase,
+  storageService,
+  pdfProcessor
+);
+
+
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB
-  },
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (file.mimetype === 'application/pdf' || file.mimetype.startsWith('image/')) {
       cb(null, true);
@@ -24,80 +46,17 @@ const upload = multer({
   }
 });
 
-// Todas as rotas requerem autenticação
 certificateRoutes.use(authMiddleware);
 
-// Rota básica de upload de certificado
-certificateRoutes.post(
-  '/upload',
-  upload.single('file'),
-  (req: Request, res: Response) => {
-    logger.info('POST /certificates/upload - Upload de certificado', { user: (req as any).user });
-    res.status(200).json({ message: 'Upload realizado com sucesso' });
-  }
-);
+certificateRoutes.post('/upload', upload.single('file'), (req: Request, res: Response) => controller.upload(req as AuthenticatedRequest, res));
+certificateRoutes.get('/', authorizeRoles(['admin', 'coordinator']), (req: Request, res: Response) => controller.listAll(req as AuthenticatedRequest, res));
+certificateRoutes.get('/user/:userId', (req: Request, res: Response) => controller.listUserCertificates(req, res));
+certificateRoutes.get('/:id/download', (req: Request, res: Response) => controller.downloadCertificate(req as AuthenticatedRequest, res));
+certificateRoutes.patch('/:id/status', authorizeRoles(['admin', 'coordinator']), (req: Request, res: Response) => controller.updateStatus(req, res));
 
-// Rota para listar certificados do usuário
-certificateRoutes.get(
-  '/user/:userId',
-  authMiddleware,
-  (req: Request, res: Response) => {
-    logger.info('Listar certificados do usuário', { userId: req.params.userId });
-    res.status(200).json({ certificados: [] });
-  }
-);
+certificateRoutes.delete('/:id', (req: Request, res: Response) => controller.delete(req as AuthenticatedRequest, res));
 
-// Rota para atualizar status - deve estar antes de /:id
-certificateRoutes.patch(
-  '/:id/status',
-  authMiddleware,
-  authorizeRoles(['admin']),
-  [param('id').isString().notEmpty(), body('status').isString().notEmpty(), validationMiddleware],
-  (req: Request, res: Response) => {
-    logger.info('Atualizar status do certificado', { id: req.params.id, status: req.body.status });
-    res.status(200).json({ message: 'Status atualizado' });
-  }
-);
-
-// Rota para deletar certificado
-certificateRoutes.delete(
-  '/:id',
-  authMiddleware,
-  (req: Request, res: Response) => {
-    logger.info('Deletar certificado', { id: req.params.id });
-    res.status(200).json({ message: 'Certificado deletado' });
-  }
-);
-
-// Rota para download
-certificateRoutes.get(
-  '/:id/download',
-  authMiddleware,
-  (req: Request, res: Response) => {
-    logger.info('Download do certificado', { id: req.params.id });
-    res.status(200).json({ message: 'Download iniciado' });
-  }
-);
-
-// Rota para gerar relatório
-certificateRoutes.get(
-  '/report',
-  authMiddleware,
-  authorizeRoles(['student']),
-  (req: Request, res: Response) => {
-    logger.info('Gerar relatório de certificados', { user: (req as any).user });
-    res.status(200).json({ message: 'Relatório gerado' });
-  }
-);
-
-certificateRoutes.get(
-  '/report/:userId',
-  authMiddleware,
-  authorizeRoles(['admin']),
-  (req: Request, res: Response) => {
-    logger.info('Gerar relatório de certificados para usuário', { userId: req.params.userId });
-    res.status(200).json({ message: 'Relatório gerado' });
-  }
-);
+certificateRoutes.get('/report', authorizeRoles(['student', 'scholarship_holder']), (req: Request, res: Response) => controller.generateReport(req as AuthenticatedRequest, res));
+certificateRoutes.get('/report/:userId', authorizeRoles(['admin']), (req: Request, res: Response) => controller.generateReport(req as AuthenticatedRequest, res));
 
 export { certificateRoutes };

@@ -23,6 +23,15 @@ export class PostgresUserRepository implements IUserRepository {
   }
 
   async atribuirPapel(userId: string, dto: { papel: 'coordenador' | 'tutor' | 'bolsista'; acao: 'atribuir' | 'remover' }): Promise<void> {
+    // Verificar se o usuário existe antes de atribuir/remover papel
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id: userId }
+    });
+
+    if (!usuario) {
+      throw new Error(`Usuário com ID ${userId} não encontrado`);
+    }
+
     const dbRoleMap: Record<string, string> = {
       coordenador: 'COORDINATOR',
       tutor: 'TUTOR',

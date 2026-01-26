@@ -16,11 +16,11 @@ export class UploadCertificateUseCase {
     try {
       const setReferenceUseCase = new SetReferenceMonthUseCase();
       const reference = await setReferenceUseCase.getCurrentReference();
-      
+
       if (!reference) {
         throw new Error('Reference month not set by admin');
       }
-      
+
       const filePath = await this.storageService.uploadFile(data.file);
 
       let pdfInfo = null;
@@ -33,19 +33,14 @@ export class UploadCertificateUseCase {
         pdfInfo = await this.pdfProcessor.extractInformation(physicalPath);
         workload = pdfInfo.workload;
 
-        const certificateStartDate = new Date(pdfInfo.year, pdfInfo.month - 1, 1);
-        const certificateEndDate = new Date(pdfInfo.year, pdfInfo.endMonth, 0);
-
-        const referenceStartDate = new Date(reference.year, reference.month - 1, 1);
-        const referenceEndDate = new Date(reference.year, reference.month, 0);
-
-        if (certificateStartDate > referenceStartDate || certificateEndDate < referenceEndDate) {
+        if (!pdfInfo || !pdfInfo.year || !pdfInfo.month) {
           await this.storageService.deleteFile(filePath);
-          throw new Error(`Certificate period (${pdfInfo.month}/${pdfInfo.year} to ${pdfInfo.endMonth}/${pdfInfo.year}) must include reference month ${reference.month}/${reference.year}`);
+          throw new Error(`Não foi possível extrair informações de data e carga horária do PDF. Por favor, preencha manualmente.`);
         }
 
         startDate = new Date(pdfInfo.year, pdfInfo.month - 1, 1);
-        endDate = new Date(pdfInfo.year, pdfInfo.endMonth, 0);
+        endDate = new Date(pdfInfo.year, pdfInfo.endMonth || pdfInfo.month, 0);
+
       } else {
         startDate = data.startDate ? new Date(data.startDate) : new Date(reference.year, reference.month - 1, 1);
         endDate = data.endDate ? new Date(data.endDate) : new Date(reference.year, reference.month, 0);
@@ -53,7 +48,7 @@ export class UploadCertificateUseCase {
 
       const certificate = new Certificate({
         userId: data.userId,
-        requestId: undefined, 
+        requestId: undefined,
         title: data.title || data.file.originalname,
         description: data.description || `Certificado enviado em ${new Date().toLocaleDateString('pt-BR')}`,
         institution: data.institution || 'Não informado',
@@ -61,8 +56,9 @@ export class UploadCertificateUseCase {
         startDate,
         endDate,
         certificateUrl: filePath,
-        category: 'EVENTOS'
+        category: (data.category as any) || 'EVENTOS'
       });
+
 
       const savedCertificate = await this.certificateRepository.create(certificate);
       return savedCertificate;

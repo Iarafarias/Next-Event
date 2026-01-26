@@ -33,7 +33,7 @@ export class CertificateController {
     const notificationRepository = new PostgresNotificationRepository();
     const createNotificationUseCase = new CreateNotificationUseCase(notificationRepository);
     const sendNotificationUseCase = new SendCertificateValidationNotificationUseCase(createNotificationUseCase);
-    
+
     this.createCertificateUseCase = new CreateCertificateUseCase(repository, storageService, pdfProcessor);
     this.updateCertificateStatusUseCase = new UpdateCertificateStatusUseCase(repository, sendNotificationUseCase);
     this.listUserCertificatesUseCase = new ListUserCertificatesUseCase(repository);
@@ -58,13 +58,13 @@ export class CertificateController {
     try {
       const { id } = request.params;
       const { status, adminComments } = request.body;
-      
+
       const certificate = await this.updateCertificateStatusUseCase.execute({
         id,
         status,
         adminComments,
       });
-      
+
       return response.json(certificate);
     } catch (error: any) {
       return response.status(400).json({ error: error.message });
@@ -75,12 +75,30 @@ export class CertificateController {
     try {
       const { userId } = request.params;
       const { status } = request.query;
-      
+
       const certificates = await this.listUserCertificatesUseCase.execute({
         userId,
         status: status as 'pending' | 'approved' | 'rejected',
       });
-      
+
+      return response.json({ certificates });
+    } catch (error: any) {
+      return response.status(400).json({ error: error.message });
+    }
+  }
+
+  async listAll(request: Request, response: Response): Promise<Response> {
+    try {
+      const { status } = request.query;
+      const repository = new PostgresCertificateRepository();
+
+      let certificates;
+      if (status) {
+        certificates = await repository.findByStatus(status as 'pending' | 'approved' | 'rejected');
+      } else {
+        certificates = await repository.findAll();
+      }
+
       return response.json({ certificates });
     } catch (error: any) {
       return response.status(400).json({ error: error.message });
@@ -91,12 +109,12 @@ export class CertificateController {
     try {
       const { id } = request.params;
       const { role } = request.user;
-      
+
       await this.deleteCertificateUseCase.execute({
         id,
         userId: role === 'admin' ? undefined : request.user.id
       });
-      
+
       return response.status(204).send();
     } catch (error: any) {
       return response.status(400).json({ error: error.message });
@@ -113,8 +131,8 @@ export class CertificateController {
 
       await this.setReferenceMonthUseCase.execute({ month: Number(month), year: Number(year) });
 
-      return res.status(200).json({ 
-        message: 'Reference month set successfully and persisted to database' 
+      return res.status(200).json({
+        message: 'Reference month set successfully and persisted to database'
       });
     } catch (error) {
       if (error instanceof Error) {
@@ -128,9 +146,9 @@ export class CertificateController {
     try {
       const setReferenceUseCase = new SetReferenceMonthUseCase();
       const reference = await setReferenceUseCase.getCurrentReference();
-      
+
       if (!reference) {
-        return res.status(404).json({ 
+        return res.status(404).json({
           error: 'No reference month set',
           reference: null
         });
@@ -154,7 +172,7 @@ export class CertificateController {
         return res.status(400).json({ error: 'No file provided' });
       }
 
-      const { title, description, institution, workload, startDate, endDate } = req.body;
+      const { title, description, institution, workload, startDate, endDate, category } = req.body;
 
       const certificate = await this.uploadCertificateUseCase.execute({
         userId: req.user.id,
@@ -164,8 +182,10 @@ export class CertificateController {
         institution,
         workload: workload ? parseInt(workload) : undefined,
         startDate,
-        endDate
+        endDate,
+        category
       });
+
 
       return res.status(201).json(certificate);
     } catch (error) {
@@ -210,7 +230,7 @@ export class CertificateController {
     try {
       const { id } = req.params;
       const { id: userId, role } = req.user;
-      
+
       const repository = new PostgresCertificateRepository();
       const certificate = await repository.findById(id);
 
@@ -223,17 +243,17 @@ export class CertificateController {
 
       const fs = require('fs').promises;
       const path = require('path');
-      
+
       let filePath: string;
       if (certificate.certificateUrl.startsWith('/uploads/')) {
         filePath = path.resolve(certificate.certificateUrl.substring(1));
       } else {
         filePath = path.resolve(certificate.certificateUrl);
       }
-      
+
       try {
         await fs.access(filePath);
-        
+
         return res.download(filePath, `certificate-${certificate.id}.pdf`, (err) => {
           if (err && !res.headersSent) {
             return res.status(500).json({ error: 'Failed to download file' });

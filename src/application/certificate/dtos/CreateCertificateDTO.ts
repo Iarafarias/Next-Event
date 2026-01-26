@@ -7,4 +7,5 @@ export interface CreateCertificateDTO {
   workload?: number;
   startDate?: string;
   endDate?: string;
-} 
+  category?: string;
+}

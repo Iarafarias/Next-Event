@@ -14,7 +14,9 @@ interface CertificateProps {
   certificateUrl: string;
   adminComments?: string;
   category: CategoriaWorkload;
+  studentName?: string;
 }
+
 
 export class Certificate {
   id!: string;
@@ -32,6 +34,8 @@ export class Certificate {
   createdAt!: Date;
   updatedAt!: Date;
   category!: CategoriaWorkload;
+  studentName?: string;
+
 
   constructor(props: CertificateProps) {
     Object.assign(this, {

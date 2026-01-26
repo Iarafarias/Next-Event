@@ -12,7 +12,7 @@ export class CargaHorariaMinimaController {
     private getByIdUseCase: GetCargaHorariaMinimaByIdUseCase,
     private listUseCase: ListCargaHorariaMinimaUseCase,
     private deleteUseCase: DeleteCargaHorariaMinimaUseCase
-  ) {}
+  ) { }
 
   async create(req: Request, res: Response) {
     const data = req.body;
@@ -36,9 +36,11 @@ export class CargaHorariaMinimaController {
   }
 
   async list(req: Request, res: Response) {
-    const cargas = await this.listUseCase.execute();
+    const { periodoId } = req.query;
+    const cargas = await this.listUseCase.execute(periodoId as string);
     res.json(cargas);
   }
+
 
   async delete(req: Request, res: Response) {
     const { id } = req.params;

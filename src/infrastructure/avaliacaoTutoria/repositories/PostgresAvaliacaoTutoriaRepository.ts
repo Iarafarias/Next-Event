@@ -28,8 +28,9 @@ export class PostgresAvaliacaoTutoriaRepository implements IAvaliacaoTutoriaRepo
       const conteudoEnriquecido: AvaliacaoConteudo = {
         ...avaliacao.conteudo,
         nomeAvaliador: usuario.nome,
-        periodoAvaliado: periodo.nome
+        periodoAvaliado: avaliacao.conteudo.periodoAvaliado || periodo.nome
       };
+
 
       await this.prisma.avaliacaoTutoria.create({
         data: {

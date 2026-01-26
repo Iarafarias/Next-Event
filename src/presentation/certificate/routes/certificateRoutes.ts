@@ -56,7 +56,7 @@ certificateRoutes.patch('/:id/status', authorizeRoles(['admin', 'coordinator']),
 
 certificateRoutes.delete('/:id', (req: Request, res: Response) => controller.delete(req as AuthenticatedRequest, res));
 
-certificateRoutes.get('/report', authorizeRoles(['student']), (req: Request, res: Response) => controller.generateReport(req as AuthenticatedRequest, res));
+certificateRoutes.get('/report', authorizeRoles(['student', 'scholarship_holder']), (req: Request, res: Response) => controller.generateReport(req as AuthenticatedRequest, res));
 certificateRoutes.get('/report/:userId', authorizeRoles(['admin']), (req: Request, res: Response) => controller.generateReport(req as AuthenticatedRequest, res));
 
 export { certificateRoutes };

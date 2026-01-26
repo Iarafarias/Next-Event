@@ -9,7 +9,7 @@ export class AvaliacaoTutoriaController {
     private createUseCase: CreateAvaliacaoTutoriaUseCase,
     private listUseCase: ListAvaliacoesTutoriaUseCase,
     private updateUseCase: UpdateAvaliacaoTutoriaUseCase
-  ) {}
+  ) { }
 
   async create(req: Request, res: Response): Promise<Response> {
     try {
@@ -27,10 +27,12 @@ export class AvaliacaoTutoriaController {
         outrasDificuldades,
         nivelSatisfacaoGeral,
         recomendariaPrograma,
-        justificativaRecomendacao
+        justificativaRecomendacao,
+        periodoAvaliado
       } = req.body;
 
-      const usuarioId = (req as any).user.userId;
+
+      const usuarioId = (req as any).user.id;
 
       logger.info('POST /avaliacao-tutoria - Criar avaliação', {
         usuarioId,
@@ -78,8 +80,10 @@ export class AvaliacaoTutoriaController {
         outrasDificuldades,
         nivelSatisfacaoGeral,
         recomendariaPrograma,
-        justificativaRecomendacao
+        justificativaRecomendacao,
+        periodoAvaliado
       };
+
 
       const avaliacao = await this.createUseCase.execute(data);
 
@@ -120,7 +124,7 @@ export class AvaliacaoTutoriaController {
 
   async listMyAvaliacoes(req: Request, res: Response): Promise<Response> {
     try {
-      const usuarioId = (req as any).user.userId;
+      const usuarioId = (req as any).user.id;
 
       logger.info('GET /avaliaçao-tutoria/minhas - Listar minhas avaliações', { usuarioId });
 

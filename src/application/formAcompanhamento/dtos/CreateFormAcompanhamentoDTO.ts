@@ -8,6 +8,8 @@ export interface CreateFormAcompanhamentoDTO {
   modalidadeReuniao: 'VIRTUAL' | 'PRESENCIAL';
   maiorDificuldadeAluno: string;
   quantidadeReunioes: number;
+  quantidadeVirtuais?: number;
+  quantidadePresenciais?: number;
   descricaoDificuldade: string;
   observacoes?: string;
 }
@@ -16,8 +18,11 @@ export interface FormAcompanhamentoConteudo {
   modalidadeReuniao: 'VIRTUAL' | 'PRESENCIAL';
   maiorDificuldadeAluno: string;
   quantidadeReunioes: number;
+  quantidadeVirtuais: number;
+  quantidadePresenciais: number;
   descricaoDificuldade: string;
   nomeAluno: string;
   nomeTutor: string;
   dataPreenchimento: Date;
 }
+

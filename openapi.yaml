@@ -280,7 +280,48 @@ components:
         - categoria
         - horasMinimas
 
+        - dataFim
+    
+    CreateRelatorioAlunoDTO:
+      type: object
+      properties:
+        relatorioId:
+          type: string
+        bolsistaId:
+          type: string
+        periodo:
+          type: string
+        atividades:
+          type: object
+          description: Conteúdo JSON das atividades
+        observacoes:
+          type: string
+      required:
+        - relatorioId
+        - bolsistaId
+        - periodo
+
+    CreateRelatorioTutorDTO:
+      type: object
+      properties:
+        relatorioId:
+          type: string
+        tutorId:
+          type: string
+        periodo:
+          type: string
+        atividades:
+          type: object
+          description: Conteúdo JSON das atividades
+        alunosAtendidos:
+          type: integer
+      required:
+        - relatorioId
+        - tutorId
+        - periodo
+
     AlocarTutorAluno:
+
       type: object
       properties:
         id:
@@ -304,6 +345,138 @@ components:
         - bolsistaId
         - periodoId
         - dataInicio
+
+    RelatorioIndividualMetrica:
+      type: object
+      properties:
+        label:
+          type: string
+        val:
+          oneOf:
+            - type: string
+            - type: number
+        icon:
+          type: string
+
+    RelatorioIndividualAlunoDTO:
+      type: object
+      properties:
+        usuario:
+          type: object
+          properties:
+            nome:
+              type: string
+            matricula:
+              type: string
+            curso:
+              type: string
+        metricas:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelatorioIndividualMetrica'
+        graficos:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              online:
+                type: number
+              presencial:
+                type: number
+        experienciaGrafico:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              boa:
+                type: number
+              ruim:
+                type: number
+        horasCertificado:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              estudos:
+                type: number
+              eventos:
+                type: number
+              monitoria:
+                type: number
+        certificados:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              titulo:
+                type: string
+              periodo:
+                type: string
+              horas:
+                type: number
+              status:
+                type: string
+
+    RelatorioIndividualTutorDTO:
+      type: object
+      properties:
+        usuario:
+          type: object
+          properties:
+            nome:
+              type: string
+            matricula:
+              type: string
+            curso:
+              type: string
+        metricas:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelatorioIndividualMetrica'
+        tutorandos:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              nome:
+                type: string
+              encontros:
+                type: number
+              semestre:
+                type: string
+        dificuldadesGrafico:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              sim:
+                type: number
+              nao:
+                type: number
+        graficos:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              online:
+                type: number
+              presencial:
+                type: number
+
 
 
 paths:
@@ -791,7 +964,113 @@ paths:
         '500':
           description: Erro interno do servidor
 
+
+
+  # ROTAS RELATORIOS ALUNO
+  /relatorio-aluno:
+    get:
+      summary: Lista relatórios de aluno
+      tags: [Relatórios]
+      responses:
+        '200':
+          description: Lista de relatórios de aluno
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CreateRelatorioAlunoDTO'
+    post:
+      summary: Cria relatório de aluno
+      tags: [Relatórios]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRelatorioAlunoDTO'
+      responses:
+        '201':
+          description: Relatório criado com sucesso
+
+  # ROTAS RELATORIOS TUTOR
+  /relatorio-tutor:
+    get:
+      summary: Lista relatórios de tutor
+      tags: [Relatórios]
+      responses:
+        '200':
+          description: Lista de relatórios de tutor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CreateRelatorioTutorDTO'
+    post:
+      summary: Cria relatório de tutor
+      tags: [Relatórios]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRelatorioTutorDTO'
+      responses:
+        '201':
+          description: Relatório criado com sucesso
+
+
+  # DASHBOARDS INDIVIDUAIS
+  /relatorios/individual/aluno/{id}:
+    get:
+      summary: Dashboard consolidada de um aluno específico
+      tags: [Relatórios]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID do usuário, ID do bolsista ou Matrícula
+      responses:
+        '200':
+          description: Dados do dashboard carregados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelatorioIndividualAlunoDTO'
+        '404':
+          description: Aluno não encontrado
+
+  /relatorios/individual/tutor/{id}:
+    get:
+      summary: Dashboard consolidada de um tutor específico
+      tags: [Relatórios]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID do usuário, ID do tutor ou Nome
+      responses:
+        '200':
+          description: Dados do dashboard carregados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelatorioIndividualTutorDTO'
+        '404':
+          description: Tutor não encontrado
+
   # MÓDULO CURSO
+
+
   # ROTAS `/api/certificates` (endpoints de upload, listagem e download)
   /certificates/upload:
     post:

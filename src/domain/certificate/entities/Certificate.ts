@@ -63,6 +63,13 @@ export class Certificate {
     this.updatedAt = new Date();
   }
 
+  pending(): void {
+    this.status = 'pending';
+    this.adminComments = undefined;
+    this.updatedAt = new Date();
+  }
+
+
   get fileName(): string {
     return this.title;
   }

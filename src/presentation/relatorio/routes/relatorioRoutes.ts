@@ -12,7 +12,15 @@ import { ListRelatoriosPorBolsistaUseCase } from '../../../application/relatorio
 import { ListRelatoriosPorCoordenadorController } from '../controllers/ListRelatoriosPorCoordenadorController';
 import { ListRelatoriosPorTutorController } from '../controllers/ListRelatoriosPorTutorController';
 import { ListRelatoriosPorBolsistaController } from '../controllers/ListRelatoriosPorBolsistaController';
+import { RelatorioIndividualController } from '../controllers/RelatorioIndividualController';
+import { GetRelatorioIndividualAlunoUseCase } from '../../../application/relatorio/use-cases/GetRelatorioIndividualAlunoUseCase';
+import { GetRelatorioIndividualTutorUseCase } from '../../../application/relatorio/use-cases/GetRelatorioIndividualTutorUseCase';
+import { PostgresCertificateRepository } from '../../../infrastructure/certificate/repositories/postgresCertificateRepository';
+import { PostgresFormAcompanhamentoRepository } from '../../../infrastructure/formAcompanhamento/repositories/PostgresFormAcompanhamentoRepository';
+import { PostgresTutorRepository } from '../../../infrastructure/user/repositories/PostgresTutorRepository';
+import { PostgresAlunoRepository } from '../../../infrastructure/aluno/repositories/PostgresAlunoRepository';
 import { authMiddleware } from '../../middlewares/authMiddleware';
+
 import { authorizeRoles } from '../../middlewares/authorizeRoles';
 import { param } from 'express-validator';
 import { validationMiddleware } from '../../middlewares/validationMiddleware';
@@ -38,6 +46,17 @@ const relatorioController = new RelatorioController(
   new DeleteRelatorioUseCase(relatorioRepository)
 );
 
+const certificateRepository = new PostgresCertificateRepository();
+const formAcompanhamentoRepository = new PostgresFormAcompanhamentoRepository();
+const tutorRepository = new PostgresTutorRepository();
+const alunoRepository = new PostgresAlunoRepository();
+
+const relatorioIndividualController = new RelatorioIndividualController(
+  new GetRelatorioIndividualAlunoUseCase(alunoRepository, certificateRepository, formAcompanhamentoRepository),
+  new GetRelatorioIndividualTutorUseCase(tutorRepository, formAcompanhamentoRepository)
+);
+
+
 // Rotas para listar relatórios por responsável (não duplicar 'relatorios' no path)
 relatorioRoutes.get(
   '/coordenadores/:id',
@@ -60,6 +79,20 @@ relatorioRoutes.get(
   [param('id').isString().notEmpty(), validationMiddleware],
   (req: import('express').Request, res: import('express').Response) => listRelatoriosPorBolsistaController.handle(req, res)
 );
+
+// NOVAS ROTAS DE RELATÓRIO INDIVIDUAL (DASHBOARD)
+relatorioRoutes.get(
+  '/individual/aluno/:id',
+  authMiddleware,
+  (req: import('express').Request, res: import('express').Response) => relatorioIndividualController.getAlunoReport(req, res)
+);
+
+relatorioRoutes.get(
+  '/individual/tutor/:id',
+  authMiddleware,
+  (req: import('express').Request, res: import('express').Response) => relatorioIndividualController.getTutorReport(req, res)
+);
+
 
 // Rotas CRUD para relatórios
 relatorioRoutes.post('/', authMiddleware, authorizeRoles(['admin']), (req: import('express').Request, res: import('express').Response) => relatorioController.create(req, res));

@@ -12,7 +12,7 @@ export class RelatorioAlunoController {
     private getByIdUseCase: GetRelatorioAlunoByIdUseCase,
     private listUseCase: ListRelatorioAlunosUseCase,
     private deleteUseCase: DeleteRelatorioAlunoUseCase
-  ) {}
+  ) { }
 
   async create(req: Request, res: Response) {
     const data = req.body;

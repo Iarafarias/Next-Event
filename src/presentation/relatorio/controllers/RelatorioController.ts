@@ -12,7 +12,7 @@ export class RelatorioController {
     private getRelatorioByIdUseCase: GetRelatorioByIdUseCase,
     private listRelatoriosUseCase: ListRelatoriosUseCase,
     private deleteRelatorioUseCase: DeleteRelatorioUseCase
-  ) {}
+  ) { }
 
   async create(req: Request, res: Response) {
     try {
